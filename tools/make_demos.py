@@ -990,10 +990,14 @@ first, alone, and is given every advantage; mint's half follows on the same page
 
   <div class="card brk"><span class="tag">4 · what this costs</span>
     <h4>The first run is not free, and this is the entire source of the saving.</h4>
-    <p>Learning the four-step task cost five questions to a model and four seconds, once. The
-    saving afterwards is exactly that cost, paid on the first run instead of on every run — there is
-    no second trick. And when mint meets a step it cannot recognise, it stops and asks about that one
-    step, or refuses it: a mistake costs one question, never a broken run.</p></div>
+    <p>Learning the longest task — five steps of filling in a form — cost six questions to a model
+    and half a minute, once. The shortest cost three. The saving afterwards is exactly that cost,
+    paid on the first run instead of on every run — there is no second trick. And when mint meets a
+    step it cannot recognise, it stops and asks about that one step, or refuses it: a mistake costs
+    one question, never a broken run.</p>
+    <p class="note2">The form task writes, so replaying it needs rules that permit those writes:
+    this one runs under a document that says so, and the receipts name the rules it was permitted by.
+    Under the shipped rules the same skill stops at the tick and names the action that needs approving.</p></div>
 </div>
 
 <p class="cmdtxt"><b>the command behind this page:</b> mint demo --skill SKILL.json --start URL --receipts compare/last.json</p>
