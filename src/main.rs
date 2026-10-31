@@ -13,7 +13,7 @@ use mint::{checkpoint, decide, endorse, gate, policy, receipt, shell, skill, sta
 
 use anyhow::{anyhow, Result};
 use mint::cdp::{Cdp, Element};
-use mint::skill::{Action, Found, Skill, Step};
+use mint::skill::{Action, Found, Resolution, Skill, Step};
 use serde_json::json;
 use std::time::Instant;
 
@@ -1566,10 +1566,10 @@ async fn run_skill(
 
         let (el, how, resolve_us) = match {
             let t = Instant::now();
-            let r = sk.resolve(&step, &els);
+            let r = sk.resolve_explained(&step, &els);
             (r, t.elapsed().as_micros() as u64)
         } {
-            (Some((idx, _conf, how)), us) => {
+            (Resolution::One(idx, _conf, how), us) => {
                 let el = els[idx].clone();
                 notes.push(format!(
                     "  step {}: {} «{}» — recognised by {} ({:.2} ms of decision)",
@@ -1581,7 +1581,24 @@ async fn run_skill(
                 ));
                 (el, how, us)
             }
-            (None, us) => {
+            (Resolution::Ambiguous { why }, us) => {
+                // Two candidates, or the place and the words pointing at different elements. Acting
+                // here would be a guess with the runtime's name on it, so the step is refused and the
+                // reason is said out loud — a person would stop and look, not click one of the two.
+                notes.push(format!(
+                    "  step {}: refused rather than guessed — {why}; asking the model",
+                    i + 1
+                ));
+                escalated += 1;
+                match recover(cdp, &goal, category, &mut log).await? {
+                    Some(el) => (el, Found::Taught, us),
+                    None => {
+                        notes.push("  the model found no move either — stopping".into());
+                        break;
+                    }
+                }
+            }
+            (Resolution::Unrecognised, us) => {
                 notes.push(format!("  step {}: not recognised — asking the model", i + 1));
                 escalated += 1;
                 match recover(cdp, &goal, category, &mut log).await? {

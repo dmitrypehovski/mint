@@ -146,26 +146,84 @@ impl Skill {
     /// the words — a weaker claim, and reported as such. Nothing at all means None, and the
     /// caller must ask rather than guess.
     pub fn resolve(&self, step: &Step, state: &[Element]) -> Option<(usize, f32, Found)> {
+        self.resolve_explained(step, state).one()
+    }
+
+    /// Find the element a step means, and say so when the answer is not one element.
+    ///
+    /// The place a step stood in is the right handle when a page's data has changed: on a second run
+    /// the rows carry different words by design, and what identifies the step is that it is the third
+    /// of its kind. So the place is taken in preference to the words — but not on trust.
+    ///
+    /// The test is sharp rather than a matter of degree: if the element standing in that place does
+    /// not carry the words that were recorded, while some *other* element on the page carries them
+    /// exactly, then the place and the words are pointing at two different things. A person in that
+    /// position stops and asks rather than clicking one of them and hoping.
+    pub fn resolve_explained(&self, step: &Step, state: &[Element]) -> Resolution {
         let shaped: Vec<usize> = state
             .iter()
             .enumerate()
             .filter(|(_, e)| has_shape(step, e))
             .map(|(i, _)| i)
             .collect();
-        if let Some(&i) = shaped.get(step.ordinal) {
-            return Some((i, 1.0, Found::Shape));
-        }
-        let mut best: Option<(usize, f32)> = None;
-        for (i, el) in state.iter().enumerate() {
-            if el.role != step.role {
-                continue;
+        let recorded = step.seen_label.trim();
+
+        if let Some(i) = shaped.get(step.ordinal).copied() {
+            let here = state[i].name.trim();
+            // Exact, not scored. Digits are masked on the way into a shape, which is what lets a step
+            // outlive the data it was learned on — and it also means a score cannot tell "row 0007"
+            // from "row 0002". The whole string can.
+            if !recorded.is_empty() && here != recorded {
+                if let Some(j) = state
+                    .iter()
+                    .position(|e| e.role == step.role && e.name.trim() == recorded)
+                {
+                    if j != i {
+                        return Resolution::Ambiguous {
+                            why: format!(
+                                "the place this step stood in holds {} «{}», while {} «{}» carries the words \
+                                 that were recorded",
+                                state[i].role,
+                                here.chars().take(30).collect::<String>(),
+                                state[j].role,
+                                state[j].name.chars().take(30).collect::<String>()
+                            ),
+                        };
+                    }
+                }
             }
-            let s = word_score(el, &step.seen_label);
-            if s > 0.0 && best.map(|(_, b)| s > b).unwrap_or(true) {
-                best = Some((i, s));
-            }
+            return Resolution::One(i, 1.0, Found::Shape);
         }
-        best.filter(|(_, s)| *s >= 0.5).map(|(i, s)| (i, s, Found::Words))
+
+        // Nothing stands in that place any more. Go by the words, but only when one candidate is
+        // clearly ahead of the rest: two that fit equally well are not a match, they are a choice.
+        let mut ranked: Vec<(usize, f32)> = state
+            .iter()
+            .enumerate()
+            .filter(|(_, e)| e.role == step.role)
+            .map(|(i, e)| (i, word_score(e, recorded)))
+            .filter(|(_, sc)| *sc >= 0.5)
+            .collect();
+        ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        if let Some((i, best)) = ranked.first().copied() {
+            let equally_good = ranked
+                .iter()
+                .filter(|(j, sc)| *j != i && (best - *sc) < 0.1)
+                .count();
+            if equally_good > 0 {
+                return Resolution::Ambiguous {
+                    why: format!(
+                        "{} elements on this page fit «{}» about equally well (best {:.2}), and the place \
+                         this step stood in is gone",
+                        equally_good + 1,
+                        recorded.chars().take(30).collect::<String>(),
+                        best
+                    ),
+                };
+            }
+            return Resolution::One(i, best, Found::Words);
+        }
+        Resolution::Unrecognised
     }
 
     /// Does this program claim to work on the page in front of us?
@@ -186,6 +244,28 @@ impl Skill {
             step.seen_label = el.name.clone();
             step.learned_page = page_kind(here);
             step.produced_page = produced.to_string();
+        }
+    }
+}
+
+/// What looking for a step's element produced.
+#[derive(Clone, Debug, PartialEq)]
+pub enum Resolution {
+    /// One element is the target, and this is how it was found.
+    One(usize, f32, Found),
+    /// Two candidates fit, or the place and the words point at different elements. Acting here would
+    /// be a guess, so it is refused and named instead.
+    Ambiguous { why: String },
+    /// Nothing on this page fits.
+    Unrecognised,
+}
+
+impl Resolution {
+    /// The old shape of the answer, for callers that treat every failure alike.
+    pub fn one(self) -> Option<(usize, f32, Found)> {
+        match self {
+            Resolution::One(i, c, how) => Some((i, c, how)),
+            _ => None,
         }
     }
 }
@@ -224,5 +304,94 @@ pub fn compile(
         learn_model_calls,
         learn_ms,
         learn_declared_done: false,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn el(role: &str, name: &str) -> Element {
+        Element {
+            handle: "h".into(),
+            tag: "div".into(),
+            role: role.into(),
+            name: name.into(),
+            href: String::new(),
+            on: true,
+            checked: None,
+            value: None,
+        }
+    }
+
+    fn empty_skill() -> Skill {
+        compile("test goal", "https://example.com/fixture", &[], &[], 0, 0, "")
+    }
+
+    fn a_step(role: &str, label: &str, ordinal: usize) -> Step {
+        let e = el(role, label);
+        let mut st = step_from(&e, Action::Click, "test", 1.0);
+        st.seen_label = label.to_string();
+        st.ordinal = ordinal;
+        st
+    }
+
+    #[test]
+    fn the_place_a_step_stood_in_is_honoured_when_the_data_changed() {
+        // A second run of the same task on a folder full of different files: no row carries the words
+        // that were recorded, which is the whole reason the place is recorded as well.
+        let sk = empty_skill();
+        let step = a_step("row", "invoice-2026-01-0100.pdf", 1);
+        let page = vec![
+            el("row", "invoice-2026-05-0211.pdf"),
+            el("row", "invoice-2026-09-0388.pdf"),
+            el("row", "invoice-2026-12-0912.pdf"),
+        ];
+        assert_eq!(
+            sk.resolve_explained(&step, &page),
+            Resolution::One(1, 1.0, Found::Shape)
+        );
+    }
+
+    #[test]
+    fn a_page_that_moved_the_target_aside_is_refused_rather_than_guessed_at() {
+        let sk = empty_skill();
+        let step = a_step("row", "row 0007", 1);
+        // The place holds a different row, and the row that was recorded is somewhere else.
+        let page = vec![
+            el("row", "row 0001"),
+            el("row", "row 0002"),
+            el("row", "row 0007"),
+        ];
+        match sk.resolve_explained(&step, &page) {
+            Resolution::Ambiguous { why } => {
+                assert!(why.contains("the place this step stood in holds"), "{why}");
+                assert!(why.contains("row 0007"), "{why}");
+            }
+            other => panic!("expected a refusal, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn two_candidates_that_fit_equally_well_are_not_a_match() {
+        let sk = empty_skill();
+        // A place that no longer exists, and two buttons that both answer to the recorded words.
+        let step = a_step("button", "continue to the next page", 9);
+        let page = vec![
+            el("button", "continue to the next page"),
+            el("button", "continue to the next page"),
+        ];
+        match sk.resolve_explained(&step, &page) {
+            Resolution::Ambiguous { why } => assert!(why.contains("equally well"), "{why}"),
+            other => panic!("expected a refusal, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn nothing_that_fits_is_not_the_same_as_ambiguous() {
+        let sk = empty_skill();
+        let step = a_step("button", "a button that is not here", 0);
+        let page = vec![el("row", "unrelated"), el("link", "also unrelated")];
+        assert_eq!(sk.resolve_explained(&step, &page), Resolution::Unrecognised);
     }
 }
