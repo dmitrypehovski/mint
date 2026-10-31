@@ -299,22 +299,45 @@ fn extract_object(s: &str) -> Option<String> {
 /// run: the final page either satisfies what was asked or it does not. Without this the
 /// only thing a skill could be checked against would be its own recording, which proves
 /// nothing.
-pub fn judge_success(goal: &str, url: &str, title: &str, text: &str) -> Result<(bool, String)> {
+pub fn judge_success(
+    goal: &str,
+    url: &str,
+    title: &str,
+    text: &str,
+    steps: &[String],
+) -> Result<(bool, String)> {
     let excerpt: String = text.split_whitespace().collect::<Vec<_>>().join(" ");
     // How much of the finished state the check is shown. This was 600 characters, which is enough
     // for a page's visible text and not nearly enough for a directory of fifty sorted files: the
     // check was reading a truncated listing and failing work that was in fact correct, twice, with
     // confident and specific reasons. A check that cannot see the work cannot judge it.
     let excerpt: String = excerpt.chars().take(4000).collect();
+    // What the run did, step by step, each line a step the runtime confirmed against the page after
+    // taking it. Without this the check sees only the end state, and a form that was submitted looks
+    // like a form whose controls have vanished: it reported "Default radio" as being in the wrong
+    // place on a page whose own address said "my-radio=on". The work has to be visible to the check,
+    // not only the outcome.
+    let did = if steps.is_empty() {
+        String::new()
+    } else {
+        let mut d = String::from("\nWhat the run did, each step checked against the page after it was taken:\n");
+        for st in steps.iter().rev().take(60).rev() {
+            d.push_str(&format!("- {st}\n"));
+        }
+        d
+    };
     let prompt = format!(
         "The task that was set: {goal}\n\nWhere we ended up:\naddress: {url}\ntitle: {title}\n\
-         what is visible on the page: {excerpt}\n\nWas the task reached? Reply with JSON only:\
+         what is visible on the page: {excerpt}\n{did}\nWas the task reached? Reply with JSON only:\
          {{\"wrong\": [\"<each thing that is in the wrong place, exactly as it appears above>\"], \"why\": \"<up to 15 words>\"}}\n\
          List every item that is in the wrong place and nothing else. If nothing is wrong, reply \
          {{\"wrong\": [], \"why\": \"nothing is in the wrong place\"}}. Judge only what the task as \
          written asks for: do not add requirements it does not state — evenness, tidiness, an extra \
          check, a particular arrangement. A verdict that fails correct work is worse than one that \
-         misses a fault, because it throws away work that was done."
+         misses a fault, because it throws away work that was done.\n\
+         A step listed above is a step that happened: it was checked against the page afterwards, not \
+         assumed. A control those steps acted on and that is not on the page now is not a fault — the \
+         page moved past it, which is exactly what a form that was submitted looks like."
     );
     let content = ask(&prompt, 200)?;
     let cleaned = extract_object(&content).ok_or_else(|| anyhow!("verdict was not an object"))?;

@@ -358,13 +358,20 @@ async fn dir_learn(args: &[String]) -> Result<()> {
 
     let started = Instant::now();
     let mut calls = 0u32;
-    let mut misses = 0u32;
+    let mut misses = Misses::default();
     let mut trail: Vec<String> = Vec::new();
     let mut steps: Vec<Step> = Vec::new();
     let mut declared_done = false;
     let mut expect_final = sh.kind()?;
 
     for round in 0..max {
+        if started.elapsed().as_secs() > LEARN_BUDGET_SECS {
+            println!(
+                "  the run has taken {} minutes, the declared budget — stopping",
+                LEARN_BUDGET_SECS / 60
+            );
+            break;
+        }
         let entries = sh.entries()?;
         let here = sh.kind()?;
         let d = match decide::next_command(&goal, &dir, &entries, &trail) {
@@ -372,8 +379,9 @@ async fn dir_learn(args: &[String]) -> Result<()> {
             Err(e) => {
                 println!("  the model's answer could not be acted on: {e}");
                 calls += 1;
-                misses += 1;
-                if misses >= 2 {
+                // A reply naming something that is not on the page is a wrong answer: worth one more
+                // try with the failure spelled out, but waiting will not fix it.
+                if misses.note(Miss::Retryable) {
                     println!("  two answers in a row could not be acted on — stopping");
                     break;
                 }
@@ -382,7 +390,7 @@ async fn dir_learn(args: &[String]) -> Result<()> {
         };
         calls += 1;
         let Some(idx) = d.idx else {
-            let (ok, why) = decide::judge_success(&goal, &dir, "directory", &sh.listing()?)?;
+            let (ok, why) = decide::judge_success(&goal, &dir, "directory", &sh.listing()?, &trail)?;
             declared_done = ok;
             println!("   model: goal reached ({})", d.intent);
             println!("  goal check: {} — {why}", if ok { "reached" } else { "NOT reached" });
@@ -391,14 +399,13 @@ async fn dir_learn(args: &[String]) -> Result<()> {
         let el = entries[idx].clone();
         let Some(cmd) = d.text.clone() else {
             println!("  no command came with that step — telling the model and going on");
-            misses += 1;
-            if misses >= 2 {
+            if misses.note(Miss::Retryable) {
                 println!("  two steps in a row without a command — stopping");
                 break;
             }
             continue;
         };
-        misses = 0;
+        misses.progress();
 
         let mut step = skill::step_from(&el, Action::Click, &d.intent, d.confidence);
         step.cmd = Some(cmd.clone());
@@ -549,7 +556,7 @@ async fn dir_demo(args: &[String]) -> Result<()> {
         let _ = ran;
     }
     let slow_ms = t1.elapsed().as_millis() as u64;
-    let (slow_ok, slow_why) = decide::judge_success(&goal, &work_a, "a directory", &sh_a.listing()?)?;
+    let (slow_ok, slow_why) = decide::judge_success(&goal, &work_a, "a directory", &sh_a.listing()?, &trail)?;
     println!(
         "\n  {} — {} commands, {:.1} s, {}",
         if slow_ok { "reached the goal" } else { "did NOT reach the goal" },
@@ -622,7 +629,7 @@ async fn dir_demo(args: &[String]) -> Result<()> {
         }
     }
     let fast_ms = t2.elapsed().as_millis() as u64;
-    let (fast_ok, fast_why) = decide::judge_success(&goal, &work_b, "a directory", &sh_b.listing()?)?;
+    let (fast_ok, fast_why) = decide::judge_success(&goal, &work_b, "a directory", &sh_b.listing()?, &[])?;
     println!(
         "\n  {} — {} commands, {:.2} s, 0 model calls",
         if fast_ok { "reached the goal" } else { "did NOT reach the goal" },
@@ -1031,6 +1038,49 @@ fn receipts_cmd(args: &[String]) -> Result<()> {
     Ok(())
 }
 
+/// Why a step did not happen, and what the run should do about it.
+///
+/// The old rule counted every failure the same way and stopped after two in a row, which is wrong in
+/// both directions. An element that is in the page but out of reach may be reachable a moment later,
+/// and a model that named something which is not on the page at all deserves one more try with the
+/// failure spelled out. A delivered action is different again: it may have landed, and repeating it is
+/// how the same thing gets done twice. Failures are therefore counted in two classes, and any progress
+/// clears both — a run that is getting somewhere is not failing, whatever it stumbled over.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Miss {
+    /// Nothing happened, and doing it again is safe.
+    Retryable,
+    /// Something may have happened. Never repeat this in place.
+    Delivered,
+}
+
+#[derive(Default)]
+struct Misses {
+    retryable: u32,
+    delivered: u32,
+}
+
+impl Misses {
+    /// Note a failed step. True when the run has failed often enough to stop.
+    fn note(&mut self, m: Miss) -> bool {
+        match m {
+            Miss::Retryable => self.retryable += 1,
+            Miss::Delivered => self.delivered += 1,
+        }
+        self.retryable >= 2 || self.delivered >= 2
+    }
+
+    fn progress(&mut self) {
+        self.retryable = 0;
+        self.delivered = 0;
+    }
+}
+
+/// How long a learning run may take, in wall-clock time, declared rather than discovered. Steps alone
+/// are a poor budget: a single step can spend six seconds waiting for an address that never changes,
+/// so fifty of those is five minutes of nothing.
+const LEARN_BUDGET_SECS: u64 = 900;
+
 async fn run_with_model(
     cdp: &mut Cdp,
     goal: &str,
@@ -1052,7 +1102,7 @@ async fn run_with_model(
     let mut screens: Vec<Vec<Element>> = Vec::new();
     let mut log: Vec<String> = Vec::new();
     let mut declared_done = false;
-    let mut misses = 0u32;
+    let mut misses = Misses::default();
     // Pages already visited. A run that comes back to one of them has stopped making
     // progress: everything after that point is wandering, and a skill compiled from it
     // would encode the wandering. The productive prefix ends at the first reversal.
@@ -1063,6 +1113,13 @@ async fn run_with_model(
     // run has to end either way.
     let mut bounces = 0u32;
     for round in 0..max_steps {
+        if started.elapsed().as_secs() > LEARN_BUDGET_SECS {
+            println!(
+                "  the run has taken {} minutes, the declared budget — stopping",
+                LEARN_BUDGET_SECS / 60
+            );
+            break;
+        }
         if std::env::var("MINT_DEBUG_STATE").is_ok() {
             println!("  [debug] iteration {} of {max_steps}, {} steps kept", round + 1, trail.len());
         }
@@ -1084,8 +1141,9 @@ async fn run_with_model(
                 // forty-nine because of it is how a long task is made impossible to learn.
                 println!("  the model's answer could not be acted on: {e}");
                 calls += 1;
-                misses += 1;
-                if misses >= 2 {
+                // A reply naming something that is not on the page is a wrong answer: worth one more
+                // try with the failure spelled out, but waiting will not fix it.
+                if misses.note(Miss::Retryable) {
                     println!("  two answers in a row could not be acted on — stopping");
                     break;
                 }
@@ -1185,20 +1243,37 @@ async fn run_with_model(
             // An element that cannot be reached is a fact about the page, and the model can often
             // work around it — open the menu that holds it, or take another route. Stopping here
             // would throw away a run over something a person would simply click past.
-            misses += 1;
-            println!("  the step did not happen — telling the model and going on");
+            // Two very different failures used to be counted as one. An element that could not be
+            // reached was not acted on at all, so trying again is safe. An element that was clicked
+            // and left the page unchanged may have been clicked for real — the change may simply not
+            // be visible yet — and repeating it is how the same thing gets done twice. The class goes
+            // into the log too, so a run that ends here says which kind of failure ended it.
+            let kind = if el.on { Miss::Delivered } else { Miss::Retryable };
+            println!(
+                "  the step did not happen ({}) — telling the model and going on",
+                if el.on {
+                    "the action was delivered and changed nothing visible, so it will not be repeated"
+                } else {
+                    "the element could not be reached from where it sits"
+                }
+            );
             log.push(format!(
-                "failed: {} «{}» could not be clicked from where it sits",
+                "failed: {} «{}» {}",
                 el.role,
-                el.name.chars().take(40).collect::<String>()
+                el.name.chars().take(40).collect::<String>(),
+                if el.on {
+                    "was acted on and the page did not change"
+                } else {
+                    "could not be clicked from where it sits"
+                }
             ));
-            if misses >= 2 {
-                println!("  two actions in a row could not be taken — stopping");
+            if misses.note(kind) {
+                println!("  two failed actions in a row — stopping");
                 break;
             }
             continue;
         }
-        misses = 0;
+        misses.progress();
         // How long to wait for the address to move depends on whether this action could move it.
         // Typing cannot, and waiting the full six seconds anyway is what made one field cost six
         // seconds: over fifty fields that is five minutes spent watching an address that was never
@@ -1536,7 +1611,16 @@ async fn learn(args: &[String]) -> Result<()> {
     // about the outcome, not about our own recording of it.
     let body_text = cdp.text().await.unwrap_or_default();
     let here_now = cdp.current_url().await?;
-    let verdict = decide::judge_success(&goal, &here_now, &title, &body_text);
+    // The steps the runtime verified, in the words of what happened, for the check to read.
+    let did: Vec<String> = run
+        .trail
+        .iter()
+        .map(|(st, el)| match &st.action {
+            Action::Type { text } => format!("typed «{text}» into {} «{}»", el.role, el.name),
+            Action::Click => format!("clicked {} «{}»", el.role, el.name),
+        })
+        .collect();
+    let verdict = decide::judge_success(&goal, &here_now, &title, &body_text, &did);
     sk.learn_declared_done = match verdict {
         Ok((ok, why)) => {
             println!("goal check: {} — {why}", if ok { "reached" } else { "NOT reached" });
@@ -1966,7 +2050,7 @@ async fn demo(args: &[String]) -> Result<()> {
         sk.expect_final_page,
         if slow_ok { "matches" } else { "does NOT match" }
     );
-    let slow_opinion = match decide::judge_success(&goal, &slow_url, &slow_title, &slow_body) {
+    let slow_opinion = match decide::judge_success(&goal, &slow_url, &slow_title, &slow_body, &[]) {
         Ok((ok, why)) => format!("{}: {why}", if ok { "says it was reached" } else { "says it was not reached" }),
         Err(_) => String::new(),
     };
@@ -2032,7 +2116,7 @@ async fn demo(args: &[String]) -> Result<()> {
         sk.expect_final_page,
         if fast_ok { "matches" } else { "does NOT match" }
     );
-    let fast_opinion = match decide::judge_success(&goal, &fast_url, &fast_title, &fast_body) {
+    let fast_opinion = match decide::judge_success(&goal, &fast_url, &fast_title, &fast_body, &[]) {
         Ok((ok, why)) => format!("{}: {why}", if ok { "says it was reached" } else { "says it was not reached" }),
         Err(_) => String::new(),
     };

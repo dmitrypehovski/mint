@@ -82,7 +82,7 @@
       "learned_page": "fieldwork",
       "produced_page": "fieldwork",
       "intent": "Fill in the next empty field",
-      "confidence": 0.9
+      "confidence": 1.0
     },
     {
       "action": {
@@ -433,7 +433,7 @@
       "seen_label": "Field 27",
       "learned_page": "fieldwork",
       "produced_page": "fieldwork",
-      "intent": "Fill in the next empty field",
+      "intent": "Fill in Field 27",
       "confidence": 1.0
     },
     {
@@ -498,7 +498,7 @@
       "learned_page": "fieldwork",
       "produced_page": "fieldwork",
       "intent": "Fill in Field 31",
-      "confidence": 1.0
+      "confidence": 0.9
     },
     {
       "action": {
@@ -513,7 +513,7 @@
       "seen_label": "Field 32",
       "learned_page": "fieldwork",
       "produced_page": "fieldwork",
-      "intent": "Fill in the next empty field",
+      "intent": "Fill in every one of the fifty fields on this form with a value",
       "confidence": 1.0
     },
     {
@@ -529,7 +529,7 @@
       "seen_label": "Field 33",
       "learned_page": "fieldwork",
       "produced_page": "fieldwork",
-      "intent": "Fill in the next empty field",
+      "intent": "Fill in every one of the fifty fields on this form with a value",
       "confidence": 1.0
     },
     {
@@ -545,7 +545,7 @@
       "seen_label": "Field 34",
       "learned_page": "fieldwork",
       "produced_page": "fieldwork",
-      "intent": "Fill in the next empty field",
+      "intent": "Fill in the next empty field on the form",
       "confidence": 1.0
     },
     {
@@ -625,7 +625,7 @@
       "seen_label": "Field 39",
       "learned_page": "fieldwork",
       "produced_page": "fieldwork",
-      "intent": "Fill in every one of the fifty fields on this form with a value",
+      "intent": "Fill in the next empty field",
       "confidence": 1.0
     },
     {
@@ -705,8 +705,8 @@
       "seen_label": "Field 43",
       "learned_page": "fieldwork",
       "produced_page": "fieldwork",
-      "intent": "Fill in the next empty field",
-      "confidence": 1.0
+      "intent": "Fill in the 43rd field with a value",
+      "confidence": 0.9
     },
     {
       "action": {
@@ -753,7 +753,7 @@
       "seen_label": "Field 47",
       "learned_page": "fieldwork",
       "produced_page": "fieldwork",
-      "intent": "Fill in the 47th field with a value",
+      "intent": "Fill in the 47th field with its value",
       "confidence": 1.0
     },
     {
@@ -801,7 +801,7 @@
       "seen_label": "Field 50",
       "learned_page": "fieldwork",
       "produced_page": "fieldwork",
-      "intent": "Fill in the last empty field on the form",
+      "intent": "Fill in the last empty field",
       "confidence": 1.0
     },
     {
@@ -818,6 +818,6 @@
     }
   ],
   "learn_model_calls": 53,
-  "learn_ms": 77815,
+  "learn_ms": 78225,
   "learn_declared_done": true
 }
