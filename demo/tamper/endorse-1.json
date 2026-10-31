@@ -1,17 +1,17 @@
 {
   "body": {
-    "at_ms": 1793474632258,
-    "endorser": "ba8d60136e018cd417d89ba6e203b3745a42bf8a99e6e7c6002759275ae41f99",
+    "at_ms": 1793474731549,
+    "endorser": "afbf35b6d2764a73c3bf3ad93d956954621306554e7045ded628607dd5e593d3",
     "not_after_ms": null,
     "note": "",
     "policy_hash": "4d5836a06b56015a75811444740812c1a1c064f262bb40c566120b56514bcbcd",
-    "runtime": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
+    "runtime": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
     "scope": "the gate demonstration published at mint.arliwork.com",
     "spec": "mint.endorsement/0.1"
   },
   "sig": {
     "alg": "ed25519",
-    "kid": "ba8d60136e018cd417d89ba6e203b3745a42bf8a99e6e7c6002759275ae41f99",
-    "value": "30bb74ae61b8d67c9afb3ea638ea41fe959812ee335cfadd808eb2108274921619877527b2fc9e2c467dd7ac9ed4a5676cb65eabe1766be4dd0f80881bb4f409"
+    "kid": "afbf35b6d2764a73c3bf3ad93d956954621306554e7045ded628607dd5e593d3",
+    "value": "3541581e95cebeaf31ec3414f56eb6d7a4a3af0236ce5b8a5a5be638aaba09466f187272e21c7c2c2c991a9cb786169e5c84deb82a63f76f2bbcf26144957008"
   }
 }

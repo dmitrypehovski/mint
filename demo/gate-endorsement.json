@@ -1,8 +1,8 @@
 {
   "body": {
-    "at_ms": 1793472340023,
+    "at_ms": 1793474719176,
     "endorser": "afbf35b6d2764a73c3bf3ad93d956954621306554e7045ded628607dd5e593d3",
-    "not_after_ms": 1796064340023,
+    "not_after_ms": 1796066719176,
     "note": "signed by the counterparty key. Both keys are on this machine, so this shows the mechanism, not trust.",
     "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
     "runtime": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
@@ -12,6 +12,6 @@
   "sig": {
     "alg": "ed25519",
     "kid": "afbf35b6d2764a73c3bf3ad93d956954621306554e7045ded628607dd5e593d3",
-    "value": "ea5bce7def2db23014eca7fb6767d09d1f02b1fbfebd78f18df4ccf1cecfde7c332c8923ca576e2d7f770e7f64c3f1825ac00399103e7ccdf0ecc074570bc80e"
+    "value": "672e478e57f1aa9339b8b03e47917866e41338900d6c5b418c4f7451ae9f67c0e73026573a26622cbd19197a55407363f5e2d1ff776cb4024424cfe3dbbc0a0d"
   }
 }

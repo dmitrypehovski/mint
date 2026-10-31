@@ -1,8 +1,24 @@
 {
-  "agent": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
+  "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
   "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
   "count": 7,
-  "endorsement": null,
+  "endorsement": {
+    "body": {
+      "at_ms": 1793474719176,
+      "endorser": "afbf35b6d2764a73c3bf3ad93d956954621306554e7045ded628607dd5e593d3",
+      "not_after_ms": 1796066719176,
+      "note": "signed by the counterparty key. Both keys are on this machine, so this shows the mechanism, not trust.",
+      "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
+      "runtime": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+      "scope": "the gate demonstration published at mint.arliwork.com",
+      "spec": "mint.endorsement/0.1"
+    },
+    "sig": {
+      "alg": "ed25519",
+      "kid": "afbf35b6d2764a73c3bf3ad93d956954621306554e7045ded628607dd5e593d3",
+      "value": "672e478e57f1aa9339b8b03e47917866e41338900d6c5b418c4f7451ae9f67c0e73026573a26622cbd19197a55407363f5e2d1ff776cb4024424cfe3dbbc0a0d"
+    }
+  },
   "host": "127.0.0.1:8840",
   "policy": {
     "approvals_are_single_use": true,
@@ -97,16 +113,16 @@
           "side_effect": "read",
           "step": 0
         },
-        "agent": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793474632126,
+        "decided_at_ms": 1793474719323,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
         "host": "127.0.0.1:8840",
-        "id": "87e16ff37925-0000",
+        "id": "0cd20b19fef0-0000",
         "kind": "decision",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
         "prev_hash": null,
@@ -114,14 +130,14 @@
         "result_hash": null,
         "result_note": null,
         "seq": 0,
-        "signed_at_ms": 1793474632126,
+        "signed_at_ms": 1793474719323,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
-        "kid": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
-        "value": "b895bf9dfb89d98fcc767ec838151c15ce90014ac5c855b0f98a31dab28a326634cea7693dc25f05a2d8c706223199c96ef248ae578d40a735ac47e43a3bc605"
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "73b18ed583305d5c491f3c6fccca5de363983876b1d5dc2fb3b45788b26852a8f8ae73a4a3500abb954498cac7f42de507926c53a759220f86c22dfafc276f0a"
       }
     },
     {
@@ -140,31 +156,31 @@
           "side_effect": "write",
           "step": 2
         },
-        "agent": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793474632126,
+        "decided_at_ms": 1793474719323,
         "decision": {
           "decided_by": "policy",
           "reason": "this step commits something; it needs an approval for 19f0793e4b51",
           "verdict": "hold"
         },
         "host": "127.0.0.1:8840",
-        "id": "87e16ff37925-0002",
+        "id": "0cd20b19fef0-0002",
         "kind": "decision",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "d7011c7d1ea217a6b3b997259719f68fabacd786dd497a332915ea21b935c248",
+        "prev_hash": "e48e7c20c76ea41bb4c9ffebd0d6e1c254b4bed63d26bcd4cfdf30a15601f025",
         "refers_to": null,
         "result_hash": null,
         "result_note": null,
         "seq": 2,
-        "signed_at_ms": 1793474632126,
+        "signed_at_ms": 1793474719323,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
-        "kid": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
-        "value": "2cecf77ebc16ca1645d6ec9caf96d56e9084992d67452ad67311dd263eddeb757210abb19bd1c3d8f735b26f1a0475e99ca15aeedd62bd304f08b51b0ab18e08"
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "8942a267a3fd389a396cbcaf04b62691ad034b8b690ca48c8da629d3599b1678f240eb75f23b0cadb5bdcc42e50c8fdeadff61dfc3c6d5d364aeaea4529b600e"
       }
     },
     {
@@ -183,31 +199,31 @@
           "side_effect": "read",
           "step": 1
         },
-        "agent": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793474632126,
+        "decided_at_ms": 1793474719323,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
         "host": "127.0.0.1:8840",
-        "id": "87e16ff37925-0001",
+        "id": "0cd20b19fef0-0001",
         "kind": "decision",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "3e61135ed423ee1c37e91c133a7e910542a910fdeb01455d8575f281c472e4da",
+        "prev_hash": "37917581c5e8f6abb73f35af2e82ed9d61a4058e5163dd37e0c4d48da005e3af",
         "refers_to": null,
         "result_hash": null,
         "result_note": null,
         "seq": 1,
-        "signed_at_ms": 1793474632126,
+        "signed_at_ms": 1793474719323,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
-        "kid": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
-        "value": "d753a535eaaea3b5ad6effe78b5e2e9bd3e58df489d0de9152f84590b16a4b4e095f63874920b50ad7f32fce7c37bd62f5ca72380880539415326573f5f6550e"
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "a5c1c188ffc402ec2c80c69efbf7cb25e946d2cdcdb9b8a5d27e93dc937e29bc775bd7bd1302cd1d421252aa27182f4b44f8cdb4a535888615d09af7f798970d"
       }
     },
     {
@@ -226,31 +242,31 @@
           "side_effect": "unknown",
           "step": 3
         },
-        "agent": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793474632126,
+        "decided_at_ms": 1793474719323,
         "decision": {
           "decided_by": "policy",
           "reason": "this element is neither a navigation nor a button, so what it would do cannot be described to anyone; refused rather than tried",
           "verdict": "refuse"
         },
         "host": "127.0.0.1:8840",
-        "id": "87e16ff37925-0003",
+        "id": "0cd20b19fef0-0003",
         "kind": "decision",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "1f8d609415ca44536fe353a90db1656db8fbcd4f9466d7be20febcf17f6c1bd9",
+        "prev_hash": "bd4017af4c41611baac79b8a38baee8ab8f3abdd88d61b1774282d0420d8b8ab",
         "refers_to": null,
         "result_hash": null,
         "result_note": null,
         "seq": 3,
-        "signed_at_ms": 1793474632126,
+        "signed_at_ms": 1793474719323,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
-        "kid": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
-        "value": "8452ebc87c8e4232dc14cc3855ab99094ca2cbc331c1664da7df19520c14d7f9b42320a73f15224375090cca90224d35a968400e2ea9ec37885558ad0fa1b507"
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "9d06d6fc30ba4811c0d419f9a8479a6d8e3b108d947d8cb16c59ef38259cda296ec860c20b43ba707aa27c395fff4efaac99f806eb4af91278348b17fab5670e"
       }
     },
     {
@@ -269,31 +285,31 @@
           "side_effect": "write",
           "step": 2
         },
-        "agent": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793474632126,
+        "decided_at_ms": 1793474719323,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
         "host": "127.0.0.1:8840",
-        "id": "87e16ff37925-0004",
+        "id": "0cd20b19fef0-0004",
         "kind": "decision",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "828ef8e071381d19058f1372d557c0f629450f159b19dc2787addd371254fec1",
+        "prev_hash": "6ab202285614f86bf5d68ad6b5101943884151ef63f9b47d2730b6090ace66f2",
         "refers_to": null,
         "result_hash": null,
         "result_note": null,
         "seq": 4,
-        "signed_at_ms": 1793474632126,
+        "signed_at_ms": 1793474719323,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
-        "kid": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
-        "value": "28c1044d370ecad92e79760c82c15249f3c47f2cf14a448a288f445e03c9b0c99f17f2b8000a7da0e40a31b5ebf0dd255e08756293ceb49749524b4afc426600"
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "fa3189d5594260e92a0c68a05489b9992a18ce2c6654c7502adf2ee545c786331e2c98cf61cbabc74518a7c8103ba079be623742b6663c0b5565199815e49a03"
       }
     },
     {
@@ -312,31 +328,31 @@
           "side_effect": "write",
           "step": 2
         },
-        "agent": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793474632127,
+        "decided_at_ms": 1793474719324,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
         "host": "127.0.0.1:8840",
-        "id": "87e16ff37925-0005",
+        "id": "0cd20b19fef0-0005",
         "kind": "outcome",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "5f3beb5585a84221284305a34f174b748cd3842f0534a8ec5303f3dd17585f04",
-        "refers_to": "87e16ff37925-0004",
+        "prev_hash": "e1f710f06be63333357bec08c55c596bbbea77528f2863a48ce1320e0ac839e7",
+        "refers_to": "0cd20b19fef0-0004",
         "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
         "result_note": "performed",
         "seq": 5,
-        "signed_at_ms": 1793474632127,
+        "signed_at_ms": 1793474719324,
         "spec": "mint.receipt/0.1",
         "status": "completed"
       },
       "sig": {
         "alg": "ed25519",
-        "kid": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
-        "value": "33ac715ab68724ce8a6bfe5b81e7ca95c207354dc1afdff5bd90caa37a3db35a67b2ffdc7a157608537258d369d6df3912cf60ebfdb9f97199637df58db61302"
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "a05e921c672b1cc54cc8ecb6a14d71dceff79ad94549c7aa8127f1f223cc13562e782f2c1fdc8495418c031824fbbf22b93669a0d7e97f6dea892dc401b00c0d"
       }
     },
     {
@@ -355,31 +371,31 @@
           "side_effect": "write",
           "step": 2
         },
-        "agent": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793474632251,
+        "decided_at_ms": 1793474719447,
         "decision": {
           "decided_by": "once-only",
           "reason": "this action was already released once; a repeat is not performed",
           "verdict": "refuse"
         },
         "host": "127.0.0.1:8840",
-        "id": "87e16ff37925-0006",
+        "id": "0cd20b19fef0-0006",
         "kind": "decision",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "9706b6ad1d3b706c784211fc5c518f345d96c17aa0ebd126674f0bfb273a022f",
+        "prev_hash": "d41a174156c5a051188c53abfe93d7efaeba2f35d15a0bb8917ddf0d1165fe7a",
         "refers_to": null,
         "result_hash": null,
         "result_note": null,
         "seq": 6,
-        "signed_at_ms": 1793474632251,
+        "signed_at_ms": 1793474719447,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
-        "kid": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
-        "value": "371c5f88c7e5f274835ceb9bb51a0d0899c0b3d5833dcc7179de092998bc8f4f4812ba19f363249d8975a4156a599f822fe4778d3ad27221a964ec2169855c01"
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "b88128d3f14a88393d5f2353932810e3b5598a6bfe63b3beeb3c2e3a2dfaa42336ea7fc9f2fd81601ad6e1c64288376c10579a9beda884535e2c43c7d7bbec0b"
       }
     }
   ],

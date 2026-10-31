@@ -113,6 +113,7 @@
   <a href="#surfaces">Surfaces</a>
   <a href="#arli">ARLI</a>
   <a href="#receipts">Receipts</a>
+  <a href="#use">Take it</a>
   <a href="#tested">Tested</a>
   <a href="#all">Applications</a>
   <a href="#speed">What speed unlocks</a>
@@ -518,6 +519,96 @@
   is rejected for its own reason.</p>
 </div></section>
 
+<section id="use"><div class="wrap">
+  <span class="kicker">Take it, or take it apart</span>
+  <h2>Nothing here needs our permission, and most of it does not need our code.</h2>
+  <p class="sub">The runtime, the gate, the receipts and the rules engine are one repository under
+  Apache-2.0: <a href="https://github.com/dmitrypehovski/levos">github.com/dmitrypehovski/levos</a>. There are three ways in, and they
+  cost different amounts of trust in us — the third costs none.</p>
+
+  <div class="grid g3">
+    <div class="card"><span class="tag">one · run it</span>
+      <h4>Build it and check the log we publish.</h4>
+      <p><code>cargo build --release</code>, then three files and one command verify everything on
+      this site: every signature, every link in the chain, every verdict re-derived from the published
+      rules, and the counter-signature. Nothing is fetched from us at check time, and nothing about
+      the check depends on the program that produced the log.</p>
+      <p class="note2">The demonstrations at <a href="/demos">/demos</a> print the exact command
+      behind each one, including the four that run the real verifier while you watch.</p></div>
+
+    <div class="card"><span class="tag">two · embed it</span>
+      <h4>Put the gate in your own agent.</h4>
+      <p>The four pieces are separable on purpose, and the library exposes each. Embedding the gate
+      is not a matter of remembering to call it: it is a required argument of the only function that
+      can touch a page, so leaving it out is a compile error rather than a line somebody forgot.
+      When this was written, that arrangement found five places in this codebase where steps were
+      going around the gate that we believed were already closed.</p>
+      <p class="note2">The rules engine also stands alone: <code>levos rules --policy p.json
+      --observations o.json</code> applies a rules document to observations and prints the verdicts,
+      with no browser, no model and no agent involved. That is the command the first demonstration
+      calls when you flip its switch.</p></div>
+
+    <div class="card brk"><span class="tag">three · implement the format</span>
+      <h4>Make your own, and let the two check each other.</h4>
+      <p>The receipt format and the rules document are specified field by field in
+      <code>docs/</code>: the canonical bytes that are signed, what each field asserts, how a link is
+      computed and what it references, and which checks a verifier has to make in which order. Enough
+      for another language to produce receipts this verifier accepts, and to verify ours.</p>
+      <p class="note2">This is the one that matters. A format with a single implementation is a
+      product, not a standard — and the whole claim here is that a stranger with none of our code can
+      check our work. That claim is only true if the format is the interface.</p></div>
+  </div>
+
+  <h3 class="h3">Where it drops into the family</h3>
+  <p class="sub">Three lines exist, and the step where the work actually happens was missing from all
+  of them. This is what the missing step would attach to, and what each attachment would need.</p>
+
+  <div class="grid g2">
+    <div class="card"><span class="tag">commons</span>
+      <h4>A skill sold there returns a receipt with its result.</h4>
+      <p>Not a claim that the skill ran — a signed record of what it did, which the buyer keeps and
+      can check without asking us. And because the rules are a document rather than branches in code,
+      the pod can agree on one published policy and check every member's log against it, which turns
+      "we are careful about what our agents do" into something a member can demonstrate.</p>
+      <p class="note2"><b>What it needs:</b> a return channel from a call to a receipt. That is a
+      contract change, not a research problem. Publishing into the catalogue today additionally needs
+      an author dashboard token, which we do not hold.</p></div>
+
+    <div class="card"><span class="tag">connect</span>
+      <h4>The two halves of one trade, in the same shape.</h4>
+      <p>Connect issues a signed receipt for every step of a trade being <i>read</i>. Mint issues one
+      for a procedure being <i>executed</i>. Together they cover the whole thing: <i>your catalogue
+      answered me correctly</i> and <i>the order was really placed</i>, each checkable by the party
+      that did not produce it.</p>
+      <p class="note2"><b>What it needs:</b> agreement that both receipts describe one trade — a
+      shared identifier, and a decision about which of them a dispute is settled by.</p></div>
+
+    <div class="card"><span class="tag">match</span>
+      <h4>Evidence instead of a self-report.</h4>
+      <p>"Who has actually done this" is currently answered by whoever is willing to say so. A
+      receipt makes it answerable: this runtime did this, under these rules, at this time, and here is
+      the record. Overlap stops being a claim two parties make about each other.</p>
+      <p class="note2"><b>What it needs:</b> deciding what may be shown from a receipt without
+      showing the work — the observations and the verdict are enough to prove a procedure ran and
+      often not enough to reveal what was in it.</p></div>
+
+    <div class="card brk"><span class="tag">and the one thing code cannot supply</span>
+      <h4>Somebody holding the other key.</h4>
+      <p>Every key on this site was generated on this machine, so every demonstration here proves the
+      mechanism and says nothing about trust. A real endorsement takes a person or an organisation who
+      was asked and agreed, holding a key that is not the runtime's. In the family that is a decision
+      about who is willing to be the counterparty, not a build item.</p>
+      <p class="note2">Until somebody is, the honest reading of these pages is: the machinery works,
+      and nobody outside has yet vouched for it.</p></div>
+  </div>
+
+  <h3 class="h3">What is not built</h3>
+  <p class="sub">None of the three integrations above exists yet. There is no live link between this
+  runtime and commons, connect or match. What exists is the runtime, the format, the published
+  artifacts and a demonstration that the mechanism holds under attempts to break it. The
+  specifications are in the repository's <code>docs/</code> so that the integration can be written by
+  whoever wants it, including somebody who is not us.</p>
+</div></section>
 <section id="tested"><div class="wrap">
   <span class="kicker">Every application, tested</span>
   <h2>Fifty-six applications, seven properties, and a test for each that can fail.</h2>
