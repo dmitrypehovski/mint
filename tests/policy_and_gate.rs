@@ -19,6 +19,7 @@ fn observed(action: &str, tag: &str, role: &str, href: bool, approval: bool) -> 
 
 fn step_click(role: &str) -> Step {
     Step {
+        cmd: None,
         action: Action::Click,
         role: role.into(),
         href_kind: String::new(),
@@ -36,6 +37,7 @@ fn element(tag: &str, role: &str, href: &str) -> Element {
     Element {
         on: true,
         checked: None,
+        value: None,
         handle: "h1".into(),
         tag: tag.into(),
         role: role.into(),
