@@ -204,7 +204,8 @@ def live_start(n):
                         err.strip()[-200:] or "the run stopped without reporting a result")
 
     threading.Thread(target=worker, daemon=True).start()
-    return {"ok": True, "task": n, "what": task["what"], "goal": task["goal"]}, None
+    # Echo the number the page showed, not the list index it was translated from.
+    return {"ok": True, "task": task["n"], "what": task["what"], "goal": task["goal"]}, None
 
 
 def live_result():

@@ -1,9 +1,9 @@
 {
   "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
   "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-  "count": 4,
+  "count": 2,
   "endorsement": null,
-  "host": "github.com",
+  "host": "127.0.0.1:8840",
   "policy": {
     "approvals_are_single_use": true,
     "note": "Reads pass. Anything that commits is held until an approval bound to that exact action is presented, and released once. A step that matches no rule is refused even if an approval is offered, because an approval authorises a described action and nothing here can be described.",
@@ -84,9 +84,9 @@
     {
       "body": {
         "action": {
-          "element": "a \"hoxyq\"",
-          "identity": "0b7520a7e177afe3b66c3d1f03ebe93cc7e10e032892020d01bd916d49e39119",
-          "key": "af382351165534931d8d77d0e04140e7",
+          "element": "a \"Open the record\"",
+          "identity": "109a1483ad375323477e7a61ec10c1fa1f6513a34387426acbcd88e523e2b90c",
+          "key": "60cbba27c7bfd32afd59a6943e1c1466",
           "observed": {
             "action": "click",
             "approval": false,
@@ -99,13 +99,13 @@
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793475310140,
+        "decided_at_ms": 1793475338648,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
-        "host": "github.com",
+        "host": "127.0.0.1:8840",
         "id": "0cd20b19fef0-0000",
         "kind": "decision",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
@@ -114,22 +114,22 @@
         "result_hash": null,
         "result_note": null,
         "seq": 0,
-        "signed_at_ms": 1793475310140,
+        "signed_at_ms": 1793475338648,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "8313ebd30b66db3d70043554c4f745d6f05246f6491573c9868abc7f1a1e12a762c85a3b03665a327daedd51dcfb2ca28000bb5e289af568fd5211d96b7de205"
+        "value": "105da57b9bdbb5f11cef6eca9726520757794d30d6111a09e73797dbc1fc8771e11abc93138a081b648f5baf561097ef7eaaed731454571fce452191a4543005"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"hoxyq\"",
-          "identity": "0b7520a7e177afe3b66c3d1f03ebe93cc7e10e032892020d01bd916d49e39119",
-          "key": "af382351165534931d8d77d0e04140e7",
+          "element": "a \"Open the record\"",
+          "identity": "109a1483ad375323477e7a61ec10c1fa1f6513a34387426acbcd88e523e2b90c",
+          "key": "60cbba27c7bfd32afd59a6943e1c1466",
           "observed": {
             "action": "click",
             "approval": false,
@@ -142,115 +142,29 @@
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793475310152,
+        "decided_at_ms": 1793475338653,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
-        "host": "github.com",
+        "host": "127.0.0.1:8840",
         "id": "0cd20b19fef0-0001",
         "kind": "outcome",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "86436476cb38218b8295e8d655f21b92688d449d6b885bc8692036347c552e9b",
+        "prev_hash": "1322df49325b430ef93be5e043fc4f813dd77e5f4e887fb5a7b315ee794d9dc5",
         "refers_to": "0cd20b19fef0-0000",
         "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
         "result_note": "performed",
         "seq": 1,
-        "signed_at_ms": 1793475310152,
+        "signed_at_ms": 1793475338653,
         "spec": "mint.receipt/0.1",
         "status": "completed"
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "d954959d310847032d773d639f114fec39c4df3ee4dffc1b4ac2e9094385f5d645a83997bb9501bc050d30dfa833bea4610cbb8db114a8b5946db7d8495e4800"
-      }
-    },
-    {
-      "body": {
-        "action": {
-          "element": "a \"[DevTools] Find non-resource hoistable instances in the facade (\"",
-          "identity": "23dc473852d66dc91a8965b6f5b9477b53f3da0118526838b476951d44b84897",
-          "key": "f1a23661b62b97ac16906e510a7b997b",
-          "observed": {
-            "action": "click",
-            "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
-          },
-          "side_effect": "read",
-          "step": 1
-        },
-        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793475312904,
-        "decision": {
-          "decided_by": "policy",
-          "reason": "",
-          "verdict": "allow"
-        },
-        "host": "github.com",
-        "id": "0cd20b19fef0-0002",
-        "kind": "decision",
-        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "aa85b176c72f442f87a23818299401ccb6d752c1297294f60f53a83720506e90",
-        "refers_to": null,
-        "result_hash": null,
-        "result_note": null,
-        "seq": 2,
-        "signed_at_ms": 1793475312904,
-        "spec": "mint.receipt/0.1",
-        "status": ""
-      },
-      "sig": {
-        "alg": "ed25519",
-        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "2922890b6cc370bcf60026b7c582549512cfa7c5e8fd5d1b2d4c18026540afc75ab55845888421c55b56b58e4d9070af1c24ed2129ba8d2bc130ee0a48b04701"
-      }
-    },
-    {
-      "body": {
-        "action": {
-          "element": "a \"[DevTools] Find non-resource hoistable instances in the facade (\"",
-          "identity": "23dc473852d66dc91a8965b6f5b9477b53f3da0118526838b476951d44b84897",
-          "key": "f1a23661b62b97ac16906e510a7b997b",
-          "observed": {
-            "action": "click",
-            "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
-          },
-          "side_effect": "read",
-          "step": 1
-        },
-        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793475312914,
-        "decision": {
-          "decided_by": "policy",
-          "reason": "",
-          "verdict": "allow"
-        },
-        "host": "github.com",
-        "id": "0cd20b19fef0-0003",
-        "kind": "outcome",
-        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "52e3d7a80e834b61d802833a6a613c41acfda5565c1868fe40693fa0656b915a",
-        "refers_to": "0cd20b19fef0-0002",
-        "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
-        "result_note": "performed",
-        "seq": 3,
-        "signed_at_ms": 1793475312914,
-        "spec": "mint.receipt/0.1",
-        "status": "completed"
-      },
-      "sig": {
-        "alg": "ed25519",
-        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "de08968a9847c6faa3c9ce3827226ec2a054f35a95ae93c0163ffacecaabf506d393d982e33f0f07d0e335910f9a3d0441f9bda88180097b45a25ec75f628508"
+        "value": "5ec2e7641e3e0151f1dfe35704a1fa63ae58eb0b52b96868ec28534cd2fc7c020d4a05987074bd3aa9a8c5ac0b5eb911311707b06017da5adfda1ea230401a04"
       }
     }
   ],
