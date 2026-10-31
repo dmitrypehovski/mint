@@ -990,14 +990,14 @@ first, alone, and is given every advantage; mint's half follows on the same page
 
   <div class="card brk"><span class="tag">4 · what this costs</span>
     <h4>The first run is not free, and this is the entire source of the saving.</h4>
-    <p>Learning this task cost three or four questions to a model and about three seconds, once. The
+    <p>Learning the four-step task cost five questions to a model and four seconds, once. The
     saving afterwards is exactly that cost, paid on the first run instead of on every run — there is
     no second trick. And when mint meets a step it cannot recognise, it stops and asks about that one
     step, or refuses it: a mistake costs one question, never a broken run.</p></div>
 </div>
 
 <p class="cmdtxt"><b>the command behind this page:</b> mint demo --skill SKILL.json --start URL --receipts compare/last.json</p>
-{honest("It does not show that mint is better. On the second task the ordinary agent sometimes lands on the commit "
+{honest("It does not show that mint is better. On the commit task the ordinary agent sometimes lands on the commit "
         "list instead of the commit, and mint sometimes lands on the commit — and when a step is not recognised "
         "mint asks about it, pays for that question and can be the slower of the two. Both outcomes are worth "
         "watching for rather than reading past: press the buttons more than once. Nor does it compare against the "
