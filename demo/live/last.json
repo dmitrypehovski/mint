@@ -84,7 +84,7 @@
     {
       "body": {
         "action": {
-          "element": "a \"[DevTools] Find non-resource hoistable instances in the facade (\"",
+          "element": "a \"hoxyq\"",
           "identity": "0b7520a7e177afe3b66c3d1f03ebe93cc7e10e032892020d01bd916d49e39119",
           "key": "af382351165534931d8d77d0e04140e7",
           "observed": {
@@ -99,7 +99,7 @@
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793475257972,
+        "decided_at_ms": 1793475310140,
         "decision": {
           "decided_by": "policy",
           "reason": "",
@@ -114,20 +114,20 @@
         "result_hash": null,
         "result_note": null,
         "seq": 0,
-        "signed_at_ms": 1793475257972,
+        "signed_at_ms": 1793475310140,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "4019f5198e5479a8f6d4a079860f3d538d004923dd96cc1bd1ce7b7d6368589418a80f02ad7e06ba8a2b57de2b9c2e85d0286618f1be5323283fd4fedac2010a"
+        "value": "8313ebd30b66db3d70043554c4f745d6f05246f6491573c9868abc7f1a1e12a762c85a3b03665a327daedd51dcfb2ca28000bb5e289af568fd5211d96b7de205"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"[DevTools] Find non-resource hoistable instances in the facade (\"",
+          "element": "a \"hoxyq\"",
           "identity": "0b7520a7e177afe3b66c3d1f03ebe93cc7e10e032892020d01bd916d49e39119",
           "key": "af382351165534931d8d77d0e04140e7",
           "observed": {
@@ -142,7 +142,7 @@
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793475257987,
+        "decided_at_ms": 1793475310152,
         "decision": {
           "decided_by": "policy",
           "reason": "",
@@ -152,25 +152,25 @@
         "id": "0cd20b19fef0-0001",
         "kind": "outcome",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "4ee9da1e4ec93d9876adf23d7c5d88f7d7fca941947c5f03f675632f20263ea0",
+        "prev_hash": "86436476cb38218b8295e8d655f21b92688d449d6b885bc8692036347c552e9b",
         "refers_to": "0cd20b19fef0-0000",
         "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
         "result_note": "performed",
         "seq": 1,
-        "signed_at_ms": 1793475257987,
+        "signed_at_ms": 1793475310152,
         "spec": "mint.receipt/0.1",
         "status": "completed"
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "0ccc7a6d65632d14a6ba69d5dbede1679aa3f5518f7b8ca917a19a0469dd7a496e8baa944e7079c5924ca00f5cdece7aa1fc0ac91e72987622908c1ac82ddc08"
+        "value": "d954959d310847032d773d639f114fec39c4df3ee4dffc1b4ac2e9094385f5d645a83997bb9501bc050d30dfa833bea4610cbb8db114a8b5946db7d8495e4800"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"5122860\"",
+          "element": "a \"[DevTools] Find non-resource hoistable instances in the facade (\"",
           "identity": "23dc473852d66dc91a8965b6f5b9477b53f3da0118526838b476951d44b84897",
           "key": "f1a23661b62b97ac16906e510a7b997b",
           "observed": {
@@ -185,7 +185,7 @@
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793475260722,
+        "decided_at_ms": 1793475312904,
         "decision": {
           "decided_by": "policy",
           "reason": "",
@@ -195,25 +195,25 @@
         "id": "0cd20b19fef0-0002",
         "kind": "decision",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "c3dd5402fb631dc3928bba861d48d802cd29cd2d3c0cce30aaa7bf5286f0b534",
+        "prev_hash": "aa85b176c72f442f87a23818299401ccb6d752c1297294f60f53a83720506e90",
         "refers_to": null,
         "result_hash": null,
         "result_note": null,
         "seq": 2,
-        "signed_at_ms": 1793475260722,
+        "signed_at_ms": 1793475312904,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "711fa6e2897ec16bf0155c7b9c07b52640a6949b1935b991306df34f01cdbd4cf9bf0c11923dec5abcd4efd817946892d9a0d3145082cb90ae7373c83208e807"
+        "value": "2922890b6cc370bcf60026b7c582549512cfa7c5e8fd5d1b2d4c18026540afc75ab55845888421c55b56b58e4d9070af1c24ed2129ba8d2bc130ee0a48b04701"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"5122860\"",
+          "element": "a \"[DevTools] Find non-resource hoistable instances in the facade (\"",
           "identity": "23dc473852d66dc91a8965b6f5b9477b53f3da0118526838b476951d44b84897",
           "key": "f1a23661b62b97ac16906e510a7b997b",
           "observed": {
@@ -228,7 +228,7 @@
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793475260730,
+        "decided_at_ms": 1793475312914,
         "decision": {
           "decided_by": "policy",
           "reason": "",
@@ -238,19 +238,19 @@
         "id": "0cd20b19fef0-0003",
         "kind": "outcome",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "a6b8cc297d40fdcb21aeff7bacd49232ed2e8c0212f7a9ef56d569977a6d45b4",
+        "prev_hash": "52e3d7a80e834b61d802833a6a613c41acfda5565c1868fe40693fa0656b915a",
         "refers_to": "0cd20b19fef0-0002",
         "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
         "result_note": "performed",
         "seq": 3,
-        "signed_at_ms": 1793475260730,
+        "signed_at_ms": 1793475312914,
         "spec": "mint.receipt/0.1",
         "status": "completed"
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "c6cd6a3ab230678c4dd7662ddebef2b3de35fa5bea3bceca855e39cf1adef492206d84478f2fb90adf838f7f26f1afe628d51d2af9a940f5fc2ce6b4deb2c306"
+        "value": "de08968a9847c6faa3c9ce3827226ec2a054f35a95ae93c0163ffacecaabf506d393d982e33f0f07d0e335910f9a3d0441f9bda88180097b45a25ec75f628508"
       }
     }
   ],

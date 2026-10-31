@@ -131,6 +131,28 @@ CSS_EXTRA = """
   .btn.ghost{background:var(--card);color:var(--green);border-color:var(--rule-strong)}
   .btn:hover{opacity:.93;text-decoration:none}
   .hint{font:12px/1.55 var(--mono);color:var(--dim2);margin-top:9px}
+  /* The live run: the browser as it moves, next to the counters, above the step list. */
+  .livewrap{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px;margin:16px 0 0;
+    align-items:start}
+  .shotbox{position:relative;border:1px solid var(--rule);border-radius:12px;background:var(--card);
+    overflow:hidden;min-height:280px;display:flex;align-items:center;justify-content:center}
+  .shotbox img{display:none;width:100%;height:auto}
+  .shotbox #liveempty{padding:44px 22px;color:var(--dim2);font:12.5px/1.6 var(--mono);text-align:center}
+  .livemeta{display:grid;gap:8px;align-content:start}
+  .livemeta .lm{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;background:var(--card);
+    border:1px solid var(--rule);border-radius:9px;padding:10px 13px;font:12.5px/1.45 var(--mono)}
+  .livemeta .lm span:first-child{color:var(--dim2)}
+  .livemeta .lm span:last-child{color:var(--ink);overflow-wrap:anywhere}
+  .livesteps{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:8px}
+  .livesteps li{display:grid;grid-template-columns:30px 60px minmax(0,1fr) 72px minmax(0,1.2fr);gap:10px;
+    align-items:center;background:var(--card);border:1px solid var(--rule);border-radius:9px;
+    padding:9px 13px;font:12.5px/1.45 var(--mono);color:var(--dim)}
+  .livesteps .sn{color:var(--dim2)}
+  .livesteps .sl{color:var(--ink);overflow-wrap:anywhere}
+  .livesteps .sn2{color:var(--dim2);text-align:right}
+  .livetask .btn{white-space:nowrap}
+  @media(max-width:860px){.livewrap{grid-template-columns:1fr}
+    .livesteps li{grid-template-columns:24px 56px minmax(0,1fr)}}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0 0}
   @media(max-width:760px){.grid2{grid-template-columns:1fr}.rct{grid-template-columns:1fr}
     .tryrow{grid-template-columns:1fr auto;gap:9px}}
