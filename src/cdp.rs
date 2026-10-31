@@ -27,6 +27,17 @@ pub struct Element {
     pub role: String,
     pub name: String,
     pub href: String,
+    /// Could a person actually reach this with a finger, here and now: on screen, and the thing a
+    /// click at its centre would land on. A page can carry a second copy of a control inside a menu
+    /// that is closed, or in a strip scrolled out of the way. Such an element exists, has a size,
+    /// and does nothing when clicked — and offering it to the model is how a run ends up clicking
+    /// at nothing and then reporting that the page did not change.
+    #[serde(default = "reachable_by_default")]
+    pub on: bool,
+}
+
+fn reachable_by_default() -> bool {
+    true
 }
 
 const EXTRACT: &str = r#"(() => {
@@ -54,7 +65,17 @@ const EXTRACT: &str = r#"(() => {
     if (r.width < 1 || r.height < 1) continue;
     const st = getComputedStyle(el);
     if (st.visibility === 'hidden' || st.display === 'none' || st.opacity === '0') continue;
-    const text = (el.innerText || el.value || el.getAttribute('aria-label') || el.getAttribute('title') || '')
+    // Reachable means: inside the viewport, and the element a click at its centre would actually
+// land on. One that fails this is marked rather than hidden, so the model can see it exists and
+// still choose something else.
+const inView = r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth;
+let on = inView;
+if (inView) {
+  const hit = document.elementFromPoint(Math.round(r.left + r.width / 2),
+                                          Math.round(r.top + r.height / 2));
+  on = !!hit && (hit === el || el.contains(hit) || hit.contains(el));
+}
+const text = (el.innerText || el.value || el.getAttribute('aria-label') || el.getAttribute('title') || '')
       .trim().replace(/\s+/g, ' ');
     const href = el.getAttribute('href') || '';
     const role = roleOf(el);
@@ -83,7 +104,7 @@ const EXTRACT: &str = r#"(() => {
     seen.add(key);
     const id = 'j' + out.length;
     el.setAttribute('data-mint-id', id);
-    out.push({ handle: id, tag: el.tagName.toLowerCase(), role: role,
+    out.push({ handle: id, tag: el.tagName.toLowerCase(), role: role, on: on,
                name: name.slice(0, 140), href: href.slice(0, 300) });
     if (out.length >= 250) break;
   }
@@ -237,6 +258,7 @@ impl Cdp {
 
     pub async fn navigate(&mut self, url: &str) -> Result<u64> {
         let started = Instant::now();
+        self.call("Page.bringToFront", json!({})).await?;
         self.call("Page.navigate", json!({ "url": url })).await?;
         for _ in 0..160 {
             let ready = self.eval("document.readyState").await.ok();
@@ -258,21 +280,91 @@ impl Cdp {
         Ok((els, url))
     }
 
+    /// Wait until the page stops rearranging itself.
+    ///
+    /// `readyState === complete` is not the same as "ready to act on": a page that builds its
+    /// content in the browser is still assembling after the document is complete, and a click sent
+    /// during that window lands on a node that is about to be replaced — which looks exactly like a
+    /// click that did nothing. The signal used here is the one that matters: the list of things a
+    /// person could act on has stopped changing.
+    pub async fn wait_until_stable(&mut self, budget_ms: u64) -> Result<usize> {
+        let started = Instant::now();
+        let mut last: Vec<String> = Vec::new();
+        let mut same = 0;
+        let mut rounds = 0;
+        while started.elapsed().as_millis() < budget_ms as u128 {
+            rounds += 1;
+            let (els, _) = self.state().await?;
+            let now: Vec<String> = els.iter().map(|e| format!("{}|{}|{}", e.role, e.name, e.href)).collect();
+            if now == last && !now.is_empty() {
+                same += 1;
+                if same >= 2 {
+                    return Ok(rounds);
+                }
+            } else {
+                same = 0;
+                last = now;
+            }
+            tokio::time::sleep(Duration::from_millis(250)).await;
+        }
+        Ok(rounds)
+    }
+
     /// Act by handle. The handle was stamped on the element when we observed it, so there
     /// are no coordinates to compute and nothing to mis-aim.
-    pub async fn click_handle(&mut self, handle: &str) -> Result<bool> {
+    pub async fn click_handle(&mut self, el: &Element) -> Result<bool> {
+        // Two ways of finding the thing again, in order. The handle stamped at observation time is
+        // exact, but a page that re-renders between our looking and our acting throws it away with
+        // the node that carried it — GitHub's lists are rebuilt on every data change. So the
+        // fallback is the element's own identity: what it is, what it says, where it points. That
+        // is what a person uses anyway, and it survives the re-render.
         let js = format!(
-            "(() => {{ const el = document.querySelector('[data-mint-id=\"{handle}\"]'); \
-             if (!el) return 'gone'; el.scrollIntoView({{block:'center'}}); el.click(); return 'ok'; }})()"
+            "(() => {{ \
+             const want = {{role: {role}, name: {name}, href: {href}}}; \
+             const ACT = 'a,button,input,textarea,select,[role=\"button\"],[role=\"link\"],[role=\"tab\"],[role=\"menuitem\"],[role=\"searchbox\"],[role=\"combobox\"],[role=\"checkbox\"]'; \
+             const seen = (c) => ({{ \
+               role: c.getAttribute('role') || c.tagName.toLowerCase(), \
+               name: (c.innerText || c.value || c.getAttribute('aria-label') || c.getAttribute('title') || '').trim().replace(/\\s+/g, ' '), \
+               href: c.getAttribute('href') || '' }}); \
+             let el = document.querySelector('[data-mint-id=\"{handle}\"]'); \
+             if (!el) {{ \
+               for (const c of document.querySelectorAll(ACT)) {{ \
+                 const w = seen(c); \
+                 if (want.href && w.href === want.href) {{ el = c; break; }} \
+                 if (!want.href && w.name === want.name && w.role === want.role) {{ el = c; break; }} \
+               }} \
+             }} \
+             if (!el) return 'gone'; \
+             el.scrollIntoView({{block:'center'}}); \
+             const r = el.getBoundingClientRect(); \
+             if (r.width < 1 || r.height < 1) return 'invisible'; \
+             const x = Math.round(r.left + r.width / 2), y = Math.round(r.top + r.height / 2); \
+             if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return 'offscreen'; \
+             const hit = document.elementFromPoint(x, y); \
+             if (!hit || !(hit === el || el.contains(hit) || hit.contains(el))) return 'covered'; \
+             el.click(); return 'ok'; }})()",
+            handle = el.handle,
+            role = serde_json::to_string(&el.role)?,
+            name = serde_json::to_string(&el.name)?,
+            href = serde_json::to_string(&el.href)?,
         );
         Ok(self.eval(&js).await?.as_str() == Some("ok"))
     }
 
     /// Type into a field by handle, through the page's own events so that frameworks with
     /// controlled inputs see a real keystroke.
-    pub async fn type_handle(&mut self, handle: &str, text: &str) -> Result<bool> {
+    pub async fn type_handle(&mut self, el: &Element, text: &str) -> Result<bool> {
+        // The same identity fallback as a click, for the same reason: a field that survives a
+        // re-render is found again by what it is called, not by the handle it used to wear.
         let js = format!(
-            "(() => {{ const el = document.querySelector('[data-mint-id=\"{handle}\"]'); \
+            "(() => {{ \
+             let el = document.querySelector('[data-mint-id=\"{handle}\"]'); \
+             if (!el) {{ \
+               for (const c of document.querySelectorAll('input,textarea,[role=\"searchbox\"],[role=\"combobox\"]')) {{ \
+                 const n = (c.innerText || c.value || c.getAttribute('aria-label') || c.getAttribute('placeholder') || c.getAttribute('title') || c.getAttribute('name') || c.getAttribute('id') || '').trim().replace(/\\s+/g, ' '); \
+                 if (n === {name}) {{ el = c; break; }} \
+               }} \
+             }} \
              if (!el) return 'gone'; el.focus(); \
              const proto = el.tagName === 'TEXTAREA' ? HTMLTextAreaElement : HTMLInputElement; \
              const desc = Object.getOwnPropertyDescriptor(proto.prototype, 'value'); \
@@ -281,9 +373,30 @@ impl Cdp {
              el.dispatchEvent(new Event('change', {{bubbles:true}})); \
              if (el.form) {{ el.form.requestSubmit ? el.form.requestSubmit() : el.form.submit(); }} \
              return 'ok'; }})()",
+            handle = el.handle,
+            name = serde_json::to_string(&el.name)?,
             text_json = serde_json::to_string(text)?
         );
         Ok(self.eval(&js).await?.as_str() == Some("ok"))
+    }
+
+    /// Wait until the address actually changes.
+    ///
+    /// A page that navigates itself — as most pages with real content do now — moves after the
+    /// click has returned, not during it. Waiting a fixed three seconds and then looking once is how
+    /// a step that plainly worked gets thrown away and the run wanders off. So the address is
+    /// watched, and the old answer is taken only when nothing happens at all.
+    pub async fn wait_for_url_change(&mut self, from: &str, budget_ms: u64) -> Result<String> {
+        let started = Instant::now();
+        let mut now = String::new();
+        while started.elapsed().as_millis() < budget_ms as u128 {
+            now = self.current_url().await.unwrap_or_default();
+            if !now.is_empty() && now != from {
+                return Ok(now);
+            }
+            tokio::time::sleep(Duration::from_millis(150)).await;
+        }
+        Ok(now)
     }
 
     pub async fn current_url(&mut self) -> Result<String> {

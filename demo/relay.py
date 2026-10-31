@@ -108,25 +108,35 @@ LIVE_TASKS = [
 # mint half is the compiled skill for the same task, on the same page, in the same browser.
 COMPARE_TASKS = [
     {
+        # The long one, and the reason this page exists: a four-step procedure that was learned on
+        # one repository and is replayed on a different one, where every page has different data in
+        # it. Each of the four steps is a page a person would have to reach by hand.
         "n": 1,
-        "skill": "gh-issues.skill.json",
-        "start": "https://github.com/tokio-rs/tokio",
-        "goal": "open the issue list of this repository",
-        "what": "Open the issue list of a repository the skill has never seen",
+        "skill": "gh-pr-chain.skill.json",
+        "start": "https://github.com/rust-lang/rust",
+        "goal": "open the first pull request's commits, then the first commit in that list",
+        "what": "Four steps: pull requests, the first pull request, its Commits tab, the first commit",
     },
     {
         "n": 2,
-        "skill": "gh-commit.skill.json",
-        "start": "https://github.com/facebook/react",
-        "goal": "open the latest commit of this repository",
-        "what": "Open the latest commit — the task that needs two steps",
+        "skill": "gh-issues.skill.json",
+        "start": "https://github.com/tokio-rs/tokio",
+        "goal": "open the issue list of this repository",
+        "what": "Two steps: open the issue list of a repository the skill has never seen",
     },
     {
         "n": 3,
+        "skill": "gh-commit.skill.json",
+        "start": "https://github.com/facebook/react",
+        "goal": "open the latest commit of this repository",
+        "what": "Two steps: open the latest commit of a third repository",
+    },
+    {
+        "n": 4,
         "skill": "gh-prs.skill.json",
         "start": "https://github.com/rust-lang/rust",
         "goal": "open the pull request list of this repository",
-        "what": "Open the pull request list of a third repository",
+        "what": "One step: open the pull request list of a fourth repository",
     },
 ]
 COMPARE = {"running": False, "task": None, "started": 0.0, "took_ms": 0, "exit": None,

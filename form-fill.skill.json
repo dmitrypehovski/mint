@@ -1,0 +1,10 @@
+{
+  "goal": "Fill the text input with mint, fill the textarea with compiled once and run forever, tick the Default checkbox, choose the Default radio, and press Submit so the form is accepted",
+  "learned_from": "https://www.selenium.dev/selenium/web/web-form.html",
+  "host": "www.selenium.dev",
+  "expect_final_page": "*",
+  "steps": [],
+  "learn_model_calls": 1,
+  "learn_ms": 1321,
+  "learn_declared_done": false
+}

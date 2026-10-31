@@ -1,7 +1,7 @@
 {
   "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
   "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-  "count": 4,
+  "count": 8,
   "endorsement": null,
   "host": "github.com",
   "policy": {
@@ -84,9 +84,9 @@
     {
       "body": {
         "action": {
-          "element": "a \"hoxyq\"",
-          "identity": "0b7520a7e177afe3b66c3d1f03ebe93cc7e10e032892020d01bd916d49e39119",
-          "key": "af382351165534931d8d77d0e04140e7",
+          "element": "a \"Pull requests 1.5k (1.5k)\"",
+          "identity": "2f8d5ac54b49b29012b8d1d2f55117fe606583ecc2b92a5c72466bd52d0574c9",
+          "key": "7b1d081427e68cc92092e18d056001ea",
           "observed": {
             "action": "click",
             "approval": false,
@@ -99,7 +99,7 @@
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793476914133,
+        "decided_at_ms": 1793477432714,
         "decision": {
           "decided_by": "policy",
           "reason": "",
@@ -114,22 +114,22 @@
         "result_hash": null,
         "result_note": null,
         "seq": 0,
-        "signed_at_ms": 1793476914133,
+        "signed_at_ms": 1793477432714,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "bc7b0d79f89eb9679212de030d222ac5ed1d88b3d42c93e224207af78cbd0adab717abef57292a8c2bc216c6e68edff071393f3b74739d6fbcbd80b34be0b40d"
+        "value": "eeceebfab85d35a57cf2f7cc4bc35a0fde69d2cd6f2fe75653a9090f036138b1ade5af75ee76f47c5a6a9ca8c1be6cfd46d8c516d12a47e7eb02a1f113a27a07"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"hoxyq\"",
-          "identity": "0b7520a7e177afe3b66c3d1f03ebe93cc7e10e032892020d01bd916d49e39119",
-          "key": "af382351165534931d8d77d0e04140e7",
+          "element": "a \"Pull requests 1.5k (1.5k)\"",
+          "identity": "2f8d5ac54b49b29012b8d1d2f55117fe606583ecc2b92a5c72466bd52d0574c9",
+          "key": "7b1d081427e68cc92092e18d056001ea",
           "observed": {
             "action": "click",
             "approval": false,
@@ -142,7 +142,7 @@
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793476914147,
+        "decided_at_ms": 1793477432729,
         "decision": {
           "decided_by": "policy",
           "reason": "",
@@ -152,27 +152,27 @@
         "id": "0cd20b19fef0-0001",
         "kind": "outcome",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "122684e846dd3afd9ba4b4e38ff30a14dd2dccc1f6b502f78162d0dc70bb4797",
+        "prev_hash": "d9739ae376743a72fd6ca0e561553fc11be86cc0a68821e4f47d9cb71cb5cfb1",
         "refers_to": "0cd20b19fef0-0000",
         "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
         "result_note": "performed",
         "seq": 1,
-        "signed_at_ms": 1793476914147,
+        "signed_at_ms": 1793477432729,
         "spec": "mint.receipt/0.1",
         "status": "completed"
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "53c786ec6fcb491c3190bbbec2c2e09067867b64c8e17f1e6841b1ccff246955bc91ac5c1203b4503c0cb0bc19eb89e73ba95683c071f6c12b78b335d02a4a0e"
+        "value": "765896d3e56a702bd8078a019f11256b0245d289797a41a3f745329a479979e4c559907cd823113c2eeb166984ef70c5391090ef7ba7cbf037e362d27807480b"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"[DevTools] Find non-resource hoistable instances in the facade (\"",
-          "identity": "23dc473852d66dc91a8965b6f5b9477b53f3da0118526838b476951d44b84897",
-          "key": "f1a23661b62b97ac16906e510a7b997b",
+          "element": "a \"Cleanup rustdoc-html tests\"",
+          "identity": "55eaf84c5a5efb1b83925f37f2758c9f71098d7d95a68f8ab82a5f8298db0bc4",
+          "key": "48bd1710fc70c9fab7d3089be8f13ccb",
           "observed": {
             "action": "click",
             "approval": false,
@@ -185,7 +185,7 @@
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793476916898,
+        "decided_at_ms": 1793477433223,
         "decision": {
           "decided_by": "policy",
           "reason": "",
@@ -195,27 +195,27 @@
         "id": "0cd20b19fef0-0002",
         "kind": "decision",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "806fccf4a40db548238a59fe0b053bc18f9122709520a8d5a6b49035b39e9943",
+        "prev_hash": "1f0592f8a3dc78a4f7eb0c07f4b0b5504f2d7f3a65cf145eeb9e04d50902b82d",
         "refers_to": null,
         "result_hash": null,
         "result_note": null,
         "seq": 2,
-        "signed_at_ms": 1793476916898,
+        "signed_at_ms": 1793477433223,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "83f06b87571e529fef92e7300cd1146f90baece6518b00f761a42f349334daeb3420d447eccf15ad56b73e16fe40083cef42affb570d80a460a9928ac772460d"
+        "value": "9de739831864c6124421cd5191dfd0b980bf61d930a5e1e5cc8256dc532600617dcf5c87bafd4c828290d467088206f5a1b5f928da5cfe37903dff5e1fe73a0f"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"[DevTools] Find non-resource hoistable instances in the facade (\"",
-          "identity": "23dc473852d66dc91a8965b6f5b9477b53f3da0118526838b476951d44b84897",
-          "key": "f1a23661b62b97ac16906e510a7b997b",
+          "element": "a \"Cleanup rustdoc-html tests\"",
+          "identity": "55eaf84c5a5efb1b83925f37f2758c9f71098d7d95a68f8ab82a5f8298db0bc4",
+          "key": "48bd1710fc70c9fab7d3089be8f13ccb",
           "observed": {
             "action": "click",
             "approval": false,
@@ -228,7 +228,7 @@
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793476916907,
+        "decided_at_ms": 1793477433338,
         "decision": {
           "decided_by": "policy",
           "reason": "",
@@ -238,19 +238,191 @@
         "id": "0cd20b19fef0-0003",
         "kind": "outcome",
         "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "1f4e12d796424be3640d7335bcea63a5aecafdf6699dd0b0824e79ef55c80820",
+        "prev_hash": "130aaefb44c4031574b486df93542d3b594ed6632409195fc6c5c9b0c6b36928",
         "refers_to": "0cd20b19fef0-0002",
         "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
         "result_note": "performed",
         "seq": 3,
-        "signed_at_ms": 1793476916907,
+        "signed_at_ms": 1793477433338,
         "spec": "mint.receipt/0.1",
         "status": "completed"
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "d59d0c01d21c7274b9529f55b2b51930df8f62a2d1a16d202d375bbdf4c9c51463d35cd712edb9cd3578a7aa2d1b7f958a64022da7f49aab92247d9600623e01"
+        "value": "ae86078e5ba7665541b94f6efa04e4209c87cbdf68df41b1372dd0b640dd12357591b65010ae473d87ca01e7047b58c00a997991865486271d06ceaddfd2590b"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "a \"Commits3 (3)\"",
+          "identity": "05e459f03e854a6ad6f3a65f5acbd55f8185cf4882171b56e96385487c8e8757",
+          "key": "ecbe5b0641ed103b4af5900446510755",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": true,
+            "role": "link",
+            "tag": "a"
+          },
+          "side_effect": "read",
+          "step": 2
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793477433790,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "github.com",
+        "id": "0cd20b19fef0-0004",
+        "kind": "decision",
+        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
+        "prev_hash": "4b2dd09d494d8e0824a369f6a569fb94c1ec6a42c2bec8143d27c755aee50121",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 4,
+        "signed_at_ms": 1793477433790,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "ea17aa4d461a68b88b8c389ab570670491ad47c78918ee31d1f4a90ea8949730969ac71b9e191bb714d3f40fbd66694219a9df5677ac97471c2dd4460e88280c"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "a \"Commits3 (3)\"",
+          "identity": "05e459f03e854a6ad6f3a65f5acbd55f8185cf4882171b56e96385487c8e8757",
+          "key": "ecbe5b0641ed103b4af5900446510755",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": true,
+            "role": "link",
+            "tag": "a"
+          },
+          "side_effect": "read",
+          "step": 2
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793477433794,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "github.com",
+        "id": "0cd20b19fef0-0005",
+        "kind": "outcome",
+        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
+        "prev_hash": "d0552fefadfdd2a0cc61879715f07a9de3041539070c198bc30702325bd371a5",
+        "refers_to": "0cd20b19fef0-0004",
+        "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
+        "result_note": "performed",
+        "seq": 5,
+        "signed_at_ms": 1793477433794,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "e5aefd10144437b66ed11efc3692b3de6f6e9ac36fe213069c91d82676cba002471836daeb8e0da226a5bb06d50cb0b4a5212f8c2687b17084d0a5cb38ec9004"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "a \"Remove useless test\"",
+          "identity": "f6197b81be9e9580441e189fe14f5c064c850ed025e186356051c326496e815f",
+          "key": "fb96b8b972ae819c9dad91861bff3f49",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": true,
+            "role": "link",
+            "tag": "a"
+          },
+          "side_effect": "read",
+          "step": 3
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793477434039,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "github.com",
+        "id": "0cd20b19fef0-0006",
+        "kind": "decision",
+        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
+        "prev_hash": "96b37537f1fb8c939f20e5e53b390ceaa684a04ae4e525c50fa1787fad3fc0c9",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 6,
+        "signed_at_ms": 1793477434039,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "043d20596cbc99b8cb4818788cf861813237d8b72e9811ddfa5b13167f0678a2586e031dbdd69729ef9ece33d89a85987f33b1f3af7c2115d68cdfa88e6ad800"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "a \"Remove useless test\"",
+          "identity": "f6197b81be9e9580441e189fe14f5c064c850ed025e186356051c326496e815f",
+          "key": "fb96b8b972ae819c9dad91861bff3f49",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": true,
+            "role": "link",
+            "tag": "a"
+          },
+          "side_effect": "read",
+          "step": 3
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793477434048,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "github.com",
+        "id": "0cd20b19fef0-0007",
+        "kind": "outcome",
+        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
+        "prev_hash": "0222eff4fa4b53d821fdf07b3138e5d8415be26f1f72cfc26792650b0775bd35",
+        "refers_to": "0cd20b19fef0-0006",
+        "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
+        "result_note": "performed",
+        "seq": 7,
+        "signed_at_ms": 1793477434048,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "2a52b10bb4b98b3e0ab0139417777ddbd0070fc3d5c492cf02b9e088eb87c686445dea18eff4852c75429538368596aabdf5e8e655105ee1e1f7df935595c704"
       }
     }
   ],

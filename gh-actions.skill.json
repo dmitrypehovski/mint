@@ -1,0 +1,35 @@
+{
+  "goal": "From this repository page, open the Actions tab, then open the first workflow in the list, then open the most recent run of that workflow",
+  "learned_from": "https://github.com/tokio-rs/tokio",
+  "host": "github.com",
+  "expect_final_page": "actions/workflows/bench.yml",
+  "steps": [
+    {
+      "action": "Click",
+      "role": "link",
+      "href_kind": "tokio/actions",
+      "name_shape": "actions",
+      "ordinal": 0,
+      "seen_label": "Actions",
+      "learned_page": "",
+      "produced_page": "actions",
+      "intent": "Open the Actions tab",
+      "confidence": 1.0
+    },
+    {
+      "action": "Click",
+      "role": "link",
+      "href_kind": "workflows/bench.yml",
+      "name_shape": "benchmark",
+      "ordinal": 0,
+      "seen_label": "benchmark",
+      "learned_page": "actions",
+      "produced_page": "actions/workflows/bench.yml",
+      "intent": "open the first workflow in the list",
+      "confidence": 1.0
+    }
+  ],
+  "learn_model_calls": 4,
+  "learn_ms": 3584,
+  "learn_declared_done": false
+}

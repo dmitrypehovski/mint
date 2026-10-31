@@ -1112,7 +1112,7 @@ document.querySelectorAll('[data-cmp]').forEach((b) => {
 
 # ── the hub ─────────────────────────────────────────────────────────────────────────────────────
 hub = [
-    ("compare", 10, "The same task, both kinds of agent", "One task, run twice in the same browser: on the left a model decides every step, on the right the same task runs compiled. Real counters, real frames, and the numbers that mean something. <b>Live, side by side.</b>", "live", True),
+    ("compare", 10, "The same task, both kinds of agent", "One task, run twice in the same browser: on the left a model decides every step, on the right the same task runs compiled. The longest is four steps through a real repository, learned on a different one — and the left half asks a model at every step of it. <b>Live, side by side.</b>", "live", True),
     ("live", 9, "Run it yourself, right now", "Pick a task and the runtime opens a real browser and does it while you watch — the frames as it moves, the steps with what resolved them, and a signed receipt at the end. One of the five gets stopped by the gate mid-run. <b>Live.</b>", "live", True),
     ("gate", 1, "Fit the gate to the effect", "Flip an approval switch and the real rules engine decides, live: reading passes, writing waits, and the undescribable is refused even with approval. <b>Interactive.</b>", "live", True),
     ("refuse.html", 2, "When it does not understand, nothing happens", "The run where the runtime met an element it could not describe. The absence of an outcome receipt is the evidence that nothing took place.", "", False),

@@ -1,0 +1,59 @@
+{
+  "goal": "From this repository page, open the Pull requests tab, then open the first pull request in the list, then open that pull request's Commits tab, then open the first commit in that list",
+  "learned_from": "https://github.com/tokio-rs/tokio",
+  "host": "github.com",
+  "expect_final_page": "pull/*/commits/*",
+  "steps": [
+    {
+      "action": "Click",
+      "role": "link",
+      "href_kind": "tokio/pulls",
+      "name_shape": "pull requests * *",
+      "ordinal": 0,
+      "seen_label": "Pull requests 140 (140)",
+      "learned_page": "",
+      "produced_page": "pulls",
+      "intent": "Open the Pull requests tab",
+      "confidence": 1.0
+    },
+    {
+      "action": "Click",
+      "role": "link",
+      "href_kind": "pull/*",
+      "name_shape": "rt use condvar for timed parking on modern wasi targets",
+      "ordinal": 0,
+      "seen_label": "rt: use condvar for timed parking on modern wasi targets",
+      "learned_page": "pulls",
+      "produced_page": "pull/*",
+      "intent": "Open the first pull request in the list",
+      "confidence": 1.0
+    },
+    {
+      "action": "Click",
+      "role": "link",
+      "href_kind": "*/commits",
+      "name_shape": "commits1 *",
+      "ordinal": 0,
+      "seen_label": "Commits1 (1)",
+      "learned_page": "pull/*",
+      "produced_page": "pull/*/commits",
+      "intent": "open the Commits tab",
+      "confidence": 1.0
+    },
+    {
+      "action": "Click",
+      "role": "link",
+      "href_kind": "commits/*",
+      "name_shape": "rt use condvar for timed parking on modern wasi targets",
+      "ordinal": 0,
+      "seen_label": "rt: use condvar for timed parking on modern wasi targets (",
+      "learned_page": "pull/*/commits",
+      "produced_page": "pull/*/commits/*",
+      "intent": "open the first commit in the list",
+      "confidence": 1.0
+    }
+  ],
+  "learn_model_calls": 5,
+  "learn_ms": 3940,
+  "learn_declared_done": true
+}

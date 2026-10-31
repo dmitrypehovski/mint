@@ -152,7 +152,10 @@ pub fn as_table(els: &[Element]) -> String {
     let mut s = String::new();
     for (i, e) in els.iter().enumerate() {
         let where_to = if e.href.is_empty() { String::new() } else { format!(" → {}", href_kind(&e.href)) };
-        s.push_str(&format!("{}: {} \"{}\"{}\n", i, e.role, e.name, where_to));
+        // Marked, not hidden: an element that exists but cannot be reached is a fact about the
+        // page, and the model does better knowing it than wondering why a click did nothing.
+        let reach = if e.on { "" } else { " [not reachable here]" };
+        s.push_str(&format!("{}: {} \"{}\"{}{}\n", i, e.role, e.name, where_to, reach));
     }
     s
 }

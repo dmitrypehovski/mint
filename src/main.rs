@@ -91,8 +91,8 @@ async fn perform(
         return Ok((false, Some(format!("{}: {}", verdict.as_str(), verdict.reason()))));
     }
     let ok = match &step.action {
-        Action::Click => cdp.click_handle(&el.handle).await?,
-        Action::Type { text } => cdp.type_handle(&el.handle, text).await?,
+        Action::Click => cdp.click_handle(el).await?,
+        Action::Type { text } => cdp.type_handle(el, text).await?,
     };
     gate.record_outcome(&key, ok, if ok { "performed" } else { "the page did not take it" });
     Ok((ok, None))
@@ -604,6 +604,7 @@ async fn run_with_model(
     let mut screens: Vec<Vec<Element>> = Vec::new();
     let mut log: Vec<String> = Vec::new();
     let mut declared_done = false;
+    let mut misses = 0u32;
     // Pages already visited. A run that comes back to one of them has stopped making
     // progress: everything after that point is wandering, and a skill compiled from it
     // would encode the wandering. The productive prefix ends at the first reversal.
@@ -682,11 +683,25 @@ async fn run_with_model(
             }
         }
         if !acted {
-            println!("  the step did not happen and could not be retried — stopping");
-            break;
+            // An element that cannot be reached is a fact about the page, and the model can often
+            // work around it — open the menu that holds it, or take another route. Stopping here
+            // would throw away a run over something a person would simply click past.
+            misses += 1;
+            println!("  the step did not happen — telling the model and going on");
+            log.push(format!(
+                "failed: {} «{}» could not be clicked from where it sits",
+                el.role,
+                el.name.chars().take(40).collect::<String>()
+            ));
+            if misses >= 2 {
+                println!("  two actions in a row could not be taken — stopping");
+                break;
+            }
+            continue;
         }
-        cdp.settle(3000).await?;
-        step.produced_page = state::page_kind(&cdp.current_url().await?);
+        misses = 0;
+        let moved = cdp.wait_for_url_change(&here, 6000).await.unwrap_or_default();
+        step.produced_page = state::page_kind(&moved);
         // A click that changed nothing is a miss, not progress backwards. Tell the model
         // so it can pick differently, and do not keep the step.
         if step.produced_page == step.learned_page {
@@ -890,6 +905,10 @@ async fn learn(args: &[String]) -> Result<()> {
     let mut cdp = Cdp::connect(PORT).await?;
     cdp.navigate(&start).await?;
     cdp.settle(4000).await?;
+    // A page that is still building itself will swallow the first actions. Wait for the elements
+    // to stop moving before deciding anything, rather than trusting that the document is loaded.
+    let rounds = cdp.wait_until_stable(12_000).await.unwrap_or(0);
+    println!("  the page settled after {rounds} looks\n");
     let run = run_with_model(&mut cdp, &goal, &category, max).await?;
     let title = cdp.title().await?;
     // The kind of page the *kept* steps end on — not wherever the wandering run stopped.
