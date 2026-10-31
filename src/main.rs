@@ -1058,6 +1058,10 @@ async fn run_with_model(
     // would encode the wandering. The productive prefix ends at the first reversal.
     let mut seen: Vec<String> = vec![state::page_kind(&cdp.current_url().await?)];
 
+    // How many times the model's claim of being finished has been sent back because the page
+    // disagreed. Bounded: a model that insists deserves to be taken at its word eventually, and the
+    // run has to end either way.
+    let mut bounces = 0u32;
     for round in 0..max_steps {
         if std::env::var("MINT_DEBUG_STATE").is_ok() {
             println!("  [debug] iteration {} of {max_steps}, {} steps kept", round + 1, trail.len());
@@ -1090,7 +1094,32 @@ async fn run_with_model(
         };
         calls += 1;
         let Some(idx) = d.idx else {
-            println!("   model: goal reached ({})", d.intent);
+            // The model says the goal is reached. Over a form it says that while the fields it was
+            // asked to fill are still empty — twice on the fifty-field form it declared the task
+            // done at thirty-five of fifty, and the run was kept as a success. The page is the better
+            // witness. The count is read from the same list the model was just shown, the claim is
+            // sent back at most twice, and the number of empty fields goes into the log either way,
+            // so the record says what actually happened.
+            let empty = els.iter().filter(|e| state::is_empty_field(e)).count();
+            if empty > 0 && bounces < 2 {
+                bounces += 1;
+                println!(
+                    "   model: goal reached ({}) — but {empty} field(s) are still empty; sent back ({bounces} of 2)",
+                    d.intent
+                );
+                log.push(format!(
+                    "declared done with {empty} field(s) still empty — sent back ({bounces} of 2)"
+                ));
+                continue;
+            }
+            if empty > 0 {
+                println!(
+                    "   model: goal reached ({}) — accepted with {empty} field(s) still empty, after two bounces",
+                    d.intent
+                );
+            } else {
+                println!("   model: goal reached ({})", d.intent);
+            }
             declared_done = true;
             break;
         };
@@ -1263,7 +1292,9 @@ async fn run_with_model(
             ));
             continue;
         }
-        if seen.contains(&step.produced_page) {
+        // An address the runtime has no kind for is not evidence of a reversal: two pages at that
+        // depth are both named "", and cutting the run there would end a task that is going fine.
+        if !step.produced_page.is_empty() && seen.contains(&step.produced_page) {
             println!("  reversal: the page «{}» was already visited — step dropped, the run is cut here", step.produced_page);
             break;
         }
@@ -1483,12 +1514,21 @@ async fn learn(args: &[String]) -> Result<()> {
     let run = run_with_model(&mut cdp, &goal, &category, max, learn_rules.clone()).await?;
     let title = cdp.title().await?;
     // The kind of page the *kept* steps end on — not wherever the wandering run stopped.
-    let final_kind = run
+    // Falling back to the page the run *started* on put an expectation in the file that the run had
+    // already left: the fifty-field task ends on /fieldwork/submit, whose address the runtime has no
+    // kind for, so the skill expected the form page and every replay afterwards reported "landed
+    // somewhere else" while landing exactly where it should. Name it by its last segment instead.
+    let ended_on = run
         .trail
         .last()
         .map(|(st, _)| st.produced_page.clone())
-        .filter(|p| !p.is_empty())
-        .unwrap_or_else(|| state::page_kind(&start));
+        .unwrap_or_default();
+    let final_kind = if !ended_on.is_empty() {
+        ended_on
+    } else {
+        let deep = state::page_kind_deep(&cdp.current_url().await?);
+        if deep.is_empty() { state::page_kind(&start) } else { deep }
+    };
     let mut sk = skill::compile(&goal, &start, &run.trail, &run.screens, run.calls, run.ms, &final_kind);
     // A run that never declared success is not evidence that the skill works. Say so in
     // the file, so no later report can quietly claim otherwise.
@@ -1576,7 +1616,7 @@ async fn race(args: &[String]) -> Result<()> {
     }
     let fast_url = fast.current_url().await?;
     let fast_title = fast.title().await?;
-    let reached = state::page_kind(&fast_url) == sk.expect_final_page;
+    let reached = state::landed_on(&fast_url, &sk.expect_final_page);
     println!("  → {:.2} s, {} model calls, {} steps → {}", r.ms as f64 / 1000.0, r.escalated, r.done, trim(&fast_title));
     println!("  reached the goal: {}", if reached { "yes" } else { "no — it landed somewhere else, and that is shown rather than hidden" });
 
@@ -1919,7 +1959,7 @@ async fn demo(args: &[String]) -> Result<()> {
     // the learning run recorded. What a model thinks about it is shown separately, and
     // labelled as an opinion, because that is all it is.
     let slow_kind = state::page_kind(&slow_url);
-    let slow_ok = slow_kind == sk.expect_final_page;
+    let slow_ok = state::landed_on(&slow_url, &sk.expect_final_page);
     let slow_verdict = format!(
         "landed on page «{}», expected «{}» — {}",
         slow_kind,
@@ -1985,7 +2025,7 @@ async fn demo(args: &[String]) -> Result<()> {
     let fast_title = fast.title().await?;
     let fast_body = fast.text().await.unwrap_or_default();
     let fast_kind = state::page_kind(&fast_url);
-    let fast_ok = fast_kind == sk.expect_final_page;
+    let fast_ok = state::landed_on(&fast_url, &sk.expect_final_page);
     let fast_verdict = format!(
         "landed on page «{}», expected «{}» — {}",
         fast_kind,
@@ -2116,7 +2156,7 @@ async fn live(args: &[String]) -> Result<()> {
     let ms = started.elapsed().as_millis() as u64;
     let landed = page.current_url().await?;
     let kind = state::page_kind(&landed);
-    let ok = kind == sk.expect_final_page;
+    let ok = state::landed_on(&landed, &sk.expect_final_page);
     let verdict = format!(
         "landed on page «{}», expected «{}» — {}",
         kind,

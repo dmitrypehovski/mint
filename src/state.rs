@@ -155,27 +155,120 @@ pub fn page_kind(url: &str) -> String {
     }
 }
 
+/// The last segment of the address, masked if it looks like an identifier.
+///
+/// `page_kind` erases the second segment on purpose: two segments are a site's project root, and that
+/// is what lets a skill learned on one repository run on another. The cost is that a page like
+/// `/fieldwork/submit` has no kind of its own, and every address at that depth looks like the same
+/// place. When a run ends there, this is what the page can be named by.
+pub fn page_kind_deep(url: &str) -> String {
+    let p = path_of(url);
+    let seg = p.split('/').filter(|s| !s.is_empty()).next_back().unwrap_or("");
+    if seg.is_empty() || is_id_like(seg) {
+        String::new()
+    } else {
+        seg.to_lowercase()
+    }
+}
+
+/// Whether the address we are on is the page a run ended on.
+///
+/// Two forms are accepted: the kind the runtime normally uses, and the last segment, for addresses
+/// that have no kind of their own. A skill pinned by the first form keeps working across projects; a
+/// skill that can only be pinned by the second is still checked rather than waved through.
+pub fn landed_on(url: &str, expect: &str) -> bool {
+    if expect.is_empty() {
+        return false;
+    }
+    page_kind(url) == expect || page_kind_deep(url) == expect
+}
+
+/// One line of the table: its place in the full list, its role, its name, where it points, whether it
+/// can be reached from where it sits, and what it already holds.
+fn element_line(i: usize, e: &Element) -> String {
+    let where_to = if e.href.is_empty() { String::new() } else { format!(" → {}", href_kind(&e.href)) };
+    // Marked, not hidden: an element that exists but cannot be reached is a fact about the page, and
+    // the model does better knowing it than wondering why a click did nothing.
+    let reach = if e.on { "" } else { " [not reachable here]" };
+    // What the field already holds, and whether a box is ticked. A form is filled once, and a model
+    // that cannot see its own work fills it in circles: this is the whole reason a long form is
+    // possible at all.
+    let holds = match (&e.value, e.checked) {
+        (Some(v), _) if !v.is_empty() => {
+            format!(" [= {}]", v.chars().take(40).collect::<String>())
+        }
+        (_, Some(true)) => " [ticked]".to_string(),
+        (_, Some(false)) => " [not ticked]".to_string(),
+        _ => String::new(),
+    };
+    format!(
+        "{}: {} \"{}\"{}{}{}\n",
+        i, e.role, e.name, where_to, reach, holds
+    )
+}
+
+/// The whole screen. This is what the judge is given: it has to see the finished work, not the
+/// remaining work.
 pub fn as_table(els: &[Element]) -> String {
     let mut s = String::new();
     for (i, e) in els.iter().enumerate() {
-        let where_to = if e.href.is_empty() { String::new() } else { format!(" → {}", href_kind(&e.href)) };
-        // Marked, not hidden: an element that exists but cannot be reached is a fact about the
-        // page, and the model does better knowing it than wondering why a click did nothing.
-        let reach = if e.on { "" } else { " [not reachable here]" };
-        // What the field already holds, and whether a box is ticked. A form is filled once, and a
-        // model that cannot see its own work fills it in circles: this is the whole reason a long
-        // form is possible at all.
-        let holds = match (&e.value, e.checked) {
-            (Some(v), _) if !v.is_empty() => {
-                format!(" [= {}]", v.chars().take(40).collect::<String>())
-            }
-            (_, Some(true)) => " [ticked]".to_string(),
-            (_, Some(false)) => " [not ticked]".to_string(),
-            _ => String::new(),
-        };
+        s.push_str(&element_line(i, e));
+    }
+    s
+}
+
+/// Whether this element is something a person types into.
+pub fn is_field(e: &Element) -> bool {
+    e.role == "textbox" || e.role == "searchbox"
+}
+
+/// Whether this field is still waiting for something.
+pub fn is_empty_field(e: &Element) -> bool {
+    is_field(e) && e.value.as_deref().map(|v| v.trim().is_empty()).unwrap_or(true)
+}
+
+/// The screen as the deciding model sees it: the work that is left.
+///
+/// A form of fifty fields with thirty-five of them filled is a wall. The model has to find the
+/// fifteen that are not, count them, and carry the count to the next step — with a trail six steps
+/// long to carry it by. It gives up in the most plausible way available: it presses Send and calls
+/// the task finished, which is exactly what happened here twice, at thirty-five of fifty.
+///
+/// So the filled fields are left out and only the next `budget` empty ones are shown. The position
+/// on the page is then re-read from the page on every step instead of being remembered, which is how
+/// the fifty-invoice folder task works: each step removes the thing it acted on. The indices are the
+/// real ones for the full list, so a step chosen here is the same step as before.
+pub fn as_table_remaining(els: &[Element], budget: usize) -> String {
+    let mut s = String::new();
+    let mut shown = 0usize;
+    let mut hidden = 0usize;
+    let mut filled = 0usize;
+    for (i, e) in els.iter().enumerate() {
+        if !is_field(e) {
+            // Everything that is not a field is always shown, whatever it is doing: buttons, links,
+            // tick-boxes and radios are how the run moves, and hiding one would hide the way on.
+            s.push_str(&element_line(i, e));
+            continue;
+        }
+        if !is_empty_field(e) {
+            filled += 1;
+            continue;
+        }
+        if shown < budget {
+            s.push_str(&element_line(i, e));
+            shown += 1;
+        } else {
+            hidden += 1;
+        }
+    }
+    if filled > 0 {
         s.push_str(&format!(
-            "{}: {} \"{}\"{}{}{}\n",
-            i, e.role, e.name, where_to, reach, holds
+            "({filled} filled field(s) are not listed — they are done and need nothing.)\n"
+        ));
+    }
+    if hidden > 0 {
+        s.push_str(&format!(
+            "({hidden} more empty field(s) follow the ones above; they appear as these are filled.)\n"
         ));
     }
     s

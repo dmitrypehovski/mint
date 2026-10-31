@@ -147,20 +147,23 @@ did not work, it says so instead of being left out.</p>
 </div>
 
 <div class="lim">
-  <span class="tag">what did not work</span>
-  <h3 style="margin-top:6px">Three things that are not on the demonstration pages, and why.</h3>
-  <p><b>A fifty-field web form.</b> The same model that handles fifty files in a directory loses its
-  place on one long page: it filled thirty-five of fifty fields and then pressed Send, twice, on
-  separate attempts. The skill exists and is honestly marked unverified, and it stays off the
-  demonstration pages until it works. Directory work of the same length is fine, because there each
-  step removes the thing it acted on — the page does not.</p>
+  <span class="tag">what did not work, and what was fixed</span>
+  <h3 style="margin-top:6px">Two things that are not on the demonstration pages, and one that now is.</h3>
+  <p><b>A fifty-field web form — fixed, and on the list now.</b> The same model that handles fifty
+  files in a directory used to lose its place on one long page: it filled thirty-five of fifty fields
+  and pressed Send, twice, on separate attempts. The cause was that it was shown the whole page with
+  the filled fields still in it, and left to count what remained — the count is what it lost, and
+  nobody can count in a trail six steps long. It is now shown only the fields still empty, twelve at a
+  time with the total, and when it declares the task finished while the page still has empty fields
+  the claim is sent back to it, twice, with the number. Measured: <b>51 steps, 53 questions, 77.8 s to
+  learn — then 51 steps, 0 questions, 6.62 s to run.</b></p>
   <p><b>Following a CI workflow's runs.</b> Two hops in, the model cannot find the link to the run in
   the list, and the workflow list loads later than the runtime looks at it. Unverified, not shown.</p>
   <p><b>The judge that decides whether a run succeeded.</b> It failed correct work three times, with
   confident reasons, because it was shown a truncated view of the finished state — it named a file as
   misplaced that was in the right folder. It is now shown the whole state and required to name a
   concrete item if it says the work is not done, and the work is checked with a script anyway. Those
-  three failures are worth more to a reader than a page that only shows things working.</p>
+  failures are worth more to a reader than a page that only shows things working.</p>
 </div>
 
 <p class="sub" style="margin-top:22px">Every command behind these pages can be run from a clone of the

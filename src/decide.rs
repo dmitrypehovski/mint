@@ -4,7 +4,7 @@
 //! a step of a program that will afterwards run without it.
 
 use crate::cdp::Element;
-use crate::state::as_table;
+use crate::state::{as_table, as_table_remaining};
 use anyhow::{anyhow, Result};
 use serde_json::Value;
 use std::time::Instant;
@@ -154,7 +154,7 @@ pub fn next_step(goal: &str, url: &str, state: &[Element], trail: &[String], cat
     prompt.push_str(&format!(
         "You are driving a browser. Goal: {goal}\nTask category: {category}\nCurrent address: {url}\n\n\
          What is on screen (interactive elements):\n{}\n",
-        as_table(state)
+        as_table_remaining(state, 12)
     ));
     if !trail.is_empty() {
         prompt.push_str("\nWhat has already been done:\n");
@@ -176,8 +176,10 @@ pub fn next_step(goal: &str, url: &str, state: &[Element], trail: &[String], cat
             .filter(|e| e.value.as_deref().map(|v| v.trim().is_empty()).unwrap_or(true))
             .count();
         prompt.push_str(&format!(
-            "\n{} of the {} fields on this page are still empty. Fill the empty ones. A step that \
-             submits or sends is the right step only when nothing the goal asks for is left empty.\n",
+            "\n{} of the {} fields on this page are still empty. The ones already filled are not \
+             listed above; the empty fields you can see are the next to fill. A step that submits or \
+             sends is the right step only when nothing the goal asks for is left empty — if the count \
+             here is not zero, the goal is not reached.\n",
             empty,
             fields.len()
         ));
