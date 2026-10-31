@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mint — read a receipt</title>
+<meta name="description" content="The receipt format, field by field, from the published log.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/demos.css">
+</head><body>
+<header><nav>
+  <b><a href="/site" style="color:inherit">mint</a></b>
+  <a href="/demos" style="font-weight:600;color:var(--ink)">Demos</a>
+  <a href="/site#watch">Watch</a>
+  <a href="/site#proof">Proof</a>
+  <a href="/site#not">Why not an agent</a>
+  <a href="/site#surfaces">Surfaces</a>
+  <a href="/site#arli">ARLI</a>
+  <a href="/site#receipts">Receipts</a>
+  <a href="/site#tested">Tested</a>
+  <a href="/site#all">Applications</a>
+  <a href="/site#speed">What speed unlocks</a>
+  <a href="/site#evidence">Evidence</a>
+  <a href="/site#unproven">Not proven</a>
+  <a class="live" href="/live">Live run →</a>
+</nav></header>
+<div class="wrap">
+<div class="demohead">
+  <div class="eyebrow">demonstration 5</div>
+  <h1>One receipt, field by field.</h1>
+  <p class="lede">This is the entire format. Pick any of the seven from the published log and read it the way a stranger would: what it asserts, what the signature covers, and what the sentence at the bottom refuses to assert.</p>
+
+  <a class="back" href="/demos">&larr; all demonstrations</a>
+</div>
+<div class="pick"><button data-r="0">#0 decision</button><button data-r="1">#1 decision</button><button data-r="2">#2 decision</button><button data-r="3">#3 decision</button><button data-r="4">#4 decision</button><button data-r="5">#5 effect</button><button data-r="6">#6 decision</button></div>
+<div class="rct" id="rct"></div>
+<h3 class="dh" id="which" style="margin-top:26px">what this proves, and what it does not</h3>
+<p class="why" id="claim">A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.</p>
+<h3 class="dh">The two things a receipt is not allowed to leave out</h3>
+<p class="why">It carries the <b>observations</b> the runtime acted on — the tag, the role, whether
+there was a link, whether an approval was presented — and not merely its own conclusion. That is what
+lets someone else re-apply the rules and disagree. And it carries its own <b>limit</b>, in the claim
+above, so that a reader who only ever sees one receipt cannot mistake it for a statement about whether
+the work was correct.</p>
+<p class="cmdtxt"><b>the file:</b> <a href="/receipts.json">/receipts.json</a> — the whole log, as
+published. This page reads that same file.</p>
+<div class="honest"><h5>what this does not show</h5><p>It does not show that the elements named in the receipt were the ones on the page. The runtime attests to what it observed, not to the page it observed it on. Attesting to the environment needs a third party who can see both, and this does not have one.</p></div>
+
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path) {
+  const r = await fetch('/api/' + path, {cache: 'no-store'});
+  const j = await r.json().catch(() => ({ok: false, error: 'HTTP ' + r.status}));
+  if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+function show(el, text) { el.textContent = text; }
+function fail(el, e) { el.textContent = 'the call did not complete: ' + (e && e.message ? e.message : e); }
+function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' + esc(text); }
+
+let log = null;
+function row(k, v, bold) {
+  return '<div class="k' + (bold ? ' b' : '') + '">' + k + '</div><div class="v' +
+         (bold ? ' b' : '') + '">' + esc(v) + '</div>';
+}
+function render(seq) {
+  if (!log) return;
+  const r = log.receipts.find((x) => x.body.seq === seq);
+  if (!r) return;
+  const b = r.body;
+  const o = b.action.observed;
+  let h = '';
+  h += row('receipt', '#' + b.seq + ' of ' + log.count + ' · ' + b.kind, true);
+  h += row('id', b.id, true);
+  h += row('the element', b.action.element);
+  h += row('what it would do', b.action.side_effect);
+  h += row('what it saw', 'tag=' + o.tag + ' role=' + o.role +
+           ' has_link=' + (o.has_href ? 'yes' : 'no') + ' approval=' + (o.approval ? 'yes' : 'no'));
+  h += row('verdict', b.decision.verdict);
+  h += row('why', b.decision.reason || '(the rules allow this)');
+  h += row('decided by', b.decision.decided_by + (b.decision.decided_by === 'once-only'
+      ? ' — from what this run had already done, which no rule can see' : ' — any holder of the rules reaches this verdict again'));
+  h += row('status', b.status || '(no effect to report)');
+  h += row('effect of this action', b.action.identity);
+  h += row('approval, once-only key', b.action.key);
+  h += row('decided at', b.decided_at_ms + ' (the signer\'s clock)');
+  h += row('refers to', b.refers_to || '—');
+  h += row('rules in force', b.policy_hash);
+  h += row('previous receipt hashed to', b.prev_hash || '(this is the first)');
+  h += row('signature', r.sig.alg + ':' + r.sig.value);
+  h += row('signed by', r.sig.kid);
+  h += row('the claim', b.claim);
+  document.getElementById('rct').innerHTML = h;
+  document.getElementById('which').textContent =
+      '#' + b.seq + ': ' + (b.kind === 'outcome' ? 'an effect, recorded after it happened'
+                                                 : 'a decision, recorded before it happened');
+  document.querySelectorAll('.pick button').forEach((x) =>
+      x.classList.toggle('on', Number(x.dataset.r) === seq));
+}
+document.querySelectorAll('.pick button').forEach((b) =>
+    b.addEventListener('click', () => render(Number(b.dataset.r))));
+(async () => {
+  try {
+    const r = await fetch('/receipts.json', {cache: 'no-store'});
+    log = await r.json();
+    render(0);
+  } catch (e) { document.getElementById('rct').innerHTML =
+      '<div class="k b">error</div><div class="v b">could not read the log</div>'; }
+})();
+
+</script>
+</body></html>

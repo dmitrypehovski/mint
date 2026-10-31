@@ -1,0 +1,135 @@
+{
+  "allowed": 3,
+  "approved_step": 2,
+  "approved_write_happened": true,
+  "collected_at": "2026-10-31 20:23 CET",
+  "held": 1,
+  "log": {
+    "allowed": 3,
+    "decisions": [
+      {
+        "at_ms": 1793474632126,
+        "element": "a \"Open the record\"",
+        "identity": "b418283c3378d637739630deba8d5f1c568e03df5be2385fdae3efd23d5ba5fc",
+        "key": "dc474eb0323f1e81a03ed5e6b7f3baf8",
+        "observed": {
+          "action": "click",
+          "approval": false,
+          "has_href": true,
+          "role": "link",
+          "tag": "a"
+        },
+        "outcome": null,
+        "side_effect": "read",
+        "step": 0,
+        "verdict": {
+          "verdict": "allow"
+        }
+      },
+      {
+        "at_ms": 1793474632126,
+        "element": "input \"reference number\"",
+        "identity": "e5546c1995f726701eb19087786eb463cc0be8040c79c39ebb208604612092b7",
+        "key": "cc20490e58dd74055dd2525ffe6c8436",
+        "observed": {
+          "action": "type",
+          "approval": false,
+          "has_href": false,
+          "role": "textbox",
+          "tag": "input"
+        },
+        "outcome": null,
+        "side_effect": "read",
+        "step": 1,
+        "verdict": {
+          "verdict": "allow"
+        }
+      },
+      {
+        "at_ms": 1793474632126,
+        "element": "button \"Submit the filing\"",
+        "identity": "19f0793e4b512f65c9a84f0eb5cbed748af20138bd667d15b79ec04de7a291e9",
+        "key": "8888ddc704fafb1d444747471daeb668",
+        "observed": {
+          "action": "click",
+          "approval": false,
+          "has_href": false,
+          "role": "button",
+          "tag": "button"
+        },
+        "outcome": null,
+        "side_effect": "write",
+        "step": 2,
+        "verdict": {
+          "reason": "this step commits something; it needs an approval for 19f0793e4b51",
+          "verdict": "hold"
+        }
+      },
+      {
+        "at_ms": 1793474632126,
+        "element": "div \"Something we cannot classify\"",
+        "identity": "8313c6cb2882727ff52ea37b9c5f9d042c73eb6b81e1439fe4e573d866394ee9",
+        "key": "3e503717b1b4086c3a1568e2ae0b92d6",
+        "observed": {
+          "action": "click",
+          "approval": false,
+          "has_href": false,
+          "role": "tab",
+          "tag": "div"
+        },
+        "outcome": null,
+        "side_effect": "unknown",
+        "step": 3,
+        "verdict": {
+          "reason": "this element is neither a navigation nor a button, so what it would do cannot be described to anyone; refused rather than tried",
+          "verdict": "refuse"
+        }
+      },
+      {
+        "at_ms": 1793474632126,
+        "element": "button \"Submit the filing\"",
+        "identity": "19f0793e4b512f65c9a84f0eb5cbed748af20138bd667d15b79ec04de7a291e9",
+        "key": "8888ddc704fafb1d444747471daeb668",
+        "observed": {
+          "action": "click",
+          "approval": true,
+          "has_href": false,
+          "role": "button",
+          "tag": "button"
+        },
+        "outcome": "performed",
+        "side_effect": "write",
+        "step": 2,
+        "verdict": {
+          "verdict": "allow"
+        }
+      },
+      {
+        "at_ms": 1793474632251,
+        "element": "button \"Submit the filing\"",
+        "identity": "19f0793e4b512f65c9a84f0eb5cbed748af20138bd667d15b79ec04de7a291e9",
+        "key": "8888ddc704fafb1d444747471daeb668",
+        "observed": {
+          "action": "click",
+          "approval": true,
+          "has_href": false,
+          "role": "button",
+          "tag": "button"
+        },
+        "outcome": null,
+        "side_effect": "write",
+        "step": 2,
+        "verdict": {
+          "reason": "this action was already released once; a repeat is not performed",
+          "verdict": "refuse"
+        }
+      }
+    ],
+    "held": 1,
+    "host": "127.0.0.1:8840",
+    "refused": 2
+  },
+  "refused": 2,
+  "unclassifiable_element_ran": false,
+  "url": "http://127.0.0.1:8840/gate-lab"
+}

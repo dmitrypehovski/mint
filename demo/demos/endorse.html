@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mint — lie to the endorsement</title>
+<meta name="description" content="Four ways to fake a second party's signature on the rules, checked live.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/demos.css">
+</head><body>
+<header><nav>
+  <b><a href="/site" style="color:inherit">mint</a></b>
+  <a href="/demos" style="font-weight:600;color:var(--ink)">Demos</a>
+  <a href="/site#watch">Watch</a>
+  <a href="/site#proof">Proof</a>
+  <a href="/site#not">Why not an agent</a>
+  <a href="/site#surfaces">Surfaces</a>
+  <a href="/site#arli">ARLI</a>
+  <a href="/site#receipts">Receipts</a>
+  <a href="/site#tested">Tested</a>
+  <a href="/site#all">Applications</a>
+  <a href="/site#speed">What speed unlocks</a>
+  <a href="/site#evidence">Evidence</a>
+  <a href="/site#unproven">Not proven</a>
+  <a class="live" href="/live">Live run →</a>
+</nav></header>
+<div class="wrap">
+<div class="demohead">
+  <div class="eyebrow">demonstration 4 · live</div>
+  <h1>Four ways to lie about who agreed.</h1>
+  <p class="lede">A receipt proves we did the work. It cannot prove anybody wanted it — a runtime signing its own rules is an author approving their own book. That takes a second key, held by somebody else. These are the four ways a second signature can be faked, and each is rejected for its own reason.</p>
+
+  <a class="back" href="/demos">&larr; all demonstrations</a>
+</div>
+<div class="grid2">
+  <div><h3 class="dh">The one that is on file</h3>
+  <div class="rct">
+    <div class="k b">signed by</div><div class="v">afbf35b6d2764a73c3bf3ad93d956954…</div>
+    <div class="k">the runtime</div><div class="v">0cd20b19fef027dd62d1f68534cf5717…</div>
+    <div class="k">about</div><div class="v">policy a8bed408510ec43af571e8bfc9cddf23…</div>
+    <div class="k">scope</div><div class="v">the gate demonstration published at mint.arliwork.com</div>
+    <div class="k">until</div><div class="v">1796064340023</div>
+    <div class="k">note</div><div class="v">signed by the counterparty key. Both keys are on this machine, so this shows the mechanism, not trust.</div>
+  </div></div>
+  <div><h3 class="dh">What a counter-signature is worth</h3>
+  <p class="why">Exactly what the key behind it is worth — no more, and no amount of code changes that.
+  Two different key strings on the same machine prove the mechanism and nothing about trust, which is
+  why the note above says so in the artifact itself rather than only in a pitch.</p></div>
+</div>
+<h2 class="dh">The four forgeries</h2>
+<h3 class="dh">signed by the runtime's own key</h3>
+<p class="why">A perfectly valid signature — from the same party that wrote the rules. If a verifier accepts this, it will report a counter-signature where there is only one party agreeing with itself, which is worse than having none at all: the reader stops looking for the missing half.</p>
+<p><button class="btn ghost" data-case="0">check the endorsement</button></p>
+<pre class="runout" id="eout-0"></pre>
+<h3 class="dh">covering a different policy</h3>
+<p class="why">An honest signature over the wrong document, hoping nobody compares hashes.</p>
+<p><button class="btn ghost" data-case="1">check the endorsement</button></p>
+<pre class="runout" id="eout-1"></pre>
+<h3 class="dh">naming a different runtime</h3>
+<p class="why">These rules, accepted — but for somebody else's runtime.</p>
+<p><button class="btn ghost" data-case="2">check the endorsement</button></p>
+<pre class="runout" id="eout-2"></pre>
+<h3 class="dh">already expired</h3>
+<p class="why">A spent endorsement. Whatever it once authorised, it does not authorise it now.</p>
+<p><button class="btn ghost" data-case="3">check the endorsement</button></p>
+<pre class="runout" id="eout-3"></pre>
+<p class="cmdtxt"><b>the command:</b> levos receipts --in receipts.json --policy policy.json
+--endorsement endorsement.json</p>
+<div class="honest"><h5>what this does not show</h5><p>It does not show that a real counterparty exists. Nobody outside this machine has signed anything here, and no code can supply that. The endorser's key is generated on this machine by a command that says out loud what it is for. A genuine endorsement needs a person or an organisation on the other side who was asked and agreed, and that is the one part of this that has to be bought rather than built.</p></div>
+
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path) {
+  const r = await fetch('/api/' + path, {cache: 'no-store'});
+  const j = await r.json().catch(() => ({ok: false, error: 'HTTP ' + r.status}));
+  if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+function show(el, text) { el.textContent = text; }
+function fail(el, e) { el.textContent = 'the call did not complete: ' + (e && e.message ? e.message : e); }
+function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' + esc(text); }
+
+document.querySelectorAll('[data-case]').forEach((b) => {
+  b.addEventListener('click', async () => {
+    const slug = b.dataset.case;
+    const out = document.getElementById('eout-' + slug);
+    out.textContent = 'checking the endorsement…';
+    try {
+      const j = await api('endorse?case=' + slug);
+      show(out, j.output);
+    } catch (e) { fail(out, e); }
+  });
+});
+
+</script>
+</body></html>

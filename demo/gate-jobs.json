@@ -1,0 +1,10 @@
+[
+ {
+  "skill": "demo/gate-read.skill.json",
+  "start": "http://127.0.0.1:8840/gate-lab"
+ },
+ {
+  "skill": "demo/gate-write.skill.json",
+  "start": "http://127.0.0.1:8840/gate-lab"
+ }
+]

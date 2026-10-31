@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>gate lab — four elements, four kinds of decision</title>
+<style>
+  :root{--paper:#f3f7ee;--card:#fff;--rule:#d3dfc7;--ink:#16220f;--dim:#55684a;--green:#1f7a3a;--amber:#8a6d1f;--red:#a32626}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 'Instrument Sans',system-ui,sans-serif}
+  .wrap{max-width:760px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:30px;letter-spacing:-.03em;margin:0 0 8px}
+  p.lede{color:var(--dim);margin:0 0 26px}
+  .item{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;margin:0 0 12px}
+  .item h3{margin:0 0 4px;font-size:16px}
+  .item p{margin:0 0 10px;color:var(--dim);font-size:14px}
+  .item .what{font:11.5px/1 'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--green)}
+  .item.what-write .what{color:var(--amber)}
+  .item.what-unknown .what{color:var(--red)}
+  a,button{font:inherit}
+  a.link{color:var(--green);font-weight:600}
+  input[type=text]{padding:9px 11px;border:1px solid var(--rule);border-radius:8px;width:100%;max-width:340px;background:var(--paper)}
+  button.commit{background:var(--green);color:#fff;border:0;border-radius:9px;padding:11px 18px;font-weight:600;cursor:pointer}
+  [role=tab]{display:inline-block;padding:9px 14px;border:1px dashed var(--rule);border-radius:8px;color:var(--dim);cursor:pointer}
+  .status{margin-top:22px;padding:14px 16px;border-radius:10px;background:var(--card);border:1px solid var(--rule);
+    font:13.5px/1.6 'JetBrains Mono',monospace;color:var(--dim)}
+  .status b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Four elements, four kinds of decision</h1>
+  <p class="lede">This page exists so the write gate can be exercised on real elements instead of
+  described. Nothing here is a mock: each item below is the kind of thing a skill meets in the wild,
+  and the gate has to say something honest about each one before it is touched.</p>
+
+  <div class="item">
+    <span class="what">navigation — changes nothing</span>
+    <h3><a class="link" href="#record">Open the record</a></h3>
+    <p>A link with somewhere to go. Reading it cannot alter anything on the far side.</p>
+  </div>
+
+  <div class="item">
+    <span class="what">input — does not commit</span>
+    <h3><label for="f">Reference</label></h3>
+    <p>Typing into a field fills it. The commit, if there is one, is the submit.</p>
+    <input id="f" type="text" name="reference" placeholder="reference number">
+  </div>
+
+  <div class="item what-write">
+    <span class="what">write — commits something</span>
+    <h3>Submit the filing</h3>
+    <p>This is where the world changes. A gate that cannot stop here is not a gate.</p>
+    <button class="commit" id="commit" onclick="document.getElementById('st').innerHTML='<b>committed</b> — the filing was submitted at '+new Date().toISOString()">Submit the filing</button>
+  </div>
+
+  <div class="item what-unknown">
+    <span class="what">unclassifiable — refused</span>
+    <h3>An element that is neither</h3>
+    <p>No destination, no button semantics. Nothing here can be described to a person, so nothing
+    here can be approved, so it must be refused rather than attempted.</p>
+    <div role="tab" onclick="document.getElementById('st').innerHTML='<b>the unclassifiable element ran</b> — which is exactly what must not happen'">Something we cannot classify</div>
+  </div>
+
+  <div class="status" id="st">nothing has happened yet</div>
+</div>
+</body>
+</html>

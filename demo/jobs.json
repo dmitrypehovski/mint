@@ -1,0 +1,74 @@
+[
+ {
+  "skill": "gh-commit.skill.json",
+  "start": "https://github.com/tokio-rs/tokio"
+ },
+ {
+  "skill": "gh-issues.skill.json",
+  "start": "https://github.com/tokio-rs/tokio"
+ },
+ {
+  "skill": "gh-prs.skill.json",
+  "start": "https://github.com/tokio-rs/tokio"
+ },
+ {
+  "skill": "gh-commit.skill.json",
+  "start": "https://github.com/rust-lang/rust"
+ },
+ {
+  "skill": "gh-issues.skill.json",
+  "start": "https://github.com/rust-lang/rust"
+ },
+ {
+  "skill": "gh-prs.skill.json",
+  "start": "https://github.com/rust-lang/rust"
+ },
+ {
+  "skill": "gh-commit.skill.json",
+  "start": "https://github.com/facebook/react"
+ },
+ {
+  "skill": "gh-issues.skill.json",
+  "start": "https://github.com/facebook/react"
+ },
+ {
+  "skill": "gh-prs.skill.json",
+  "start": "https://github.com/facebook/react"
+ },
+ {
+  "skill": "gh-commit.skill.json",
+  "start": "https://github.com/vercel/next.js"
+ },
+ {
+  "skill": "gh-issues.skill.json",
+  "start": "https://github.com/vercel/next.js"
+ },
+ {
+  "skill": "gh-prs.skill.json",
+  "start": "https://github.com/vercel/next.js"
+ },
+ {
+  "skill": "gh-commit.skill.json",
+  "start": "https://github.com/microsoft/vscode"
+ },
+ {
+  "skill": "gh-issues.skill.json",
+  "start": "https://github.com/microsoft/vscode"
+ },
+ {
+  "skill": "gh-prs.skill.json",
+  "start": "https://github.com/microsoft/vscode"
+ },
+ {
+  "skill": "gh-commit.skill.json",
+  "start": "https://github.com/docker/compose"
+ },
+ {
+  "skill": "gh-issues.skill.json",
+  "start": "https://github.com/docker/compose"
+ },
+ {
+  "skill": "gh-prs.skill.json",
+  "start": "https://github.com/docker/compose"
+ }
+]

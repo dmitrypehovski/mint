@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mint — the gate</title>
+<meta name="description" content="Fit the gate to the effect: the real rules engine decides, live.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/demos.css">
+</head><body>
+<header><nav>
+  <b><a href="/site" style="color:inherit">mint</a></b>
+  <a href="/demos" style="font-weight:600;color:var(--ink)">Demos</a>
+  <a href="/site#watch">Watch</a>
+  <a href="/site#proof">Proof</a>
+  <a href="/site#not">Why not an agent</a>
+  <a href="/site#surfaces">Surfaces</a>
+  <a href="/site#arli">ARLI</a>
+  <a href="/site#receipts">Receipts</a>
+  <a href="/site#tested">Tested</a>
+  <a href="/site#all">Applications</a>
+  <a href="/site#speed">What speed unlocks</a>
+  <a href="/site#evidence">Evidence</a>
+  <a href="/site#unproven">Not proven</a>
+  <a class="live" href="/live">Live run →</a>
+</nav></header>
+<div class="wrap">
+<div class="demohead">
+  <div class="eyebrow">demonstration 1 · live</div>
+  <h1>The gate answers one question: what would this step do?</h1>
+  <p class="lede">Every step goes through a gate before it touches anything. The gate does not look at what an element is called, and it does not take a model's word for it. It looks at what the element <b>would do</b> — read, write, or something nobody can describe — and from that comes allow, hold or refuse.</p>
+
+  <a class="back" href="/demos">&larr; all demonstrations</a>
+</div>
+<h2 class="dh">The five things the runtime saw, and what the rules say about them</h2>
+<p class="why">These are the observations from the published log, unchanged. Flip the switch to present
+an approval for that exact action and the verdict is recomputed <b>now</b>, by the real rules engine,
+not by the page.</p>
+<div class="try">
+  <div class="tryrow" data-i="0">
+    <div><div class="el">the link to the record</div><div class="ob">action=click tag=a role=link href=yes</div></div>
+    <div class="sw" data-sw="0" title="present an approval for this exact action"><i></i></div>
+    <div class="vd cls" data-vd="0">…</div>
+  </div>
+  <div class="tryrow" data-i="1">
+    <div><div class="el">the reference number field</div><div class="ob">action=type tag=input role=textbox href=no</div></div>
+    <div class="sw" data-sw="1" title="present an approval for this exact action"><i></i></div>
+    <div class="vd cls" data-vd="1">…</div>
+  </div>
+  <div class="tryrow" data-i="2">
+    <div><div class="el">the submit button</div><div class="ob">action=click tag=button role=button href=no</div></div>
+    <div class="sw" data-sw="2" title="present an approval for this exact action"><i></i></div>
+    <div class="vd cls" data-vd="2">…</div>
+  </div>
+  <div class="tryrow" data-i="3">
+    <div><div class="el">an element nobody can describe</div><div class="ob">action=click tag=div role=tab href=no</div></div>
+    <div class="sw" data-sw="3" title="present an approval for this exact action"><i></i></div>
+    <div class="vd cls" data-vd="3">…</div>
+  </div>
+  <div class="tryrow" data-i="4">
+    <div><div class="el">the same submit button, approved</div><div class="ob">action=click tag=button role=button href=no</div></div>
+    <div class="sw on" data-sw="4" title="present an approval for this exact action"><i></i></div>
+    <div class="vd cls" data-vd="4">…</div>
+  </div>
+</div>
+<p class="cmdtxt" id="cmdtxt"></p>
+<pre class="runout" id="out"></pre>
+<div class="grid2">
+  <div><h3 class="dh">What the rules actually say</h3>
+  <p class="why">A navigation is a read, whatever it looks like — arriving somewhere changes nothing on
+  the far side. Typing is a read; the commit, if there is one, is the submit. Anything that commits is
+  held until an approval <b>bound to that exact action</b> is presented, and then released once. An
+  element that matches no rule is refused even when an approval is offered, because an approval
+  authorises a described action and there is nothing here to describe.</p></div>
+  <div><h3 class="dh">Try the fourth one with the switch on</h3>
+  <p class="why">It still refuses. That is the whole point: an approval is a permission for one
+  described action, not a key to the front door. A gate that can be talked into anything is not a gate,
+  it is a formality with a good reputation.</p></div>
+</div>
+<div class="honest"><h5>what this does not show</h5><p>It does not show that the rules are good rules. They are one page of somebody's judgement about what should require approval, published so you can disagree with it. The mechanism is that they are a document and every verdict can be re-derived from it — not that this particular document is right.</p></div>
+
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path) {
+  const r = await fetch('/api/' + path, {cache: 'no-store'});
+  const j = await r.json().catch(() => ({ok: false, error: 'HTTP ' + r.status}));
+  if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+function show(el, text) { el.textContent = text; }
+function fail(el, e) { el.textContent = 'the call did not complete: ' + (e && e.message ? e.message : e); }
+function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' + esc(text); }
+
+const obs = [{"element": "a \"Open the record\"", "action": "click", "approval": false, "has_href": true, "role": "link", "tag": "a"}, {"element": "input \"reference number\"", "action": "type", "approval": false, "has_href": false, "role": "textbox", "tag": "input"}, {"element": "button \"Submit the filing\"", "action": "click", "approval": false, "has_href": false, "role": "button", "tag": "button"}, {"element": "div \"Something we cannot classify\"", "action": "click", "approval": false, "has_href": false, "role": "tab", "tag": "div"}, {"element": "button \"Submit the filing\"", "action": "click", "approval": true, "has_href": false, "role": "button", "tag": "button"}];
+const state = obs.map((o) => !!o.approval);
+async function verdict(i) {
+  const j = await api('verdict?obs=' + i + '&approval=' + (state[i] ? 1 : 0));
+  const box = document.querySelector('[data-vd="' + i + '"]');
+  box.className = 'vd ' + j.verdict;
+  box.textContent = j.class;
+  box.title = j.reason;
+  return j;
+}
+async function refresh(i, el) {
+  const out = document.getElementById('out');
+  try {
+    const j = await verdict(i);
+    show(out, j.output);
+    cmdline(document.getElementById('cmdtxt'), j.command);
+  } catch (e) { fail(out, e); }
+}
+document.querySelectorAll('[data-sw]').forEach((sw) => {
+  sw.addEventListener('click', async () => {
+    const i = Number(sw.dataset.sw);
+    state[i] = !state[i];
+    sw.classList.toggle('on', state[i]);
+    await refresh(i, sw);
+  });
+});
+(async () => {
+  try {
+    const j = await api('verdict?obs=0&approval=' + (state[0] ? 1 : 0));
+    for (let i = 0; i < obs.length; i++) await verdict(i);
+    show(document.getElementById('out'), j.output);
+    cmdline(document.getElementById('cmdtxt'), j.command);
+  } catch (e) { fail(document.getElementById('out'), e); }
+})();
+
+</script>
+</body></html>

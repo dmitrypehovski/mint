@@ -1,0 +1,45 @@
+{
+  "note": "Observations exactly as the runtime recorded them in demo/gate-receipts.json. Nothing here is written by hand.",
+  "observations": [
+    {
+      "element": "a \"Open the record\"",
+      "action": "click",
+      "approval": false,
+      "has_href": true,
+      "role": "link",
+      "tag": "a"
+    },
+    {
+      "element": "input \"reference number\"",
+      "action": "type",
+      "approval": false,
+      "has_href": false,
+      "role": "textbox",
+      "tag": "input"
+    },
+    {
+      "element": "button \"Submit the filing\"",
+      "action": "click",
+      "approval": false,
+      "has_href": false,
+      "role": "button",
+      "tag": "button"
+    },
+    {
+      "element": "div \"Something we cannot classify\"",
+      "action": "click",
+      "approval": false,
+      "has_href": false,
+      "role": "tab",
+      "tag": "div"
+    },
+    {
+      "element": "button \"Submit the filing\"",
+      "action": "click",
+      "approval": true,
+      "has_href": false,
+      "role": "button",
+      "tag": "button"
+    }
+  ]
+}

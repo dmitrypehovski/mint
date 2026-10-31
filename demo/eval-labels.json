@@ -1,0 +1,8 @@
+{
+ "https://github.com/tokio-rs/tokio": "R1",
+ "https://github.com/rust-lang/rust": "R2",
+ "https://github.com/facebook/react": "R3",
+ "https://github.com/vercel/next.js": "R4",
+ "https://github.com/microsoft/vscode": "R5",
+ "https://github.com/docker/compose": "R6"
+}

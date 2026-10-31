@@ -1,0 +1,29 @@
+{
+  "category": "automation",
+  "content": "# open the issue list of this repository\n\nCompiled by levOS from one demonstration on https://github.com/tokio-rs/tokio.\n\n1 step(s), 547 bytes of readable JSON. Each step states the shape it recognises and the page it must produce; a run verifies both and reports the tier that answered: shape, words or model. Marginal cost of an execution is zero model calls.\n",
+  "entries": [
+    {
+      "answer": "the starting page -> issues",
+      "terms": [
+        "Issues 308 (308)",
+        "issues * *",
+        "tokio/issues"
+      ],
+      "title": "Step 1: open the issue list of this repository"
+    }
+  ],
+  "harness": {
+    "bytes": 547,
+    "model_calls_to_learn": 3,
+    "run": "levos arli-serve --skill <file> --slug <slug> --port <port>",
+    "runtime": "levOS",
+    "skill_file": "gh-issues.skill.json",
+    "steps": 1,
+    "verified_goal": true
+  },
+  "name": "open the issue list of this repository (compiled)",
+  "price_usd": 0.2,
+  "rights_declared": true,
+  "subcategory": "procedures",
+  "why": "An executable procedure compiled from a single demonstration. It runs without a model, verifies every step against the page it must produce, and reports which tier resolved each one."
+}

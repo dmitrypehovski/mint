@@ -1,0 +1,172 @@
+{
+  "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+  "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+  "count": 2,
+  "endorsement": null,
+  "host": "github.com",
+  "policy": {
+    "approvals_are_single_use": true,
+    "note": "Reads pass. Anything that commits is held until an approval bound to that exact action is presented, and released once. A step that matches no rule is refused even if an approval is offered, because an approval authorises a described action and nothing here can be described.",
+    "on_unclassifiable": "refuse",
+    "on_write_without_approval": "hold",
+    "reads": [
+      {
+        "class": "read",
+        "when": [
+          {
+            "attr": "has_href",
+            "value": "yes"
+          }
+        ]
+      },
+      {
+        "class": "read",
+        "when": [
+          {
+            "attr": "action",
+            "value": "type"
+          }
+        ]
+      },
+      {
+        "class": "read",
+        "when": [
+          {
+            "attr": "tag",
+            "value": "a"
+          }
+        ]
+      },
+      {
+        "class": "read",
+        "when": [
+          {
+            "attr": "role",
+            "value": "link"
+          }
+        ]
+      }
+    ],
+    "spec": "mint.policy/0.1",
+    "version": 1,
+    "writes": [
+      {
+        "class": "write",
+        "when": [
+          {
+            "attr": "tag",
+            "value": "button"
+          }
+        ]
+      },
+      {
+        "class": "write",
+        "when": [
+          {
+            "attr": "role",
+            "value": "button"
+          }
+        ]
+      },
+      {
+        "class": "write",
+        "when": [
+          {
+            "attr": "tag",
+            "value": "input"
+          }
+        ]
+      }
+    ]
+  },
+  "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
+  "receipts": [
+    {
+      "body": {
+        "action": {
+          "element": "a \"Pull requests 635 (635)\"",
+          "identity": "422c86d773eee960ee06926d73f816fb131cbc9b7c2c484aade0c349dfebf630",
+          "key": "15a43784a8ca8783c968b996247f75c2",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": true,
+            "role": "link",
+            "tag": "a"
+          },
+          "side_effect": "read",
+          "step": 0
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793472410836,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "github.com",
+        "id": "0cd20b19fef0-0000",
+        "kind": "decision",
+        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
+        "prev_hash": null,
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 0,
+        "signed_at_ms": 1793472410836,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "f12df69fb0d3965e7fe8b15f62e8ea00ccdb5374eda7a0e17988217cbbe78e222d50ab8aecb2279bd11b3df6e9187cb3378b677067a3f267148ad85f62f6a507"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "a \"Pull requests 635 (635)\"",
+          "identity": "422c86d773eee960ee06926d73f816fb131cbc9b7c2c484aade0c349dfebf630",
+          "key": "15a43784a8ca8783c968b996247f75c2",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": true,
+            "role": "link",
+            "tag": "a"
+          },
+          "side_effect": "read",
+          "step": 0
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793472410853,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "github.com",
+        "id": "0cd20b19fef0-0001",
+        "kind": "outcome",
+        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
+        "prev_hash": "ea7b2e3d4c50215a57e6a1517ef9d0a2a852227c65a7b3076424dcee3b268fc4",
+        "refers_to": "0cd20b19fef0-0000",
+        "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
+        "result_note": "performed",
+        "seq": 1,
+        "signed_at_ms": 1793472410853,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "d349a269d78bd30a2b890b11abb6df86f70396f859d96f0f9f5b96ac3d86242bef83a6822b6fa06cfddac9609dc1f822c1b9f9a01f45168afbd985cb05f26f0c"
+      }
+    }
+  ],
+  "spec": "mint.receipt/0.1"
+}

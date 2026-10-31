@@ -1,0 +1,85 @@
+{
+  "collected_at": "2026-10-31 19:51 CET",
+  "runs": [
+    {
+      "corrections": 0,
+      "decision_us": [
+        2
+      ],
+      "decisions": 1,
+      "expected": "gate-lab",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the record on the gate lab",
+      "landed": "gate-lab",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": null,
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gate-read.skill",
+      "success": true,
+      "target": "http://127.0.0.1:8840/gate-lab",
+      "tiers": [
+        "shape"
+      ],
+      "wall_ms": 5
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        2
+      ],
+      "decisions": 1,
+      "expected": "gate-lab",
+      "gate": {
+        "allowed": 0,
+        "blocked": [
+          {
+            "element": "button \"Submit the filing\"",
+            "reason": "this step commits something; it needs an approval for 56e14abad9a8",
+            "side_effect": "write",
+            "step": 1,
+            "verdict": "hold"
+          }
+        ],
+        "held": 1,
+        "refused": 0
+      },
+      "goal": "submit the filing on the gate lab",
+      "landed": "gate-lab",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 1,
+        "file": null,
+        "signed": true,
+        "verified": true,
+        "verified_count": 1
+      },
+      "skill": "gate-write.skill",
+      "success": false,
+      "target": "http://127.0.0.1:8840/gate-lab",
+      "tiers": [
+        "shape"
+      ],
+      "wall_ms": 0
+    }
+  ],
+  "summary": {
+    "failed": 1,
+    "succeeded": 1,
+    "tasks": 2,
+    "zero_model_calls": 2
+  }
+}

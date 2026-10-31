@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mint — the ARLI line that stops paying for the same decision twice</title>
+<meta name="description" content="First run: a model decides every step. Every later run executes a compiled program on data it has never seen, calls no model, and verifies each step. Measured on six unseen projects.">
+<style>
+  :root{
+    --bg:#07090e; --panel:#0e1117; --panel2:#12161f; --line:#1e2330;
+    --ink:#e9edf6; --dim:#8b94a9; --dim2:#5d6579;
+    --acc:#7c5ce7; --good:#4ade80; --warn:#f0b95c; --bad:#ff6b6b;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.62 var(--sans);-webkit-font-smoothing:antialiased}
+  a{color:var(--acc);text-decoration:none} a:hover{text-decoration:underline}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 26px}
+  header{position:sticky;top:0;z-index:20;background:rgba(7,9,14,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav{display:flex;gap:20px;align-items:center;padding:13px 0;font-size:14px;flex-wrap:wrap}
+  nav b{font-weight:700;letter-spacing:-.02em;font-size:16px}
+  nav a{color:var(--dim)} nav a:hover{color:var(--ink);text-decoration:none}
+  .live{color:var(--acc)!important;margin-left:auto;font-weight:600}
+  .hero{padding:66px 0 34px}
+  .hero .eyebrow{color:var(--acc);font:600 12.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px}
+  h1{font-size:clamp(30px,4.6vw,50px);line-height:1.07;letter-spacing:-.035em;margin:0 0 18px;font-weight:760;max-width:900px}
+  .hero p.lede{font-size:19px;color:var(--dim);max-width:820px;margin:0 0 14px}
+  .hero p.lede b{color:var(--ink);font-weight:600}
+  .cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:24px}
+  .btn{display:inline-block;padding:11px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:15px;font-weight:600}
+  .btn.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+  .btn:hover{text-decoration:none;transform:translateY(-1px)}
+  .scoreboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:34px}
+  .score{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .score .v{font:700 32px/1 var(--mono);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .score .v.good{color:var(--good)} .score .v.acc{color:var(--acc)}
+  .score .k{color:var(--dim);font-size:14px;margin-top:8px}
+  section{padding:50px 0;border-top:1px solid var(--line)}
+  h2{font-size:clamp(22px,3vw,31px);letter-spacing:-.025em;margin:0 0 10px;font-weight:720}
+  .sub{color:var(--dim);margin:0 0 24px;max-width:860px}
+  h3{font-size:17.5px;margin:28px 0 8px;letter-spacing:-.01em}
+  .grid{display:grid;gap:15px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:820px){.g2{grid-template-columns:1fr}}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(248px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:19px}
+  .card h4{margin:0 0 7px;font-size:16.5px;letter-spacing:-.01em}
+  .card p{margin:0;color:var(--dim);font-size:15px}
+  .card .tag{display:inline-block;font:11.5px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--acc);margin-bottom:9px}
+  .card.brk{border-color:rgba(124,92,231,.5);background:linear-gradient(180deg,rgba(124,92,231,.07),var(--panel))}
+  table{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:4px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim2);font:600 12px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+  td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  tr.hl td{background:rgba(74,222,128,.05)}
+  code{font-family:var(--mono);font-size:13.5px;background:#05070b;padding:1px 5px;border-radius:4px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .mid{color:var(--warn)}
+  ul{margin:8px 0 0;padding-left:20px;color:var(--dim)} li{margin:7px 0}
+  ul.tight li{margin:4px 0}
+  .kicker{color:var(--acc);font:600 12.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:10px}
+  footer{padding:38px 0 70px;color:var(--dim2);font-size:14px;border-top:1px solid var(--line)}
+  .pill{display:inline-block;padding:4px 9px;border:1px solid var(--line);border-radius:999px;font:12px/1.4 var(--mono);color:var(--dim);margin:0 6px 6px 0}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+  @media(max-width:760px){.split{grid-template-columns:1fr}}
+  .note{color:var(--dim);font-size:14.5px;margin-top:10px}
+  .note2{color:var(--dim2);font-size:13.5px;margin:11px 0 0;font-family:var(--mono);line-height:1.5}
+</style></head>
+<body>
+
+<header><div class="wrap"><nav>
+  <b>levOS</b>
+  <a href="#proof">Proof</a>
+  <a href="#not">Why not an agent</a>
+  <a href="#surfaces">Surfaces</a>
+  <a href="#arli">ARLI</a>
+  <a href="#tested">Tested</a>
+  <a href="#all">Applications</a>
+  <a href="#speed">What speed unlocks</a>
+  <a href="#evidence">Evidence</a>
+  <a href="#unproven">Not proven</a>
+  <a class="live" href="/live">Live run →</a>
+</nav></div></header>
+
+<div class="wrap hero">
+  <div class="eyebrow">mint · the supply side of the skill market</div>
+  <h1>An agent that does a task once with a model, and then never again.</h1>
+  <p class="lede">
+    The first run solves the task the ordinary way: a model picks every step. levOS writes down
+    not the actions but the <b>shape</b> of them, and that compiles into a small program. Every
+    later run executes that program against <b>data it has never seen</b>, calls <b>no model at
+    all</b>, and <b>checks whether each step did what it promised</b>.
+  </p>
+  <p class="lede">Cost therefore stops being linear in the number of runs. The thousandth run is free.</p>
+  <div class="cta">
+    <a class="btn primary" href="/live">Watch it run live</a>
+    <a class="btn" href="/evaluation.json">Raw evaluation</a>
+    <a class="btn" href="/measurements.json">Raw measurements</a>
+  </div>
+  <div class="scoreboard" id="scoreboard"></div>
+</div>
+
+<section id="proof"><div class="wrap">
+  <span class="kicker">The proof, first</span>
+  <h2>Six projects it had never seen. Eighteen tasks. Eighteen completed.</h2>
+  <p class="sub">Three tasks — open the latest commit, open the issue list, open the pull request
+  list — were learned <b>once</b>, on a single project. They were then run against five other
+  projects they had never touched, with different layouts, different content and different volumes.
+  Nothing was adjusted between runs. Every task below is a real run against a live site, and the
+  verdict is structural: the run either landed on the page the step promised, or it did not.</p>
+  <div id="proof-table"></div>
+  <p class="note" id="proof-note"></p>
+
+  <div class="grid g3" style="margin-top:26px">
+    <div class="card"><div class="kicker">Transfer</div>
+      <div id="p-transfer" style="font:700 30px/1 var(--mono);color:var(--good)">—</div>
+      <p style="margin-top:8px">learned on one instance, executed on five others without a single
+      adjustment</p></div>
+    <div class="card"><div class="kicker">Model calls</div>
+      <div id="p-zeromodel" style="font:700 30px/1 var(--mono);color:var(--good)">—</div>
+      <p style="margin-top:8px">of the eighteen needed no question at all; the other five cost
+      exactly one question each</p></div>
+    <div class="card"><div class="kicker">Cost of one decision</div>
+      <div id="p-decision" style="font:700 30px/1 var(--mono);color:var(--acc)">—</div>
+      <p style="margin-top:8px">against <span id="p-model" class="no"></span> for the same decision
+      made by the model</p></div>
+  </div>
+</div></section>
+
+<section id="not"><div class="wrap">
+  <span class="kicker">Why this is not the twelfth browser agent</span>
+  <h2>Three properties, and each is a thing the alternatives cannot do.</h2>
+  <p class="sub">Every piece of this has existed separately. What did not exist is the combination,
+  and the combination is where the economics change.</p>
+  <div class="grid g3">
+    <div class="card"><span class="tag">1 · the selector is a shape</span>
+      <h4>It survives the data changing</h4>
+      <p>Not a path, not a label, not coordinates: the role of the element, the shape of where it
+      points, and its place among the elements that share that shape. That is why a skill learned
+      on one project executes on its siblings — and why a macro, which records a path, breaks.</p></div>
+    <div class="card"><span class="tag">2 · every step has an obligation</span>
+      <h4>It knows when it failed, and repairs itself</h4>
+      <p>Each step remembers the page it must produce. From that: a mis-click is told apart from a
+      reversal, a step that lands wrong is re-observed and re-taught into the skill, and every step
+      reports <i>which tier</i> resolved it — shape, words, or the model. A run that cannot say where
+      each decision came from cannot be audited.</p></div>
+    <div class="card"><span class="tag">3 · the model leaves the loop</span>
+      <h4>The answer is absorbed, not discarded</h4>
+      <p>When the model is asked, its answer is compiled into the skill. So cost decays with
+      repetition instead of growing — the opposite of every other agent product, whose cost is
+      linear in the number of runs and whose behaviour never improves on its own.</p></div>
+  </div>
+  <div class="card" style="margin-top:15px">
+    <h4>And what it is not</h4>
+    <p>Not a macro: it survives changed data. Not a cache: it resolves against live state instead of
+    replaying yesterday's answer, and it knows when it cannot. Not a wrapper around a model: the
+    model is a fallback inside the loop, and the loop closes without it.</p>
+  </div>
+</div></section>
+
+<section id="model"><div class="wrap">
+  <span class="kicker">The model is a part, not the product</span>
+  <h2>Whatever model sits in the loop, it is asked once and then leaves.</h2>
+  <p class="sub">The runtime reaches the model through an adapter and speaks two request shapes: the
+  OpenAI one, which covers gateways and most hosted models, and Anthropic's native API, which differs
+  in the address, the auth header and where the answer lives. Both are exercised against a stand-in
+  endpoint that records what it received — the OpenAI shape arriving with a bearer token and a JSON
+  mode flag, the Anthropic shape arriving with <code>x-api-key</code> and
+  <code>anthropic-version</code> and no JSON mode — and both answers are parsed. It has not been run
+  against a live Anthropic key, because we do not hold one; the stand-in is the closest an honest
+  claim can get today.</p>
+  <div class="grid g3">
+    <div class="card"><span class="tag">What it takes</span>
+      <h4>Two shapes cover the field</h4>
+      <p>Point it at an endpoint, name a model, give it a key. Everything specific to a provider lives
+      in one place, and the run is checked end to end after the swap rather than trusted.</p></div>
+    <div class="card"><span class="tag">What it means for a model vendor</span>
+      <h4>Tokens stop being a recurring cost</h4>
+      <p>Every other agent asks the model again on every run, forever, and the bill grows with usage.
+      Here the model is asked once per task and then leaves the loop: <b>the same credits buy a
+      permanent capability instead of being consumed again tomorrow</b>. For whoever supplies the
+      model, that is capital rather than operating expense.</p></div>
+    <div class="card"><span class="tag">Why it matters here</span>
+      <h4>The compiled path needs no vendor at all</h4>
+      <p>A rate limit, a credit limit, a revoked key or a dead endpoint stops the first run only.
+      That is not resilience bolted on afterwards; it falls out of the model not being in the loop —
+      and it is why the same runtime is the only agent that can run on a machine with no network.</p></div>
+  </div>
+</div></section>
+
+<section id="surfaces"><div class="wrap">
+  <span class="kicker">Where it can be pointed</span>
+  <h2>The compiler does not know what a browser is.</h2>
+  <p class="sub">It learns three things and nothing else: recognise the target by its shape, act on
+  it, check the result it was meant to produce. Everything else is an adapter — what counts as
+  state, and what counts as an action. The browser came first because it is the <b>hardest</b>
+  surface: the page redraws under you, the contents change, nothing is versioned. Every other
+  surface below is easier than the one already working.</p>
+  <table><thead><tr><th>Surface</th><th>What counts as state</th><th>What an action is</th><th>Status</th></tr></thead><tbody>
+    <tr class="hl"><td>Web browser</td><td>DOM: roles, addresses, labels</td><td>click, type, navigate</td><td class="ok">built, and measured on this page</td></tr>
+    <tr><td>Desktop GUI</td><td>accessibility tree, window titles</td><td>click, focus, type, menu</td><td>same compiler, new adapter</td></tr>
+    <tr><td>Android phone</td><td>view hierarchy, intents</td><td>tap, swipe, type, launch</td><td>same compiler, new adapter</td></tr>
+    <tr><td>Terminal / mainframe</td><td>prompt shape, output text</td><td>run a command, answer a prompt</td><td>same compiler, new adapter</td></tr>
+    <tr><td>Files &amp; folders</td><td>names, contents, structure</td><td>create, move, edit, rename</td><td>same compiler, new adapter</td></tr>
+    <tr><td>HTTP APIs</td><td>payload shapes</td><td>call, page, retry</td><td>same compiler, new adapter</td></tr>
+    <tr><td>Email (IMAP)</td><td>headers, threads, bodies</td><td>file, reply, label</td><td>same compiler, new adapter</td></tr>
+    <tr><td>Database</td><td>tables, columns, schemas</td><td>query, insert, update</td><td>same compiler, new adapter</td></tr>
+  </tbody></table>
+  <p class="note">Keeping the model out of the loop is what makes the other surfaces reachable at
+  all. On a phone, in a terminal, on a factory panel, a 600 ms round trip per step is not
+  <i>slow</i> — it is unusable. At <span class="p50">—</span> it is a function call.</p>
+</div></section>
+
+<section id="arli"><div class="wrap">
+  <span class="kicker">Into the ARLI family</span>
+  <h2>The trade has three lines. The step where the work happens is missing.</h2>
+  <p class="sub">ARLI is already three things. <b>Commons</b> is the pod where a team and the agents
+  each of them runs work together. <b>Match</b> finds who overlaps with you without publishing your
+  list. <b>Connect</b> measures whether an industrial catalogue can be read by a buying agent, and
+  issues a signed receipt for every step of a trade. Read as one trade: commons is where the work
+  lives, match is who you meet, connect is what can be read — and then nobody does the work. Placing
+  an order in a supplier's portal, filing a declaration, registering an entity: no line covers it.</p>
+
+  <div class="grid g2">
+    <div class="card"><span class="tag">the gap</span>
+      <h4>Connect receipts the reading. Nothing receipts the doing.</h4>
+      <p>Connect already issues a signed receipt for every step of a trade, for a catalogue being
+      read. The same shape of receipt can be issued for a procedure being executed: the page a step
+      had to reach, the page it reached, and which tier resolved it. Together those two cover the
+      whole trade — <i>your catalogue answered me correctly</i> and <i>the order was really
+      placed</i>.</p></div>
+
+    <div class="card brk"><span class="tag">the line we add</span>
+      <h4>Mint — one die, unlimited coins at a known cost, a stamp on each</h4>
+      <p>A mint strikes the same coin from one die as often as you like, and every coin carries its
+      stamp. A demonstrated task is the die; every later run on new data is a coin; the tier
+      breakdown is the stamp. That is the layer that is missing, and the reason it can be missing
+      everywhere else: striking costs almost nothing per coin, so it is the only layer in this chain
+      that does not get more expensive the more it is used. A unit whose production cost is known and
+      whose result is provable is also exactly what a market needs in order to price one.</p>
+      <p class="note2">The line is called <b>mint</b>. The runtime that does the striking is
+      <b>levOS</b>, and every number on this page came out of it.</p></div>
+
+    <div class="card brk"><span class="tag">economics</span>
+      <h4>The same price, a different business</h4>
+      <p>A knowledge skill's author pays a model on every answer out of their 70% share. A cast
+      procedure's author pays nothing per call: the work was paid for once, at learning time. At the
+      same price in the same catalogue, one keeps what is left after inference and the other keeps
+      nearly all of it. A marketplace feels that on the first invoice.</p>
+      <p class="note2">Measured: the call above answered with <b>0 model calls</b> and returned a
+      receipt.</p></div>
+
+    <div class="card"><span class="tag">refusal</span>
+      <h4>A refusal here costs nothing, because nothing is spent</h4>
+      <p>Measured on this marketplace: any answer is charged, including a negative one — a
+      "no match" cost $0.50, because a wrong question still burns the author's inference. Only HTTP
+      refusals are free. So a caller must aim before spending. A casting that cannot be aimed is
+      refused before any work starts, and that is not a policy promise: there is no model in the
+      path, so there is nothing to spend.</p>
+      <p class="note2">Built and measured: a call with no target returned <code>charged_usd: 0</code>
+      and the note that no model call was made.</p></div>
+  </div>
+
+  <h3 style="margin-top:38px">This category already exists. Here is who is in it.</h3>
+  <p class="sub" style="margin-bottom:20px">Saying otherwise would be the easiest lie to catch, so
+  it is said first: record once with a model, replay deterministically without one, is not a new
+  idea. It is a documented pattern, a research sub-field, and in some places a shipping product.</p>
+
+  <div class="grid g2">
+    <div class="card"><span class="tag">closest</span>
+      <h4>terx and maponce</h4>
+      <p><b>terx</b> records a semantic workflow after an agent succeeds and replays it over CDP with
+      no model call. It requires declared preconditions and postconditions, and it
+      <b>refuses instead of guessing</b>. <b>maponce</b> maps a page once into a YAML object
+      repository and replays with deterministic Playwright at zero tokens, healing through stored
+      selectors, then role and accessible name, then fuzzy metadata, and only then the model on a
+      shortlist. It also replays a fresh recording with healing off to check it reproduces.</p>
+      <p class="note2">Both MIT, both created in 2026 by a single author, both at zero stars. Neither
+      pairs the compiled procedure with a market.</p></div>
+
+    <div class="card"><span class="tag">also shipping</span>
+      <h4>A crowded neighbourhood</h4>
+      <p><code>browser-agent</code> saves a plan with xpath and cssPath and replays with no model
+      calls. <b>Hyperbrowser</b> caches actions and can emit a script from the cache. <b>imprint</b>
+      compiles a recorded session into an MCP server and says plainly that the recording is the
+      executable. Separately, self-healing selectors are an industry with three named generations,
+      and the newest generation addresses elements by natural-language description.</p></div>
+
+    <div class="card"><span class="tag">the research line</span>
+      <h4>Studied, benchmarked, and shipped to production</h4>
+      <p><b>Voyager</b> writes executable skills into a retrievable library. <b>Agent Workflow
+      Memory</b> induces reusable workflows from trajectories and is benchmarked on WebArena and
+      Mind2Web; MemP, LEGOMem and ExpVoyager extend it. <b>LILO</b> and DreamCoder compress solved
+      programs into reusable abstractions. Procedural memory is now a production feature in at least
+      one major agent product.</p></div>
+
+    <div class="card brk"><span class="tag">what is actually ours</span>
+      <h4>Not the mechanism. The target, the measurement, and the market.</h4>
+      <p><b>1. Tuned for transfer between instances, not drift within one.</b> Healing tools repair
+      the same application after it changes. This addresses an element by its shape and was measured
+      on <b>twenty instances it had never seen</b>, of a class it learned from one.</p>
+      <p><b>2. The measurement is published, failures included.</b> We did not find a class-scale
+      transfer measurement with named failures in any of the above; most state zero-token replay
+      without one. Ours: 56 of 60 arrived, four misses named, and one skill that collapses to 1 of
+      20 with no model available.</p>
+      <p><b>3. The market.</b> Nobody in that list connects a struck procedure to a catalogue that
+      sells it, with a receipt shaped like the one Connect already issues. That part is not a
+      mechanism. It is a decision, and it is still open.</p></div>
+  </div>
+</div></section>
+
+<section id="tested"><div class="wrap">
+  <span class="kicker">Every application, tested</span>
+  <h2>Fifty-six applications, seven properties, and a test for each that can fail.</h2>
+  <p class="sub">An application cannot be tested from one machine: a registry needs a licence, a bank
+  needs an account, a factory needs a floor. What <b>can</b> be tested is the property each
+  application is built on, on real targets, at scale — and a test that cannot come out badly proves
+  nothing, so every one below has a way to fail. Where a property did not hold, it says so.</p>
+  <div id="prop-tests"></div>
+  <p class="note" id="tested-note"></p>
+  <div id="app-failures" style="margin-top:26px"></div>
+  <div id="app-verdicts" style="margin-top:22px"></div>
+</div></section>
+
+<section id="all"><div class="wrap">
+  <span class="kicker">Applications</span>
+  <h2>Every kind of application, in one click.</h2>
+  <p class="sub">Grouped by <b>why it is possible</b>, not by industry, because the reason is the
+  same in all of them and the industry is only the door you walk in through. Each entry names the
+  property it leans on. Entries marked <b>breakthrough</b> are the ones we believe cannot be built
+  without the specific combination above — each carries the argument for why.</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:24px 0 10px">
+    <button class="btn primary" id="expand" style="cursor:pointer;font-size:15.5px">Show all applications</button>
+    <span style="color:var(--dim2);font-size:14px" id="hint"></span>
+  </div>
+  <div id="chips" style="margin-bottom:20px"></div>
+  <div id="apps"></div>
+</div></section>
+
+<section id="speed"><div class="wrap">
+  <span class="kicker">What the speed unlocks</span>
+  <h2>It does not make the same things faster. It changes what you can attempt.</h2>
+  <p class="sub">Every consequence below follows from one number: a decision costing <span class="p50">—</span> instead
+  of <span class="model-ms">—</span>. Each is something nobody attempts today, because at the old price it is absurd.</p>
+  <div class="grid g2">
+    <div class="card"><span class="tag">1 · verify instead of sample</span>
+      <h4>You check everything, because checking is free</h4>
+      <p>Audit practice samples because each check costs money. At <span class="p50">—</span> you verify all five
+      hundred pages after a migration instead of fifty, all tenants instead of the loudest one.
+      <b>Sampling exists because verification is expensive; remove the expense and the idea of a
+      sample disappears with it.</b></p></div>
+    <div class="card"><span class="tag">2 · search your own strategies</span>
+      <h4>The runtime can try a hundred paths and keep the best</h4>
+      <p>If trying costs nothing, compiling one variant is a waste. Compile several, benchmark them
+      against live pages, keep the fastest and steadiest — <b>the runtime searching its own skill
+      space</b>. Already visible without anyone searching: the compiled skills reach the goal in one
+      step where the model needed two.</p></div>
+    <div class="card"><span class="tag">3 · agents inside a request</span>
+      <h4>An agent you can call in the request path</h4>
+      <p>Nobody puts an agent inside a web request today: <span class="model-ms">—</span> per step makes it impossible. At
+      <span class="p50">—</span> the compiled path sits in the request path of ordinary software — checking a form,
+      resolving a record, validating a submission — the way any other function does.</p></div>
+    <div class="card"><span class="tag">4 · continuous, not periodic</span>
+      <h4>Drift detection every five minutes instead of every quarter</h4>
+      <p>Interface-drift monitoring is a subscription nobody buys, because each crawl costs money.
+      At zero marginal cost a canary runs continuously, and reports not "the page changed" but
+      <b>"a working process broke, and here is the step"</b> — because a skill that fails to resolve
+      one step is exactly that signal.</p></div>
+    <div class="card"><span class="tag">5 · cost per shape</span>
+      <h4>Pricing flips from per-execution to per-shape</h4>
+      <p>If the thousandth run is free, the cost of a task is paid once and amortised over
+      everything after it. In a market where agents are paid per task, <b>the agent that has done
+      the work before undercuts everyone without giving up margin</b>. That is an economic
+      property, and it is the one that decides who wins.</p></div>
+    <div class="card"><span class="tag">6 · no network in the decision</span>
+      <h4>An agent that works with the network off</h4>
+      <p>The compiled path makes no model call, so a rate limit, a credit limit, a revoked key or a
+      dead provider cannot touch it. That is not degraded mode, it is the full function — the only
+      way an agent runs in defence, medicine, industry or the field, and a configuration nobody
+      builds because everyone assumed a model on every step.</p></div>
+  </div>
+</div></section>
+
+<section id="evidence"><div class="wrap">
+  <span class="kicker">Evidence for the sceptic</span>
+  <h2>Every number on this page came out of a run.</h2>
+  <p class="sub">Collected <span id="when">—</span> on the machine that serves this page. Raw files:
+  <a href="/evaluation.json">evaluation.json</a>, <a href="/measurements.json">measurements.json</a>.</p>
+
+  <h3>Observation is not the bottleneck. The model is.</h3>
+  <div id="obs-table"></div>
+  <p class="note">The accessibility tree is what a conventional agent sends the model: an order of
+  magnitude more bytes for strictly less information, because it does not carry the address by which
+  a step is recognised. Our state payload is smaller <b>and</b> more useful — which is the whole
+  reason the selector can be a shape at all.</p>
+
+  <h3>The decision, per step</h3>
+  <div id="decision-table"></div>
+
+  <h3>The skills themselves</h3>
+  <div id="skill-table"></div>
+  <p class="note">A skill is under a kilobyte and plain JSON. It fits in a code review, which is what
+  makes it signable — see the application "approved before it runs" above.</p>
+
+  <h3>What existed before this</h3>
+  <div class="split" style="margin-top:8px">
+    <div class="card"><h4 class="no">Already existed</h4>
+      <ul class="tight">
+        <li><b>Learn-a-macro-from-a-demonstration</b> — RPA, twenty years old. Fails when the data changes.</li>
+        <li><b>Recorded selectors</b> — Selenium and Playwright codegen. Fail faster: tied to the markup.</li>
+        <li><b>A model at every step</b> — browser-use, computer-use, Operator. Works on new data, pays forever.</li>
+        <li><b>Semantic caching</b> — a cache of text, not of actions. Does not help.</li>
+      </ul></div>
+    <div class="card"><h4 class="ok">Not existed before</h4>
+      <ul class="tight">
+        <li><b>A shape that transfers between instances</b> — one skill, many targets, no adjustment.</li>
+        <li><b>Steps that carry obligations</b> — self-diagnosis, self-repair, a named tier per decision.</li>
+        <li><b>A model whose answers are compiled away</b> — cost that falls with use instead of rising.</li>
+      </ul></div>
+  </div>
+
+  <h3>How it works, in three layers</h3>
+  <div class="grid g3" style="margin-top:6px">
+    <div class="card"><span class="tag">Observe</span><h4>Read the DOM, not the tree</h4>
+      <p>The tree does not carry <code>href</code>, and without it a step cannot be recognised on a
+      page whose contents changed. Elements are addressed by handle: <b>no coordinates are computed
+      at all</b>, so there is nothing to mis-aim when the layout shifts.</p></div>
+    <div class="card"><span class="tag">Compile</span><h4>The trajectory becomes a program</h4>
+      <p>Role, the shape of where it points, its place among its peers, and the page it must
+      produce. Plain readable JSON.</p></div>
+    <div class="card"><span class="tag">Execute</span><h4>Recognise, act, verify, heal</h4>
+      <p>The tier is named for every step. A miss is a question, not a failure — and the correction
+      is written back so the next run does not have to ask.</p></div>
+  </div>
+</div></section>
+
+<section id="unproven"><div class="wrap">
+  <span class="kicker">Not proven</span>
+  <h2>What we have not shown, stated before anyone asks.</h2>
+  <p class="sub">A claim that arrives without its limits is a claim nobody should trust. These are
+  ours, and each is a measurement we have not made yet rather than a doubt we are hiding.</p>
+  <div class="grid g2">
+    <div class="card"><h4>One surface is built, seven are argued</h4>
+      <p>The browser adapter is measured; the other seven are the same compiler with a new adapter,
+      which is a claim about architecture, not a result. Until one of them is built, treat the other
+      surfaces as engineering work rather than a capability.</p></div>
+    <div class="card"><h4>Whole-task speedup is far smaller than per-decision</h4>
+      <p>The chain runs about three times faster end to end, not thousands: page loads dominate, and
+      nobody can speed those up. We improved the thinking, not the network.</p></div>
+    <div class="card"><h4>One skill is not verified</h4>
+      <p>The "latest commit" skill lands on a commit page, which the structural verdict accepts, but
+      the semantic judge says it opened <i>a</i> commit rather than the latest one. It is marked
+      unverified inside the runtime, and that is why that task is the one that still costs a
+      question to the model.</p></div>
+    <div class="card"><h4>Decisions scale with page size</h4>
+      <p>On light pages a decision cost 30 µs; on these heavier pages the median is <span class="p50">—</span> and the
+      worst is 283 µs. Still three orders of magnitude under the model, but it is not a constant.</p></div>
+    <div class="card"><h4>Transfer works inside one family</h4>
+      <p>All six targets share a shape of site. A different family means new learning: cheap, but
+      not free. Proving the class needs three real forms of one kind — the next experiment.</p></div>
+    <div class="card"><h4>Judgement tasks are out of scope</h4>
+      <p>Reading an unfamiliar document and deciding what to do is not a shape. Nothing to compile,
+      and we are not pretending otherwise.</p></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div style="font:700 16px/1 var(--sans);margin-bottom:12px">levOS</div>
+  <div style="margin-bottom:14px">
+    <span class="pill">Rust</span><span class="pill">Chrome DevTools Protocol, no wrapper</span>
+    <span class="pill">tokio</span><span class="pill">Python relay</span>
+    <span class="pill">Cloudflare Tunnel</span>
+    <span class="pill">the model is a swappable part — OpenAI-shaped endpoints or Anthropic's native API</span>
+  </div>
+  <p style="max-width:860px">Read top to bottom, this page is one argument: a decision should be
+  paid for once. The runtime, the observation layer and the compiler are the means; the numbers are
+  the evidence; the ARLI section is where it goes next. Everything measured here came out of a real
+  run, including the parts that do not flatter us.</p>
+  <p><a href="/live">Live run</a> · <a href="/evaluation.json">evaluation.json</a> · <a href="/measurements.json">measurements.json</a></p>
+</div></footer>
+
+<script>
+/* ── applications ─────────────────────────────────────────────────────────
+   f family · t title · l what it is · p the property it leans on
+   s 'proven' executed on this machine during the sprint; 'machinery' the same
+   compiler with a new adapter. br marks a breakthrough and carries the argument. */
+const PROPS = {
+  transfer:'leans on transfer between instances',
+  verify:'leans on the price of checking',
+  cost:'leans on cost per shape, not per run',
+  offline:'leans on no network in the decision',
+  artifact:'leans on a readable, signable artifact',
+  traces:'leans on verified traces',
+  shape:'leans on the shape being the unit'
+};
+const APPS = [
+ {f:'Registries & compliance', t:'Company status across hundreds of registries', p:'transfer', s:'machinery',
+  l:'Every municipal or state registry is the same shape of form with different data. Learn one, transfer to 299.'},
+ {f:'Registries & compliance', t:'Licence and permit verification per jurisdiction', p:'transfer', s:'machinery',
+  l:'One query, dozens of authorities, and no API anywhere among them.'},
+ {f:'Registries & compliance', t:'Sanctions and watchlist screening across portals', p:'transfer', s:'machinery',
+  l:'A name entered into many portals that never agreed on an interface between them.'},
+ {f:'Registries & compliance', t:'Filings on one platform, many companies', p:'transfer', s:'machinery',
+  l:'Identical form, different values — the case the compiler was built for.'},
+ {f:'Registries & compliance', t:'Tender and grant submissions across agency portals', p:'transfer', s:'machinery',
+  l:'One procedure, dozens of agencies, each with its own form and its own idea of a deadline.'},
+ {f:'Registries & compliance', t:'Customs and shipping declarations per country', p:'transfer', s:'machinery',
+  l:'The same shipment into a different national system every time, and no two agree on a field.'},
+ {f:'Registries & compliance', t:'Visa and immigration forms per consulate', p:'transfer', s:'machinery',
+  l:'One family, one set of documents, dozens of consular portals with no shared interface.'},
+ {f:'Registries & compliance', t:'Court e-filing across jurisdictions', p:'transfer', s:'machinery',
+  l:'Filing rules differ by court; the act of filing does not.'},
+
+ {f:'Verification & equivalence', t:'Proving two systems agree after a migration', p:'verify', s:'machinery', br:true,
+  why:'Nobody automates this today, because a script per page is absurd and waiting for an API is waiting forever. Learn one read, apply it to every page, compare. This is a class of verification that does not exist in practice because it was never affordable — and it is precisely what migrations are signed off without.',
+  l:'Learn one read, apply it to every page, and prove the old and the new system agree.'},
+ {f:'Verification & equivalence', t:'One entity checked across ten SaaS tools', p:'transfer', s:'machinery',
+  l:'The same customer in CRM, billing, support and warehouse: search, open a record, read a field, compare.'},
+ {f:'Verification & equivalence', t:'Reconciling a ledger against a provider portal', p:'verify', s:'machinery',
+  l:'The provider will never hand you the file. The portal is the only source of truth there is.'},
+ {f:'Verification & equivalence', t:'Price and catalogue parity across storefronts', p:'verify', s:'machinery',
+  l:'Your own prices, everywhere they are published, checked rather than sampled.'},
+ {f:'Verification & equivalence', t:'A regression suite for business processes', p:'verify', s:'machinery',
+  l:'A set of skills run after every release. A skill fails exactly where a process broke, and says which step.'},
+ {f:'Verification & equivalence', t:'Did the nightly batch actually finish the work?', p:'verify', s:'machinery',
+  l:'An endpoint answering 200 proves nothing. The compiled procedure proves the work got done.'},
+
+ {f:'Verification of AI output', t:'Bulk checking of AI-generated claims', p:'cost', s:'machinery', br:true,
+  why:'A model produces ten thousand claims; someone has to check them against the source, and today a human does it or nobody does. At a fraction of a millisecond per decision the compiled path checks every claim against the page it came from. This inverts the economics of trust in AI output: verification becomes cheaper than generation, so "verify everything" becomes the default instead of "spot-check".',
+  l:'Every claim a model produced, checked against the page it came from, at a price that makes spot-checking obsolete.'},
+ {f:'Verification of AI output', t:'Guardrails that read the result, not the words', p:'verify', s:'machinery',
+  l:'An agent that acted is verified by an agent that does not guess, because every step declares what it must produce.'},
+ {f:'Verification of AI output', t:'Ground truth for agent benchmarks', p:'traces', s:'machinery',
+  l:'Benchmarks for agents lack verified outcomes. A compiled skill carries its expected result, so a task can be scored without a human judge.'},
+
+ {f:'Sweeps at scale', t:'Repository and project sweeps', p:'cost', s:'proven',
+  l:'The same three tasks across six projects, learned on one. Executed today: eighteen of eighteen, and zero model calls on thirteen of them.'},
+ {f:'Sweeps at scale', t:'One dashboard, many tenants', p:'transfer', s:'machinery',
+  l:'The same report for ten clients: log in, open, read the number. "Different data" means different tenants.'},
+ {f:'Sweeps at scale', t:'Merchant onboarding across provider portals', p:'transfer', s:'machinery',
+  l:'The same documents and the same fields, into a different portal every time.'},
+ {f:'Sweeps at scale', t:'Creator and publisher reporting across a hundred channels', p:'cost', s:'machinery',
+  l:'A number lives behind a login on each platform, and none of them offers an API for it.'},
+ {f:'Sweeps at scale', t:'Inventory truth across supplier portals', p:'cost', s:'machinery',
+  l:'What they say they have, read from their own portal rather than from their feed.'},
+ {f:'Sweeps at scale', t:'Real-estate syndication per portal', p:'transfer', s:'machinery',
+  l:'One listing, dozens of portals, each with its own form and its own photo rules.'},
+ {f:'Sweeps at scale', t:'Fleet registration and renewals per state', p:'transfer', s:'machinery',
+  l:'The same vehicle data into fifty state systems that do not talk to each other.'},
+
+ {f:'Legacy & mainframe', t:'Green-screen ERP automation', p:'offline', s:'machinery', br:true,
+  why:'The core systems of banks, insurers and manufacturers are terminal screens with no API and no prospect of one. Every automation proposal there dies on the same rock: you cannot put a model in the loop at <span class="model-ms">—</span> per keystroke, and recorded macros break on the first data change. A compiled procedure with a terminal adapter is the first approach both fast enough and robust enough — and it needs no network at all.',
+  l:'The systems that have no API and never will: prompt, command, verify. Fast enough per step, robust to the data changing, offline.'},
+ {f:'Legacy & mainframe', t:'A CLI procedure rebuilt across a device fleet', p:'cost', s:'machinery',
+  l:'Learn a remediation once on one device, execute it across five hundred, every step verified rather than assumed.'},
+ {f:'Legacy & mainframe', t:'Incident runbooks that execute themselves', p:'artifact', s:'machinery',
+  l:'A runbook becomes a program with obligations, so "did the step work" is answered by the step.'},
+ {f:'Legacy & mainframe', t:'Turning a web tool into an API by watching you use it', p:'artifact', s:'machinery', br:true,
+  why:'Businesses pay for integration projects to get data out of tools that have no API. A compiled procedure already contains the exact sequence of addresses and fields a client would need, and it re-executes them verified. So watching one person use the tool is enough to produce a private API for it — no vendor, no partnership, no roadmap negotiation. The integration backlog stops being a backlog.',
+  l:'One session in the tool yields the exact sequence and fields a client needs — no vendor, no integration project.'},
+
+ {f:'Monitoring & drift', t:'A canary for interface drift', p:'shape', s:'machinery',
+  l:'A year-old skill run against today\'s site reports where the interface moved in a way that breaks a working process.'},
+ {f:'Monitoring & drift', t:'Uptime of a process, not of an endpoint', p:'shape', s:'machinery',
+  l:'An endpoint answering 200 says nothing about whether the work still completes.'},
+ {f:'Monitoring & drift', t:'Silent change behind a supplier\'s quoting page', p:'shape', s:'machinery',
+  l:'The interface did not change; the answer behind it did. Only a skill that resolves notices.'},
+ {f:'Monitoring & drift', t:'Watching a regulator\'s form for changes', p:'shape', s:'machinery',
+  l:'Compliance deadlines move quietly. A skill that fails to resolve a step is the alarm.'},
+ {f:'Monitoring & drift', t:'Contract tests for a website you depend on', p:'artifact', s:'machinery',
+  l:'A supplier\'s site is a dependency with no contract. A compiled skill is the contract, and CI runs it.'},
+ {f:'Monitoring & drift', t:'Schema and data drift across many databases', p:'verify', s:'machinery',
+  l:'Learn the check once, run it against fifty databases, and get the one that drifted.'},
+
+ {f:'Offline & constrained', t:'The air-gapped agent', p:'offline', s:'machinery',
+  l:'Defence, medicine, a laboratory with no internet. The compiled path makes no network call, ever.'},
+ {f:'Offline & constrained', t:'Factory floor and industrial panels', p:'offline', s:'machinery',
+  l:'An operator terminal on a plant network, where a cloud round trip per step is not an option.'},
+ {f:'Offline & constrained', t:'Ship, rig and field equipment', p:'offline', s:'machinery',
+  l:'Intermittent connectivity is the normal condition there, not an incident to recover from.'},
+ {f:'Offline & constrained', t:'Field data collection from an app with no export', p:'cost', s:'machinery',
+  l:'Two hundred records behind a mobile app that cannot export anything. Tap through, verified, offline.'},
+ {f:'Offline & constrained', t:'Working straight through a provider outage', p:'offline', s:'proven',
+  l:'A rate limit, a revoked key or a dead provider stops the first run only. Later runs are untouched.'},
+ {f:'Offline & constrained', t:'Procedural memory for a machine', p:'offline', s:'machinery', br:true,
+  why:'A robot or a device that must repeat an inspection procedure has no budget for a cloud round trip per action, and often no network at all. A compiled procedure is a memory of how the work is done that costs microseconds to recall and needs nothing external. This is the first form of procedural memory fast enough and offline enough to sit inside a machine.',
+  l:'A procedure the device recalls in microseconds, with no network and no model, verified step by step.'},
+
+ {f:'Agent engineering', t:'Autopsy of a failing agent', p:'artifact', s:'machinery',
+  l:'Run it, compile the successful prefix, diff it against what it actually does. The divergence is the spec of what it should have been.'},
+ {f:'Agent engineering', t:'A regression suite for someone else\'s agent', p:'artifact', s:'machinery',
+  l:'Compiled skills as the test suite agent vendors never ship.'},
+ {f:'Agent engineering', t:'The compiler as a data engine', p:'traces', s:'machinery', br:true,
+  why:'Every run produces state to decision to outcome, with the outcome verified by the runtime rather than asserted by a model. Model-generated trajectories are the scarce input for training fast policies, and nobody can trust them because nothing checks them. Here the check is structural and free, so the same runs that do the work also manufacture trustworthy training data.',
+  l:'Every run yields a verified trajectory. The work manufactures its own training data as a by-product.'},
+ {f:'Agent engineering', t:'Undocumented internal tools, made executable', p:'artifact', s:'machinery',
+  l:'One expert run produces a living instruction that can also be executed. Documentation stops being prose.'},
+ {f:'Agent engineering', t:'Automation approved before it runs', p:'artifact', s:'machinery', br:true,
+  why:'In a regulated process you cannot approve an agent that decides as it goes — the reviewer cannot know what it will do. A skill is a file that can be read and signed before execution, so the thing approved is a program with obligations rather than a model with tendencies. Agent behaviour has had no approval path at all; this is one, and it is why regulated buyers can adopt anything here.',
+  l:'You sign the file, not the model. An approval path for agent behaviour that otherwise does not exist.'},
+ {f:'Agent engineering', t:'Self-expanding coverage', p:'transfer', s:'machinery',
+  l:'Learn one instance, generate the siblings by matching their shapes, then verify each generated one and keep only what passes.'},
+ {f:'Agent engineering', t:'Minimising a procedure from one demonstration', p:'cost', s:'machinery',
+  l:'Compile several variants and keep the shortest that still verifies — the runtime searching its own skill space.'},
+
+ {f:'Economics & markets', t:'Underwriting task prices in an agent market', p:'cost', s:'machinery',
+  l:'If the thousandth run is free, the agent that has done the work before undercuts everyone without giving up margin.'},
+ {f:'Economics & markets', t:'Skills as a tradeable asset', p:'artifact', s:'machinery',
+  l:'A readable file you can sell, buy, review and diff. The unit of trade becomes the skill, not the run.'},
+ {f:'Economics & markets', t:'One expert session turned into a capability', p:'cost', s:'machinery',
+  l:'Knowledge walks out of the door less often when a single session compiles into a program.'},
+ {f:'Economics & markets', t:'Pricing a service by the shape, not the hour', p:'cost', s:'machinery',
+  l:'A firm that has compiled the procedure quotes a flat price where competitors must bill for repeat work.'},
+
+ {f:'Research & data', t:'Reproducing a procedure described in a paper', p:'traces', s:'machinery',
+  l:'The described data-collection procedure compiled and re-run, with the provenance of every step kept.'},
+ {f:'Research & data', t:'Re-running an old data pull to see what moved', p:'shape', s:'machinery',
+  l:'Same procedure, same shape, later data — and every step reports how it resolved.'},
+ {f:'Research & data', t:'Clinical and trial data entry across sites', p:'transfer', s:'machinery',
+  l:'One protocol, many site systems, and a verified record of what was entered where.'},
+ {f:'Research & data', t:'Archives and collections catalogued by convention', p:'transfer', s:'machinery',
+  l:'Learn a cataloguing convention once, apply it to thousands of records across an unfamiliar interface.'},
+ {f:'Research & data', t:'Environmental and safety reporting per regulator', p:'transfer', s:'machinery',
+  l:'The same measurements filed into every regulator\'s own portal, on their own schedule.'}
+];
+
+(function () {
+  const appEl = document.getElementById('apps');
+  const chipEl = document.getElementById('chips');
+  const btn = document.getElementById('expand');
+  const hint = document.getElementById('hint');
+  if (!appEl) return;
+  const fams = [...new Set(APPS.map(a => a.f))];
+  const brks = APPS.filter(a => a.br).length;
+  let open = false, filter = '*';
+
+  function render() {
+    chipEl.innerHTML = '';
+    const mk = (label, val) => {
+      const b = document.createElement('span');
+      b.className = 'pill'; b.style.cursor = 'pointer';
+      if (filter === val) { b.style.borderColor = 'var(--acc)'; b.style.color = 'var(--acc)'; }
+      b.textContent = label;
+      b.onclick = () => { open = true; filter = val; render(); };
+      return b;
+    };
+    chipEl.appendChild(mk('all ' + APPS.length, '*'));
+    chipEl.appendChild(mk('breakthrough (' + brks + ')', 'BRK'));
+    for (const f of fams) chipEl.appendChild(mk(f, f));
+
+    if (!open) {
+      appEl.innerHTML = '';
+      btn.textContent = 'Show all ' + APPS.length + ' applications';
+      hint.textContent = 'in ' + fams.length + ' families, ' + brks + ' of them breakthrough';
+      return;
+    }
+    btn.textContent = 'Hide the list';
+    const shown = APPS.filter(a => filter === '*' || (filter === 'BRK' ? a.br : a.f === filter));
+    hint.textContent = shown.length + ' shown · ' + brks + ' cleared as breakthrough';
+    appEl.innerHTML = '<div class="grid g2">' + shown.map(a => `
+      <div class="card${a.br ? ' brk' : ''}">
+        <span class="tag">${a.br ? 'breakthrough' : a.f} · ${a.s === 'proven'
+          ? '<span class="ok">executed today</span>' : 'same machinery'}</span>
+        <h4>${a.t}</h4>
+        <p>${a.l}</p>
+        ${a.why ? `<p style="margin-top:11px;color:var(--ink)">${a.why}</p>` : ''}
+        <p style="margin-top:11px;color:var(--acc);font:12px/1.5 var(--mono)">${PROPS[a.p]}</p>
+      </div>`).join('') + '</div>';
+  }
+
+  btn.onclick = () => { open = !open; if (open) filter = '*'; render(); };
+  if (location.hash === '#all') open = true;               // one link opens everything
+  if (location.hash === '#breakthrough') { open = true; filter = 'BRK'; }
+  render();
+})();
+</script>
+
+<script>
+/* ── live numbers ──────────────────────────────────────────────────────── */
+(async () => {
+  let ev = null, ms = null;
+  try { ev = await (await fetch('evaluation.json', {cache:'no-store'})).json(); } catch (e) {}
+  try { ms = await (await fetch('measurements.json', {cache:'no-store'})).json(); } catch (e) {}
+  const nf = x => Number(x).toLocaleString('en-US');
+  const modelMs = (ms && ms.model && ms.model.ms_median) || 438;
+
+  if (ev && ev.summary) {
+    const s = ev.summary;
+    const us = ev.runs.flatMap(r => r.decision_us).sort((a,b) => a-b);
+    const p50 = us.length ? us[Math.floor(us.length/2)] : 0;
+    const p95 = us.length ? us[Math.max(0, Math.floor(us.length*0.95)-1)] : 0;
+    const ratio = Math.round((modelMs*1000) / Math.max(p50,1));
+
+    document.getElementById('scoreboard').innerHTML = `
+      <div class="score"><div class="v good">${s.succeeded}/${s.tasks}</div>
+        <div class="k">tasks completed on six projects it had never seen</div></div>
+      <div class="score"><div class="v good">${s.zero_model_calls}/${s.tasks}</div>
+        <div class="k">completed without asking a model anything</div></div>
+      <div class="score"><div class="v acc">${p50} µs</div>
+        <div class="k">median cost of one decision, against ${modelMs} ms for the model</div></div>
+      <div class="score"><div class="v">${nf(ratio)}×</div>
+        <div class="k">faster per decision at the median, on heavier pages than the early runs</div></div>`;
+
+    const bySkill = {};
+    for (const r of ev.runs) {
+      const k = r.skill.replace('.skill','');
+      bySkill[k] = bySkill[k] || {n:0, ok:0, mc:0, ms:[], targets:[]};
+      bySkill[k].n++; bySkill[k].ok += r.success ? 1 : 0;
+      bySkill[k].mc += r.model_calls; bySkill[k].ms.push(r.wall_ms);
+      bySkill[k].targets.push(r.target);
+    }
+    const learnedOn = ev.runs[0] ? ev.runs[0].target : '—';
+    let rows = `<table><thead><tr><th>Task</th><th>Learned on</th><th>Targets</th><th>Completed</th>
+      <th>Model calls</th><th>Mean wall time</th></tr></thead><tbody>`;
+    for (const [k,v] of Object.entries(bySkill)) {
+      const mean = (v.ms.reduce((a,b)=>a+b,0)/v.ms.length/1000).toFixed(2);
+      rows += `<tr><td class="n">${k}</td><td class="n">${learnedOn}</td><td class="n">${v.n}</td>
+        <td class="n ${v.ok===v.n?'ok':'no'}">${v.ok}/${v.n}</td>
+        <td class="n ${v.mc===0?'ok':'mid'}">${v.mc}</td><td class="n">${mean} s</td></tr>`;
+    }
+    document.getElementById('proof-table').innerHTML = rows + '</tbody></table>';
+
+    const all = ev.runs.flatMap(r => r.decision_us);
+    document.getElementById('p-transfer').textContent = s.succeeded + ' / ' + s.tasks;
+    document.getElementById('p-zeromodel').textContent = s.zero_model_calls + ' / ' + s.tasks;
+    document.getElementById('p-decision').innerHTML = p50 + ' µs'
+      + ' <span style="font:500 13px/1 var(--sans);color:var(--dim)">median · p95 ' + p95
+      + ' µs · min ' + Math.min(...all) + ' µs</span>';
+    document.getElementById('p-model').textContent = modelMs + ' ms';
+    for (const el of document.querySelectorAll('.p50')) el.textContent = p50 + ' µs';
+    for (const el of document.querySelectorAll('.model-ms')) el.textContent = modelMs + ' ms';
+    document.getElementById('proof-note').innerHTML =
+      'Targets are published as <b>R1–R6</b>: the evaluation is about the mechanism, and which projects '
+      + 'it ran against is not the point. The one task that did not reach zero model calls is named in '
+      + '<a href="#unproven">Not proven</a> rather than buried.';
+  }
+
+  if (ms) {
+    document.getElementById('when').textContent = ms.collected_at || '—';
+
+    let rows = `<table><thead><tr><th>Page</th><th>Actionable elements</th><th>Capture, median</th>
+      <th>Our state payload</th><th>Accessibility tree</th><th>Smaller by</th></tr></thead><tbody>`;
+    for (const p of ms.pages) {
+      const name = p.url.replace(/^https?:\/\/github\.com\//, '');
+      rows += `<tr><td class="n">${name}</td><td class="n">${p.elements}</td>
+        <td class="n">${p.capture_ms_median} ms <span style="color:var(--dim2)">(${p.capture_ms_min}–${p.capture_ms_max})</span></td>
+        <td class="n">${nf(p.state_bytes)} B</td>
+        <td class="n">${nf(p.naive_tree_bytes)} B <span style="color:var(--dim2)">· ${nf(p.naive_tree_nodes)} nodes</span></td>
+        <td class="n ok">${p.reduction_vs_tree}×</td></tr>`;
+    }
+    document.getElementById('obs-table').innerHTML = rows + '</tbody></table>';
+
+    const modMin = (ms.model && ms.model.ms_min) || '—';
+    const modMax = (ms.model && ms.model.ms_max) || '—';
+    const samples = (ms.model && ms.model.samples) || 0;
+    const usAll = ev ? ev.runs.flatMap(r => r.decision_us) : [];
+    const p50 = usAll.length ? usAll.sort((a,b)=>a-b)[Math.floor(usAll.length/2)] : '—';
+    document.getElementById('decision-table').innerHTML = `<table><thead><tr><th>Who decides</th>
+      <th>Median</th><th>Range</th><th>Samples</th><th>Network</th></tr></thead><tbody>
+      <tr><td>Model, per step</td><td class="n no">${modelMs} ms</td>
+        <td class="n">${modMin}–${modMax} ms</td><td class="n">${samples}</td>
+        <td class="n no">required</td></tr>
+      <tr class="hl"><td>Compiled skill, per step</td><td class="n ok">${p50} µs</td>
+        <td class="n">${usAll.length ? Math.min(...usAll) + '–' + Math.max(...usAll) + ' µs' : '—'}</td>
+        <td class="n">${usAll.length || '—'}</td><td class="n ok">none</td></tr>
+      </tbody></table>`;
+
+    let srows = `<table><thead><tr><th>Skill</th><th>Goal</th><th>Steps</th><th>File size</th>
+      <th>Learned with</th><th>Verified</th></tr></thead><tbody>`;
+    const goalEN = {
+      'gh-commit':'open the latest commit of this repository',
+      'gh-issues':'open the issue list of this repository',
+      'gh-prs':'open the pull request list of this repository'
+    };
+    for (const [k,v] of Object.entries(ms.skills || {})) {
+      srows += `<tr><td class="n">${k}</td><td>${goalEN[k] || v.goal}</td><td class="n">${v.steps}</td>
+        <td class="n">${v.bytes} B</td><td class="n">${v.learn_model_calls} calls · ${v.learn_ms} ms</td>
+        <td class="n ${v.verified?'ok':'no'}">${v.verified?'yes':'no — see Not proven'}</td></tr>`;
+    }
+    document.getElementById('skill-table').innerHTML = srows + '</tbody></table>';
+  }
+})();
+</script>
+<script>
+/* ── the property tests behind the applications ───────────────────────────── */
+(async () => {
+  let v = null;
+  try { v = await (await fetch('applications-verified.json', {cache:'no-store'})).json(); } catch (e) {}
+  if (!v || !v.tests) return;
+
+  const NAME = {
+    transfer: 'Transfer',
+    cost: 'Cost per run',
+    shape: 'Shape survives changed data',
+    verify: 'The verdict can say no',
+    offline: 'Works with no model',
+    artifact: 'The skill is reviewable',
+    traces: 'Every run leaves a trace',
+  };
+  const rows = [];
+  for (const [key, t] of Object.entries(v.tests)) {
+    let measured = '';
+    if (key === 'transfer') measured = `${t.completed}/${t.runs} arrived &nbsp;·&nbsp; ${Math.round(t.rate*100)}% &nbsp;·&nbsp; bar ${Math.round(t.threshold*100)}%`;
+    if (key === 'cost') measured = `${t.per_run} model calls per run &nbsp;·&nbsp; ${t.zero_model_runs}/${t.runs} runs asked nothing`;
+    if (key === 'shape') measured = `${t.resolved_without_model}/${t.steps} steps resolved without the model &nbsp;·&nbsp; ${JSON.stringify(t.by_tier)}`;
+    if (key === 'verify') measured = `${t.reported_missed}/${t.targets} failures reported as failures &nbsp;·&nbsp; falsely called done: ${t.falsely_reported_done}`;
+    if (key === 'offline') measured = `${t.completed}/${t.runs} offline against ${t.online_completed}/${t.runs} online &nbsp;·&nbsp; drop ${t.drop}`;
+    if (key === 'artifact') measured = (t.skills||[]).map(s => `${s.skill}: ${s.bytes} B, ${s.steps} step(s)`).join('<br>');
+    if (key === 'traces') measured = `${t.runs} run documents, ${t.steps} step documents, ${t.steps_with_tier} carrying a tier`;
+    const restricted = t.verdict_label && t.pass;
+    rows.push(`<tr><td class="n">${NAME[key] || key}</td><td>${t.what}</td>
+      <td>${measured}${t.by_skill ? '<br><span style="color:var(--dim2)">' +
+        Object.entries(t.by_skill).map(([k,x]) =>
+          `${k.replace('.skill','')}: ${x.completed_online}/${x.runs} with a model, ${x.completed_offline}/${x.runs} without`
+        ).join('<br>') + '</span>' : ''}</td>
+      <td class="n ${t.pass ? (restricted ? 'mid' : 'ok') : 'no'}">${t.pass ? (restricted ? 'PASS*' : 'PASS') : 'FAIL'}</td></tr>`);
+  }
+  document.getElementById('prop-tests').innerHTML =
+    `<table><thead><tr><th>Property</th><th>What was tested</th><th>Measured</th><th>Verdict</th></tr>`
+    + `</thead><tbody>${rows.join('')}</tbody></table>`;
+
+  // Where it came out badly. A test that never fails proves nothing, so the failures are shown
+  // in full rather than summarised away.
+  const tr = v.tests.transfer || {};
+  const off = v.tests.offline || {};
+  let bad = '<h3>Where it came out badly</h3><div class="split">';
+  if (tr.failures && tr.failures.length) {
+    bad += '<div class="card"><h4 class="no">' + tr.failures.length + ' targets of ' + tr.runs
+        + ' did not arrive</h4><ul class="tight">'
+        + tr.failures.map(f => `<li><code>${f.skill.replace('.skill','')}</code> on
+            <b>${f.target.replace('https://github.com/','')}</b> — landed on
+            <b>${f.landed}</b>, expected <b>${f.expected}</b>: ${f.why}</li>`).join('')
+        + '</ul><p class="note">A skill that reports a stage it never reached would be worse than '
+        + 'this. Each of these was reported as a failure by the run itself, not discovered later.</p></div>';
+  }
+  if (off.worst_skill) {
+    bad += '<div class="card"><h4 class="mid">* One property passed only because the bar allowed it</h4>'
+        + `<p>${off.restriction}</p>`
+        + `<p style="margin-top:10px">The name for it: <code>${off.worst_skill.skill.replace('.skill','')}</code> `
+        + `completes <b>${off.worst_skill.completed_online} of ${off.worst_skill.runs}</b> with a model reachable `
+        + `and <b>${off.worst_skill.completed_offline} of ${off.worst_skill.runs}</b> without one. `
+        + `It is the same skill this page already lists as unverified under “Not proven”, and two `
+        + `independent tests now agree about it.</p></div>`;
+  }
+  bad += '</div>';
+  document.getElementById('app-failures').innerHTML = bad;
+
+  document.getElementById('tested-note').innerHTML =
+    `Collected ${v.collected_at}. Every number came out of a real run against a real site. `
+    + `The honest limit is in the header: <b>the property is tested, the application is not</b> — `
+    + `reaching a real registry, bank or factory needs access that does not exist on this machine.`;
+
+  const byProp = {};
+  for (const a of v.applications) (byProp[a.property] = byProp[a.property] || []).push(a);
+  let html = '';
+  for (const [prop, list] of Object.entries(byProp)) {
+    const pass = list[0].property_pass;
+    html += `<h3>${NAME[prop] || prop} ${pass
+      ? '<span class="ok" style="font:13px var(--mono)">— property passed</span>'
+      : '<span class="no" style="font:13px var(--mono)">— property not established</span>'}
+      <span style="color:var(--dim2);font:13px var(--mono)">· ${list.length} application(s)</span></h3>`;
+    html += '<div class="grid g3">' + list.map(a => `
+      <div class="card" style="padding:15px">
+        <span class="tag">${a.family.slice(0,32)}${a.breakthrough ? ' · breakthrough' : ''}</span>
+        <h4 style="font-size:15.5px">${a.application}</h4>
+        <p style="font-size:14px;color:var(--dim2);margin-top:8px">${a.not_tested_here}</p>
+      </div>`).join('') + '</div>';
+  }
+  const s = v.summary || {};
+  html = `<p class="note" style="margin-bottom:18px">`
+    + `<b>${s.properties_passed_cleanly} of ${s.properties}</b> properties passed outright, `
+    + `<b>${s.properties_passed_with_restriction}</b> passed only with the restriction named above, `
+    + `and <b>${s.properties - s.properties_passed}</b> failed. Of the ${s.applications} applications, `
+    + `<b>${s.backed}</b> rest on a property that survived a real test and <b>${s.unbacked}</b> do not — `
+    + `the latter are listed under their property rather than quietly dropped.</p>` + html;
+  document.getElementById('app-verdicts').innerHTML = html;
+})();
+</script>
+
+</body></html>

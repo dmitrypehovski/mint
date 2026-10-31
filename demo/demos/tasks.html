@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mint — eighteen real tasks</title>
+<meta name="description" content="Eighteen real tasks against six repositories, per-run numbers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/demos.css">
+</head><body>
+<header><nav>
+  <b><a href="/site" style="color:inherit">mint</a></b>
+  <a href="/demos" style="font-weight:600;color:var(--ink)">Demos</a>
+  <a href="/site#watch">Watch</a>
+  <a href="/site#proof">Proof</a>
+  <a href="/site#not">Why not an agent</a>
+  <a href="/site#surfaces">Surfaces</a>
+  <a href="/site#arli">ARLI</a>
+  <a href="/site#receipts">Receipts</a>
+  <a href="/site#tested">Tested</a>
+  <a href="/site#all">Applications</a>
+  <a href="/site#speed">What speed unlocks</a>
+  <a href="/site#evidence">Evidence</a>
+  <a href="/site#unproven">Not proven</a>
+  <a class="live" href="/live">Live run →</a>
+</nav></header>
+<div class="wrap">
+<div class="demohead">
+  <div class="eyebrow">demonstration 7</div>
+  <h1>Eighteen tasks against six real repositories.</h1>
+  <p class="lede">These are the actual runs, with their actual numbers: how many decisions, whether the model was needed, how long, and whether the step landed on the thing it was supposed to land on.</p>
+
+  <a class="back" href="/demos">&larr; all demonstrations</a>
+</div>
+<table class="rt" id="tbl7"></table>
+<h2 class="dh">What each column means</h2>
+<div class="grid2">
+  <div><p class="why"><b>decisions</b> is how many times the runtime had to decide what to act on. The first
+  task on a repository usually needs two; the shape is new. The next ones need one, because the same
+  shape was already compiled.</p>
+  <p class="why"><b>model calls</b> is how many of those decisions had to be asked about. Zero means the
+  compiled skill recognised the page on its own.</p></div>
+  <div><p class="why"><b>landed</b> is what the runtime was expected to reach — a commit page, an issue
+  list, a pull request list — and it either did or did not.</p>
+  <p class="why">Nothing here is averaged into a score. A number that hides which task failed is not a
+  measurement, it is a claim about measurements.</p></div>
+</div>
+<p class="cmdtxt"><b>the file:</b> <a href="/evaluation.json">/evaluation.json</a> — every run, with its
+per-run receipts</p>
+<div class="honest"><h5>what this does not show</h5><p>It does not show that this generalises past the family of pages it was tested on. Clean, well-marked pages with stable structures are the easy case, and these are all such pages. Four separate failures on other pages are named elsewhere on the site rather than folded into a percentage.</p></div>
+
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path) {
+  const r = await fetch('/api/' + path, {cache: 'no-store'});
+  const j = await r.json().catch(() => ({ok: false, error: 'HTTP ' + r.status}));
+  if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+function show(el, text) { el.textContent = text; }
+function fail(el, e) { el.textContent = 'the call did not complete: ' + (e && e.message ? e.message : e); }
+function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' + esc(text); }
+
+(async () => {
+  const e = await (await fetch('/evaluation.json', {cache:'no-store'})).json();
+  let h = '<tr><th>repository</th><th>what it was asked to do</th><th>expected to land</th><th>landed</th>' +
+          '<th>decisions</th><th>model</th><th>time</th><th>receipts</th></tr>';
+  for (const r of e.runs) {
+    h += '<tr><td class="m">' + esc(r.target) + '</td><td>' + esc(r.goal) + '</td>' +
+         '<td class="m">' + esc(r.expected) + '</td><td class="m">' + esc(r.landed || '—') + '</td>' +
+         '<td class="m">' + r.decisions + '</td><td class="m">' + (r.model_calls === 0
+             ? '<span class="yes">0</span>' : r.model_calls) + '</td><td class="m">' +
+         (r.wall_ms / 1000).toFixed(2) + 's</td><td class="m">' +
+         (r.receipts && r.receipts.signed ? r.receipts.count + ' signed' : '—') + '</td></tr>';
+  }
+  document.getElementById('tbl7').innerHTML = h;
+})();
+
+</script>
+</body></html>

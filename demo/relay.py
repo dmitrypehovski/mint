@@ -1,0 +1,630 @@
+#!/usr/bin/env python3
+"""levOS showcase: takes frames and numbers from the runtime and serves them to the page.
+
+Why polling and not a websocket: the picture changes only on agent steps, that is
+about once a second. Polling every 300 ms delivers the same, but goes through any
+tunnel without handshake trouble and does not break on an intermediary's buffering.
+
+Three entry points:
+  GET  /         — the page for the projector
+  GET  /state    — current state: numbers and frames for both sides
+  POST /push     — where the runtime sends a step
+"""
+import json
+import os
+import re
+import subprocess
+import threading
+import time
+from collections import defaultdict, deque
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlparse
+
+PORT = 8840
+DEMO_DIR = "/root/levos/demo"
+LOCK = threading.Lock()
+
+# ── the demonstrations ────────────────────────────────────────────────────────────────────────────
+#
+# Four of the eight pages are interactive: a visitor presses a button and the answer is computed right
+# then by the real program, not read from a file prepared in advance. That is worth more than a
+# screenshot, and it is also the only part of this server that runs anything on request.
+#
+# So the shape is deliberately narrow. The caller chooses an index into a table fixed in this file —
+# never a path, never an argument, never a URL. Nothing is written, no browser is started, no model is
+# called, and each case is a read of a file that already exists. A request that is not one of these
+# cases is refused rather than guessed at.
+LEVOS = "/root/levos/target/release/levos"
+# The verifier runs from the demo directory with relative paths, so that the output it prints names the
+# same files the page says it ran on. Rewriting its output to look tidier would make the one thing the
+# page claims — that this is what the program actually said — untrue.
+ROOT = DEMO_DIR
+API_POLICY = "gate-policy.json"
+API_LOG = "gate-receipts.json"
+API_ENDORSEMENT = "gate-endorsement.json"
+API_OBSERVATIONS = "gate-observations.json"
+API_TAMPER_DIR = "tamper"
+
+# slug -> (what was done to this copy, the file to check, the rules to check it against)
+API_TAMPER = {
+    "edited": (f"{API_TAMPER_DIR}/tampered-edited.json", API_POLICY),
+    "dropped": (f"{API_TAMPER_DIR}/tampered-dropped.json", API_POLICY),
+    "swapped": (f"{API_TAMPER_DIR}/tampered-swapped.json", API_POLICY),
+    "forged": (f"{API_TAMPER_DIR}/tampered-forged.json", API_POLICY),
+    "policy": (f"{API_TAMPER_DIR}/tampered-policy.json", f"{API_TAMPER_DIR}/policy-swapped.json"),
+}
+API_ENDORSE = {
+    "0": f"{API_TAMPER_DIR}/endorse-0.json",
+    "1": f"{API_TAMPER_DIR}/endorse-1.json",
+    "2": f"{API_TAMPER_DIR}/endorse-2.json",
+    "3": f"{API_TAMPER_DIR}/endorse-3.json",
+}
+
+# A page of buttons is not a load test. Sixty calls a minute from one address is far more than a
+# person clicking can produce, and low enough that nothing here can be used to keep the machine busy.
+API_BUDGET = deque()
+API_BUDGET_MAX = 60
+API_WINDOW_S = 60.0
+API_BY_IP = defaultdict(deque)
+API_IP_MAX = 20
+API_SLOTS = threading.Semaphore(2)
+
+
+def _allowed(ip):
+    """Both a global and a per-address budget. Cheap, and it fails closed."""
+    now = time.time()
+    with LOCK:
+        while API_BUDGET and now - API_BUDGET[0] > API_WINDOW_S:
+            API_BUDGET.popleft()
+        if len(API_BUDGET) >= API_BUDGET_MAX:
+            return False
+        mine = API_BY_IP[ip]
+        while mine and now - mine[0] > API_WINDOW_S:
+            mine.popleft()
+        if len(mine) >= API_IP_MAX:
+            return False
+        API_BUDGET.append(now)
+        mine.append(now)
+        return True
+
+
+def run_levos(args, stdin_text=None, timeout=25):
+    """Run the real binary with fixed arguments and hand back exactly what it printed."""
+    if not API_SLOTS.acquire(timeout=10):
+        return -1, "the machine is busy running another demonstration; try again in a moment"
+    try:
+        done = subprocess.run(
+            [LEVOS] + args, cwd=ROOT, input=stdin_text,
+            capture_output=True, text=True, timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        return -1, "the verifier did not finish within %d seconds" % timeout
+    except OSError as exc:
+        return -1, "could not run the verifier: %s" % exc
+    finally:
+        API_SLOTS.release()
+    text = done.stdout or ""
+    if done.stderr and done.stderr.strip():
+        text += "\n" + done.stderr
+    return done.returncode, text.strip()
+
+
+def api_verdict(query):
+    """Apply the published rules to one recorded observation, with the approval flipped if asked."""
+    obs = json.load(open(API_OBSERVATIONS, encoding="utf-8"))["observations"]
+    try:
+        n = int(query.get("obs", ["0"])[0])
+    except ValueError:
+        return None, "obs must be a number"
+    if n < 0 or n >= len(obs):
+        return None, "no such observation"
+    approved = query.get("approval", ["0"])[0] == "1"
+    obs[n] = dict(obs[n], approval=approved)
+
+    plain = ["rules", "--policy", API_POLICY, "--observations", "-"]
+    code, text = run_levos(plain, stdin_text=json.dumps({"observations": obs}))
+    if code != 0:
+        return None, text
+    asked = json.loads(run_levos(plain + ["--json"], stdin_text=json.dumps({"observations": obs}))[1])
+    said = asked["results"][n]
+    return {
+        "ok": True,
+        "class": said["class"],
+        "verdict": said["verdict"],
+        "reason": said["reason"],
+        "policy_hash": asked["policy_hash"],
+        "spec": asked["spec"],
+        "output": text,
+        "command": ("levos rules --policy policy.json --observations observations.json"
+                    "   # element %d, approval presented: %s" % (n, "yes" if approved else "no")),
+    }, None
+
+
+def api_tamper(slug):
+    if slug not in API_TAMPER:
+        return None, "no such case"
+    log, rules = API_TAMPER[slug]
+    args = ["receipts", "--in", log, "--policy", rules]
+    code, text = run_levos(args)
+    if code != 0 and not text:
+        return None, "the verifier produced nothing"
+    return {
+        "ok": True,
+        "output": text,
+        "command": "levos receipts --in %s --policy %s" % (
+            os.path.basename(log), os.path.basename(rules)),
+    }, None
+
+
+def api_endorse(case):
+    if case not in API_ENDORSE:
+        return None, "no such case"
+    args = ["receipts", "--in", API_LOG, "--policy", API_POLICY,
+            "--endorsement", API_ENDORSE[case]]
+    code, text = run_levos(args)
+    if code != 0 and not text:
+        return None, "the verifier produced nothing"
+    return {
+        "ok": True,
+        "output": text,
+        "command": "levos receipts --in receipts.json --policy policy.json --endorsement %s" % (
+            os.path.basename(API_ENDORSE[case])),
+    }, None
+
+
+def api_verify():
+    args = ["receipts", "--in", API_LOG, "--policy", API_POLICY,
+            "--endorsement", API_ENDORSEMENT, "--tamper", API_TAMPER_DIR]
+    code, text = run_levos(args, timeout=60)
+    if code != 0 and not text:
+        return None, "the verifier produced nothing"
+    return {
+        "ok": True,
+        "output": text,
+        "command": "levos receipts --in receipts.json --policy policy.json "
+                   "--endorsement endorsement.json --tamper .",
+    }, None
+
+# The demonstration pages, by name. A request for anything not in this list is a 404: building a path
+# out of what a caller sent is how a read-only server ends up reading something it was never asked to.
+DEMO_PAGES = {
+    "": "index.html",
+    "gate": "gate.html",
+    "refuse": "refuse.html",
+    "tamper": "tamper.html",
+    "endorse": "endorse.html",
+    "receipt": "receipt.html",
+    "learn": "learn.html",
+    "tasks": "tasks.html",
+    "state": "state.html",
+}
+
+# What may be served as a file, and nothing else. The demo page shows real screenshots and a real
+# recording, so the showcase has to hand them out — but only ever from this directory, and only
+# ever these kinds.
+MEDIA_TYPES = {
+    "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png",
+    "gif": "image/gif", "mp4": "video/mp4", "webm": "video/webm",
+}
+
+STATE = {
+    "goal": "",
+    "started": time.time(),
+    "sides": {
+        "slow": {
+            "title": "Ordinary agent",
+            "subtitle": "the model decides every step",
+            "steps": [],
+            "model_calls": 0,
+            "decision_us": 0,
+            "total_ms": 0,
+            "frame": "",
+            "url": "",
+            "page_title": "",
+            "verdict": "",
+            "opinion": "",
+            "finished": False,
+        },
+        "fast": {
+            "title": "levOS",
+            "subtitle": "running the remembered skill",
+            "steps": [],
+            "model_calls": 0,
+            "decision_us": 0,
+            "total_ms": 0,
+            "frame": "",
+            "url": "",
+            "page_title": "",
+            "verdict": "",
+            "opinion": "",
+            "finished": False,
+        },
+    },
+}
+
+
+def reset(goal: str = "") -> None:
+    with LOCK:
+        STATE["goal"] = goal
+        STATE["started"] = time.time()
+        for side in STATE["sides"].values():
+            side.update(
+                steps=[], model_calls=0, decision_us=0, total_ms=0,
+                frame="", url="", page_title="", verdict="", opinion="", finished=False,
+            )
+
+
+def push(payload: dict) -> None:
+    side = payload.get("side")
+    if side not in STATE["sides"]:
+        return
+    with LOCK:
+        s = STATE["sides"][side]
+        if payload.get("goal"):
+            STATE["goal"] = payload["goal"]
+        if payload.get("frame"):
+            s["frame"] = payload["frame"]
+        if payload.get("url"):
+            s["url"] = payload["url"]
+        if payload.get("page_title"):
+            s["page_title"] = payload["page_title"]
+        if payload.get("verdict"):
+            s["verdict"] = payload["verdict"]
+        if payload.get("opinion"):
+            s["opinion"] = payload["opinion"]
+        if payload.get("finished"):
+            s["finished"] = True
+        if payload.get("total_ms"):
+            s["total_ms"] = payload["total_ms"]
+        if payload.get("step"):
+            step = payload["step"]
+            s["steps"].append(step)
+            if step.get("tier") == "model":
+                s["model_calls"] += 1
+            s["decision_us"] += int(step.get("decision_us", 0))
+    _persist(force=bool(payload.get("finished")))
+
+
+LAST_RUN_PATH = "/root/levos/demo/last-run.json"
+_persisted_at = [0.0]
+
+
+def _persist(force: bool = False) -> None:
+    """Keep the last run on disk.
+
+    The live view is embedded in the pitch page, and a live view that is blank until somebody
+    happens to start a run is a worse demo than no live view at all. Keeping the last real run
+    means the embedded view always shows the most recent race rather than an empty frame.
+    """
+    now = time.time()
+    if not force and now - _persisted_at[0] < 3:
+        return
+    _persisted_at[0] = now
+    try:
+        with LOCK:
+            snapshot = json.dumps(STATE)
+        tmp = LAST_RUN_PATH + ".tmp"
+        with open(tmp, "w") as fh:
+            fh.write(snapshot)
+        os.replace(tmp, LAST_RUN_PATH)
+    except Exception:
+        pass
+
+
+def _restore() -> None:
+    try:
+        data = json.loads(open(LAST_RUN_PATH).read())
+    except Exception:
+        return
+    with LOCK:
+        STATE.update(data)
+    fast = len(STATE["sides"].get("fast", {}).get("steps", []))
+    slow = len(STATE["sides"].get("slow", {}).get("steps", []))
+    print(f"restored the last run: {fast} fast steps, {slow} slow steps", flush=True)
+
+
+SITE_PATH = "/root/levos/demo/site.html"
+MEASURE_PATH = "/root/levos/demo/measurements.json"
+EVAL_PATH = "/root/levos/demo/evaluation.json"
+VERIFIED_PATH = "/root/levos/demo/applications-verified.json"
+
+PAGE = r"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>levOS — the race</title>
+<style>
+  :root { --bg:#0b0d12; --panel:#12151d; --line:#232838; --ink:#e8ecf5; --dim:#8b93a7;
+          --slow:#ff6b6b; --fast:#4ade80; --accent:#7c5ce7; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  header { padding:18px 26px 12px; border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 4px; font-size:22px; letter-spacing:-.02em; }
+  .goal { color:var(--dim); font-size:15px; }
+  .goal b { color:var(--ink); font-weight:600; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:16px 26px 26px; }
+  .pane { background:var(--panel); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+          display:flex; flex-direction:column; }
+  .pane.slow { border-color:#3a2229; } .pane.fast { border-color:#1f3a2b; }
+  .head { padding:12px 16px; display:flex; justify-content:space-between; align-items:baseline;
+          border-bottom:1px solid var(--line); }
+  .name { font-weight:650; } .slow .name { color:var(--slow); } .fast .name { color:var(--fast); }
+  .sub { color:var(--dim); font-size:13px; }
+  .shot { background:#05070b; aspect-ratio:16/10; display:flex; align-items:center; justify-content:center; }
+  .shot img { width:100%; height:100%; object-fit:cover; object-position:top center; display:block; }
+  .shot .empty { color:#3b4256; font-size:14px; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); }
+  .stat { padding:12px 14px; border-right:1px solid var(--line); }
+  .stat:last-child { border-right:0; }
+  .k { color:var(--dim); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
+  .v { font-size:26px; font-weight:700; font-variant-numeric:tabular-nums; margin-top:3px; }
+  .v small { font-size:13px; color:var(--dim); font-weight:500; margin-left:4px; }
+  .fast .v { color:var(--fast); } .slow .v { color:var(--slow); }
+  .steps { padding:10px 14px; font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;
+           color:var(--dim); min-height:74px; max-height:150px; overflow:auto; }
+  .steps div span { color:var(--ink); }
+  .steps .t { color:var(--accent); }
+  .steps .n { color:#f0b95c; }
+  footer { padding:0 26px 26px; color:var(--dim); font-size:14px; }
+  .verdict { margin-top:12px; padding:12px 16px; border-radius:10px; border:1px solid var(--line);
+             background:var(--panel); }
+  .verdict b { color:var(--ink); }
+</style></head>
+<body>
+<header>
+  <h1 id="headline">Two panes. Watch the decision counters.</h1>
+  <div class="goal">Goal: <b id="goal">…</b></div>
+</header>
+<div class="row" id="row"></div>
+<footer>
+  <div class="verdict" id="verdict">Waiting for the run…</div>
+</footer>
+<script>
+function ms(us){ if(!us) return "0"; const v=us/1000; return v<1 ? v.toFixed(2) : v.toFixed(0); }
+function render(s){
+  const row=document.getElementById('row');
+  row.innerHTML='';
+  for (const key of ['slow','fast']) {
+    const d=s.sides[key];
+    const pane=document.createElement('div');
+    pane.className='pane '+key;
+    const steps=d.steps.slice(-6).map(st=>
+      `<div>${st.n}. <span>${esc(st.element||'')}</span> <span class="t">${st.tier==='model'?'model '+ms(st.decision_us)+' ms':'memory '+ms(st.decision_us)+' ms'}</span> ${st.note?`<span class="n">${esc(st.note)}</span>`:''}</div>`
+    ).join('');
+    pane.innerHTML=`
+      <div class="head"><div><div class="name">${esc(d.title)}</div><div class="sub">${esc(d.subtitle)}</div></div>
+        <div class="sub">${d.finished?'finished':'working…'}</div></div>
+      <div class="shot">${d.frame?`<img src="${d.frame}" alt="">`:'<div class="empty">watching the browser…</div>'}</div>
+      <div class="stats">
+        <div class="stat"><div class="k">decisions, total</div><div class="v">${ms(d.decision_us)}<small>ms</small></div></div>
+        <div class="stat"><div class="k">model calls</div><div class="v">${d.model_calls}</div></div>
+        <div class="stat"><div class="k">whole task</div><div class="v">${d.total_ms?(d.total_ms/1000).toFixed(2):'—'}<small>s</small></div></div>
+      </div>
+      <div class="steps">${steps||'<div>no steps yet</div>'}</div>`;
+    row.appendChild(pane);
+  }
+  document.getElementById('goal').textContent=s.goal||'…';
+  const m=(s.goal||'').match(/^(\d+)\s/);
+  if(m) document.getElementById('headline').textContent=
+    m[1]+' tasks in a row. Two panes. Watch the decision counters.';
+  const slow=s.sides.slow, fast=s.sides.fast;
+  if (slow.steps.length && fast.steps.length && slow.decision_us && fast.decision_us) {
+    // One unit on both sides, or the comparison becomes meaningless.
+    const perSlow=slow.decision_us/slow.steps.length, perFast=fast.decision_us/fast.steps.length;
+    const fmtUs=(u)=> u>=1000 ? Math.round(u).toLocaleString('en-US') : (u>=10 ? u.toFixed(0) : u.toFixed(3));
+    const ratio=perSlow/perFast;
+    document.getElementById('verdict').innerHTML=
+      `<b>Result.</b> Decisions made: ${slow.steps.length} by the ordinary agent, ${fast.steps.length} by levOS `
+      +`(and that is for the same work). `
+      +`Per decision: <b>${fmtUs(perSlow)} µs</b> against <b>${fmtUs(perFast)} µs</b> — <b>${Math.round(ratio).toLocaleString('en-US')}x</b> faster. `
+      +`Model calls: <b>${slow.model_calls}</b> against <b>${fast.model_calls}</b>. `
+      +(fast.verdict?`<br><br><b>Verdict (not an opinion):</b> ${esc(fast.verdict)}.`:'')
+      +(fast.opinion?`<br><span style="color:#8b93a7">The model's opinion, kept separate as an opinion: ${esc(fast.opinion)}.</span>`:'');
+  }
+}
+function esc(t){ return String(t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+async function tick(){ try { const r=await fetch('state',{cache:'no-store'}); render(await r.json()); } catch(e){} }
+setInterval(tick,300); tick();
+</script></body></html>
+"""
+
+
+class Handler(BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
+    def log_message(self, *args):  # quiet logs: a poll lands here every 300 ms
+        pass
+
+    def _send(self, code, body: bytes, ctype: str):
+        self.send_response(code)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _send_file(self, path, ctype):
+        """A file, with range support so a recording can be seeked and not only played through."""
+        try:
+            data = open(path, "rb").read()
+        except (FileNotFoundError, IsADirectoryError):
+            self._send(404, b"no such file", "text/plain")
+            return
+        m = re.match(r"bytes=(\d*)-(\d*)", self.headers.get("Range") or "")
+        if m and (m.group(1) or m.group(2)):
+            total = len(data)
+            if m.group(1):
+                start, end = int(m.group(1)), (int(m.group(2)) if m.group(2) else total - 1)
+            else:
+                start, end = max(0, total - int(m.group(2))), total - 1
+            end = min(end, total - 1)
+            if start > end or start >= total:
+                self.send_response(416)
+                self.send_header("Content-Range", f"bytes */{total}")
+                self.end_headers()
+                return
+            chunk = data[start:end + 1]
+            self.send_response(206)
+            self.send_header("Content-Type", ctype)
+            self.send_header("Content-Range", f"bytes {start}-{end}/{total}")
+            self.send_header("Accept-Ranges", "bytes")
+            self.send_header("Content-Length", str(len(chunk)))
+            self.send_header("Cache-Control", "public, max-age=3600")
+            self.end_headers()
+            self.wfile.write(chunk)
+            return
+        self.send_response(200)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Accept-Ranges", "bytes")
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "public, max-age=3600")
+        self.end_headers()
+        self.wfile.write(data)
+
+    def _media(self, rel):
+        """Serve one demo asset. Whitelisted by kind, resolved inside one directory, no climbing."""
+        rel = rel.split("?", 1)[0].split("#", 1)[0]
+        if not re.fullmatch(r"[A-Za-z0-9._/-]{1,180}", rel) or ".." in rel or rel.startswith("/"):
+            self._send(400, b"bad name", "text/plain")
+            return
+        ctype = MEDIA_TYPES.get(rel.rsplit(".", 1)[-1].lower())
+        if not ctype:
+            self._send(404, b"that kind is not served", "text/plain")
+            return
+        self._send_file(os.path.join(DEMO_DIR, rel), ctype)
+
+    def do_GET(self):
+        if self.path in ("/", "/index.html", "/live"):
+            self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
+        elif self.path.startswith("/site"):
+            try:
+                body = open(SITE_PATH, "rb").read()
+                self._send(200, body, "text/html; charset=utf-8")
+            except FileNotFoundError:
+                self._send(404, b"site not built", "text/plain")
+        elif self.path.startswith("/applications-verified"):
+            try:
+                self._send(200, open(VERIFIED_PATH, "rb").read(), "application/json")
+            except FileNotFoundError:
+                self._send(404, b"not tested yet", "text/plain")
+        elif self.path.startswith("/evaluation"):
+            try:
+                self._send(200, open(EVAL_PATH, "rb").read(), "application/json")
+            except FileNotFoundError:
+                self._send(404, b"no evaluation", "text/plain")
+        elif self.path.startswith("/measurements"):
+            try:
+                body = open(MEASURE_PATH, "rb").read()
+                self._send(200, body, "application/json")
+            except FileNotFoundError:
+                self._send(404, b"no measurements", "text/plain")
+        elif self.path.startswith("/state"):
+            with LOCK:
+                body = json.dumps(STATE).encode("utf-8")
+            self._send(200, body, "application/json")
+        elif self.path.split("?")[0] == "/endorsement.json":
+            try:
+                self._send(200, open(f"{DEMO_DIR}/gate-endorsement.json", "rb").read(), "application/json")
+            except FileNotFoundError:
+                self._send(404, b"no endorsement on file", "text/plain")
+        elif self.path.split("?")[0] == "/policy.json":
+            try:
+                self._send(200, open(f"{DEMO_DIR}/gate-policy.json", "rb").read(), "application/json")
+            except FileNotFoundError:
+                self._send(404, b"no published policy yet", "text/plain")
+        elif self.path.split("?")[0] == "/receipts.json":
+            try:
+                self._send(200, open(f"{DEMO_DIR}/gate-receipts.json", "rb").read(), "application/json")
+            except FileNotFoundError:
+                self._send(404, b"no signed log yet", "text/plain")
+        elif self.path.split("?")[0] == "/gate-lab":
+            try:
+                self._send(200, open(f"{DEMO_DIR}/gate-lab.html", "rb").read(), "text/html; charset=utf-8")
+            except FileNotFoundError:
+                self._send(404, b"no lab page", "text/plain")
+        elif self.path.split("?")[0] == "/demos.css":
+            try:
+                self._send(200, open(f"{DEMO_DIR}/demos.css", "rb").read(),
+                           "text/css; charset=utf-8")
+            except FileNotFoundError:
+                self._send(404, b"no stylesheet", "text/plain")
+        elif self.path.split("?")[0].startswith("/demos"):
+            slug = self.path.split("?")[0][len("/demos"):].strip("/")
+            name = DEMO_PAGES.get(slug)
+            if name is None:
+                self._send(404, b"no such demonstration", "text/plain")
+            else:
+                try:
+                    self._send(200, open(f"{DEMO_DIR}/demos/{name}", "rb").read(),
+                               "text/html; charset=utf-8")
+                except FileNotFoundError:
+                    self._send(404, b"that demonstration is not built", "text/plain")
+        elif self.path.split("?")[0].startswith("/api/"):
+            self._api()
+        elif self.path.startswith("/media/"):
+            self._media(self.path[len("/media/"):])
+        else:
+            self._send(404, b"not found", "text/plain")
+
+    def _api(self):
+        """The live half of the demonstrations. Fixed cases only; nothing here is written."""
+        asked = urlparse(self.path)
+        query = parse_qs(asked.query)
+        ip = self.client_address[0]
+        if not _allowed(ip):
+            self._send_json(429, {"ok": False, "error": "too many requests; wait a moment"})
+            return
+        wanted = asked.path[len("/api/"):].strip("/")
+        try:
+            if wanted == "verdict":
+                body, why = api_verdict(query)
+            elif wanted == "tamper":
+                body, why = api_tamper(query.get("case", [""])[0])
+            elif wanted == "endorse":
+                body, why = api_endorse(query.get("case", [""])[0])
+            elif wanted == "verify":
+                body, why = api_verify()
+            else:
+                body, why = None, "no such call"
+        except Exception as exc:  # a demonstration that dies silently looks like a demonstration
+            body, why = None, "the call failed on this machine: %s" % exc
+        if body is None:
+            self._send_json(400, {"ok": False, "error": why})
+        else:
+            self._send_json(200, body)
+
+    def _send_json(self, code, payload):
+        self._send(code, json.dumps(payload).encode("utf-8"), "application/json")
+
+    def do_POST(self):
+        length = int(self.headers.get("Content-Length") or 0)
+        raw = self.rfile.read(length) if length else b"{}"
+        try:
+            payload = json.loads(raw or b"{}")
+        except json.JSONDecodeError:
+            self._send(400, b"bad json", "text/plain")
+            return
+        if self.path.startswith("/reset"):
+            reset(payload.get("goal", ""))
+        elif self.path.startswith("/push"):
+            push(payload)
+        else:
+            # Anything else is not a thing this server does. Saying {"ok":true} to an unknown path
+            # tells a caller it succeeded when nothing happened — which is worse than a refusal.
+            self._send(404, b'{"ok":false,"error":"unknown path"}', "application/json")
+            return
+        self._send(200, b'{"ok":true}', "application/json")
+
+
+def main():
+    # Loopback only. nginx reaches it from this machine, the runtime pushes over this machine, and
+    # nothing else has any business talking to it. Binding to every interface published the
+    # showcase's own mutating endpoints to the internet, which the page never needed.
+    srv = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
+    print(f"showcase listening on 127.0.0.1:{PORT}", flush=True)
+    _restore()
+    srv.serve_forever()
+
+
+if __name__ == "__main__":
+    main()

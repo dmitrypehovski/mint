@@ -1,0 +1,23 @@
+{
+ "goal": "open the pull request list of this repository",
+ "learned_from": "https://github.com/tokio-rs/tokio",
+ "host": "github.com",
+ "expect_final_page": "pulls",
+ "steps": [
+  {
+   "action": "Click",
+   "role": "link",
+   "href_kind": "tokio/pulls",
+   "name_shape": "pull requests * *",
+   "ordinal": 0,
+   "seen_label": "Pull requests 141 (141)",
+   "learned_page": "",
+   "produced_page": "pulls",
+   "intent": "open the pull request list",
+   "confidence": 1.0
+  }
+ ],
+ "learn_model_calls": 3,
+ "learn_ms": 2315,
+ "learn_declared_done": true
+}

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mint — lie to the log</title>
+<meta name="description" content="Five ways to tamper with a signed, chained log, checked live.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/demos.css">
+</head><body>
+<header><nav>
+  <b><a href="/site" style="color:inherit">mint</a></b>
+  <a href="/demos" style="font-weight:600;color:var(--ink)">Demos</a>
+  <a href="/site#watch">Watch</a>
+  <a href="/site#proof">Proof</a>
+  <a href="/site#not">Why not an agent</a>
+  <a href="/site#surfaces">Surfaces</a>
+  <a href="/site#arli">ARLI</a>
+  <a href="/site#receipts">Receipts</a>
+  <a href="/site#tested">Tested</a>
+  <a href="/site#all">Applications</a>
+  <a href="/site#speed">What speed unlocks</a>
+  <a href="/site#evidence">Evidence</a>
+  <a href="/site#unproven">Not proven</a>
+  <a class="live" href="/live">Live run →</a>
+</nav></header>
+<div class="wrap">
+<div class="demohead">
+  <div class="eyebrow">demonstration 3 · live</div>
+  <h1>Five ways to lie to the log. All five get caught.</h1>
+  <p class="lede">The log is signed with Ed25519 and each receipt is chained to the one before it. But signatures only stop people who do not have the key. The interesting case is the fifth one, and pressing a button runs the real verifier on a real tampered copy — this is not a video of a verifier.</p>
+
+  <a class="back" href="/demos">&larr; all demonstrations</a>
+</div>
+<p class="why">Every button below checks a file that exists on this machine, written by the same binary
+that wrote the original. The output is the verifier's own, unedited.</p>
+<h3 class="dh">a line edited, signature left alone</h3>
+<p class="why">Somebody changes what a receipt says and does not have the key, so the signature no longer covers the bytes.</p>
+<p><button class="btn ghost" data-case="edited">run the verifier on this copy</button></p>
+<pre class="runout" id="out-edited"></pre>
+<h3 class="dh">a receipt deleted from the middle</h3>
+<p class="why">Somebody removes one rung of the ladder and hopes nobody counts.</p>
+<p><button class="btn ghost" data-case="dropped">run the verifier on this copy</button></p>
+<pre class="runout" id="out-dropped"></pre>
+<h3 class="dh">two receipts reordered</h3>
+<p class="why">The order of events is changed without changing the events.</p>
+<p><button class="btn ghost" data-case="swapped">run the verifier on this copy</button></p>
+<pre class="runout" id="out-swapped"></pre>
+<h3 class="dh">a held write rewritten to 'allow', with the whole chain re-signed<br><b>by the real key holder</b></h3>
+<p class="why">This is the one that matters. Every signature is valid. Every link holds. The only thing left that can catch it is the published rules, applied again to the observations the receipts actually recorded.</p>
+<p><button class="btn ghost" data-case="forged">run the verifier on this copy</button></p>
+<pre class="runout" id="out-forged"></pre>
+<h3 class="dh">the rules swapped out after the log was signed</h3>
+<p class="why">Somebody keeps the log and replaces the document it claims to have followed.</p>
+<p><button class="btn ghost" data-case="policy">run the verifier on this copy</button></p>
+<pre class="runout" id="out-policy"></pre>
+<div class="grid2">
+  <div><h3 class="dh">Why the fifth is the hard one</h3>
+  <p class="why">If you hold the key, you can rewrite history and re-sign it, and every cryptographic
+  check passes. Nothing in the chain can tell the difference, because there is no difference — the
+  bytes are authentic. What catches it is that the receipt recorded the <b>observations</b>, not just
+  the verdict. Re-apply the published rules to those observations and you get <i>hold</i> where the
+  log says <i>allow</i>. Authentic, and wrong.</p></div>
+  <div><h3 class="dh">Why the third way of lying is invisible without a chain</h3>
+  <p class="why">Deleting or reordering receipts does not make any signature invalid. Each receipt is
+  still perfectly signed. What breaks is the link: a receipt points at the hash of the one before it,
+  and that pointer no longer describes the file it is in. Without the chain, an audit could only count
+  receipts — never place them in an order.</p></div>
+</div>
+<p class="cmdtxt"><b>the command:</b> levos receipts --in receipts.json --policy policy.json <span
+style="color:var(--dim2)">(add --tamper DIR and the binary writes all five forged copies itself, then
+checks them)</span></p>
+<div class="honest"><h5>what this does not show</h5><p>It does not show that the verifier is infallible. It shows which specific ways of lying it catches, and the list is finite and stated. A lie not on this list is not caught by this check — and the honest answer to “what about a lie you did not think of” is that the log records observations precisely so somebody else can catch the ones we missed.</p></div>
+
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path) {
+  const r = await fetch('/api/' + path, {cache: 'no-store'});
+  const j = await r.json().catch(() => ({ok: false, error: 'HTTP ' + r.status}));
+  if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+function show(el, text) { el.textContent = text; }
+function fail(el, e) { el.textContent = 'the call did not complete: ' + (e && e.message ? e.message : e); }
+function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' + esc(text); }
+
+document.querySelectorAll('[data-case]').forEach((b) => {
+  b.addEventListener('click', async () => {
+    const slug = b.dataset.case;
+    const out = document.getElementById('out-' + slug);
+    out.textContent = 'running the real verifier…';
+    try {
+      const j = await api('tamper?case=' + slug);
+      show(out, j.output);
+    } catch (e) { fail(out, e); }
+  });
+});
+
+</script>
+</body></html>

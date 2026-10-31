@@ -1,0 +1,35 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: rust toolchain (stable)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: build
+        run: cargo build --release
+
+      - name: test
+        run: cargo test --release
+
+      # Depends on the live demo host mint.arliwork.com. Deliberately NOT continue-on-error: if the
+      # published artifacts stop checking out, that is a real failure and the build must say so.
+      # It will fail spuriously only if the host is unreachable, which is itself worth knowing.
+      - name: verify the live demo receipts
+        continue-on-error: false
+        run: |
+          set -euo pipefail
+          curl -fsSL https://mint.arliwork.com/receipts.json     -o receipts.json
+          curl -fsSL https://mint.arliwork.com/policy.json       -o policy.json
+          curl -fsSL https://mint.arliwork.com/endorsement.json  -o endorsement.json
+          ./target/release/levos receipts \
+            --in receipts.json --policy policy.json --endorsement endorsement.json | tee out.txt
+          grep -q "OK" out.txt

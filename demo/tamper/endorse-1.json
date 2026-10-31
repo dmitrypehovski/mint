@@ -1,0 +1,17 @@
+{
+  "body": {
+    "at_ms": 1793474632258,
+    "endorser": "ba8d60136e018cd417d89ba6e203b3745a42bf8a99e6e7c6002759275ae41f99",
+    "not_after_ms": null,
+    "note": "",
+    "policy_hash": "4d5836a06b56015a75811444740812c1a1c064f262bb40c566120b56514bcbcd",
+    "runtime": "87e16ff379254af92c0b1842efad6121e30f31ca4571f3335351786545d8a73b",
+    "scope": "the gate demonstration published at mint.arliwork.com",
+    "spec": "mint.endorsement/0.1"
+  },
+  "sig": {
+    "alg": "ed25519",
+    "kid": "ba8d60136e018cd417d89ba6e203b3745a42bf8a99e6e7c6002759275ae41f99",
+    "value": "30bb74ae61b8d67c9afb3ea638ea41fe959812ee335cfadd808eb2108274921619877527b2fc9e2c467dd7ac9ed4a5676cb65eabe1766be4dd0f80881bb4f409"
+  }
+}

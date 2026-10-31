@@ -1,0 +1,19 @@
+{
+ "goal": "open the discussion page of the top story",
+ "learned_from": "https://news.ycombinator.com/newest",
+ "host": "news.ycombinator.com",
+ "steps": [
+  {
+   "action": "Click",
+   "role": "link",
+   "selector": "discuss",
+   "seen_label": "discuss",
+   "rank": 22,
+   "intent": "open the discussion page of the top story",
+   "confidence": 1.0
+  }
+ ],
+ "learn_model_calls": 2,
+ "learn_ms": 1633,
+ "_note": "abandoned: the site rate-limits repeated runs, so it is not used by the demo"
+}

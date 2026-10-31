@@ -1,0 +1,23 @@
+{
+ "goal": "open the issue list of this repository",
+ "learned_from": "https://github.com/tokio-rs/tokio",
+ "host": "github.com",
+ "expect_final_page": "issues",
+ "steps": [
+  {
+   "action": "Click",
+   "role": "link",
+   "href_kind": "tokio/issues",
+   "name_shape": "issues * *",
+   "ordinal": 0,
+   "seen_label": "Issues 308 (308)",
+   "learned_page": "",
+   "produced_page": "issues",
+   "intent": "open the issue list of this repository",
+   "confidence": 1.0
+  }
+ ],
+ "learn_model_calls": 3,
+ "learn_ms": 2555,
+ "learn_declared_done": true
+}

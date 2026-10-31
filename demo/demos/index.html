@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mint — demonstrations</title>
+<meta name="description" content="Eight demonstrations, four of them live, all from real runs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/demos.css">
+</head><body>
+<header><nav>
+  <b><a href="/site" style="color:inherit">mint</a></b>
+  <a href="/demos" style="font-weight:600;color:var(--ink)">Demos</a>
+  <a href="/site#watch">Watch</a>
+  <a href="/site#proof">Proof</a>
+  <a href="/site#not">Why not an agent</a>
+  <a href="/site#surfaces">Surfaces</a>
+  <a href="/site#arli">ARLI</a>
+  <a href="/site#receipts">Receipts</a>
+  <a href="/site#tested">Tested</a>
+  <a href="/site#all">Applications</a>
+  <a href="/site#speed">What speed unlocks</a>
+  <a href="/site#evidence">Evidence</a>
+  <a href="/site#unproven">Not proven</a>
+  <a class="live" href="/live">Live run →</a>
+</nav></header>
+<div class="wrap">
+<div class="demohead">
+  <div class="eyebrow">all demonstrations</div>
+  <h1>Eight ways to try to catch it lying.</h1>
+  <p class="lede">Every demonstration here runs the real program. Nothing is a mock-up, a screenshot or a video: when you press a button, the runtime's own verifier runs and its output is printed below, unedited. All eight can be reproduced from a shell with the command each page prints.</p>
+
+</div>
+<div class="demos">
+<a class="demo" href="/demos/gate">
+  <div class="n">demonstration 1</div>
+  <h3>Fit the gate to the effect</h3>
+  <p>Flip an approval switch and the real rules engine decides, live: reading passes, writing waits, and the undescribable is refused even with approval. <b>Interactive.</b></p>
+  <span class="tagx live">live </span>
+</a>
+<a class="demo" href="/demos/refuse">
+  <div class="n">demonstration 2</div>
+  <h3>When it does not understand, nothing happens</h3>
+  <p>The run where the runtime met an element it could not describe. The absence of an outcome receipt is the evidence that nothing took place.</p>
+  <span class="tagx">real run, printed </span>
+</a>
+<a class="demo" href="/demos/tamper">
+  <div class="n">demonstration 3</div>
+  <h3>Five ways to lie to the log</h3>
+  <p>Edit a line, delete a receipt, reorder two, rewrite a verdict and re-sign the whole chain with the real key, or swap the rules. The verifier runs on each forged copy in front of you. <b>Interactive.</b></p>
+  <span class="tagx live">live </span>
+</a>
+<a class="demo" href="/demos/endorse">
+  <div class="n">demonstration 4</div>
+  <h3>Four ways to lie about who agreed</h3>
+  <p>A second key signs the rules. Four forgeries, each rejected for its own reason — starting with the one where the runtime signs its own rules. <b>Interactive.</b></p>
+  <span class="tagx live">live </span>
+</a>
+<a class="demo" href="/demos/receipt">
+  <div class="n">demonstration 5</div>
+  <h3>Read a receipt, field by field</h3>
+  <p>The whole format, from the published log: what it asserts, what the signature covers, and the sentence at the bottom that refuses to assert the rest. <b>Interactive.</b></p>
+  <span class="tagx live">live </span>
+</a>
+<a class="demo" href="/demos/learn">
+  <div class="n">demonstration 6</div>
+  <h3>What learning costs, and what using it costs</h3>
+  <p>Four real skills, measured: three or four questions to a model to learn one, and none at all to run it afterwards.</p>
+  <span class="tagx">real run, printed </span>
+</a>
+<a class="demo" href="/demos/tasks">
+  <div class="n">demonstration 7</div>
+  <h3>Eighteen tasks against six repositories</h3>
+  <p>Every run with its own numbers, including which ones the model was needed for. No scores, no averages.</p>
+  <span class="tagx">real run, printed </span>
+</a>
+<a class="demo" href="/demos/state">
+  <div class="n">demonstration 8</div>
+  <h3>What it hands to a model</h3>
+  <p>A page read in milliseconds and summarised to tens of kilobytes, against the megabyte of markup most agents send. Measured on three real repositories.</p>
+  <span class="tagx">real run, printed </span>
+</a>
+</div>
+<h2 class="dh">Run all of it yourself, without us</h2>
+<p class="why">Four of the eight are interactive and call this machine when you press a button — which
+is convenient, and worth nothing as evidence, because you are still taking our word for it. The other
+four print what a run produced. Either way, the point is that none of it needs our permission:</p>
+<pre class="runout">curl -O https://mint.arliwork.com/receipts.json
+curl -O https://mint.arliwork.com/policy.json
+curl -O https://mint.arliwork.com/endorsement.json
+levos receipts --in receipts.json --policy policy.json --endorsement endorsement.json</pre>
+<p class="why">That verifies every signature, walks the hash chain, re-applies the published rules to
+every recorded decision, checks the counter-signature, and prints the receipt where anything first
+disagrees. The log and the rules are the whole input; nothing is fetched from us at check time, and
+nothing about the check depends on the program that produced the log.</p>
+<p class="cmdtxt"><b>the files behind the demonstrations:</b>
+<a href="/receipts.json">/receipts.json</a> ·
+<a href="/policy.json">/policy.json</a> ·
+<a href="/endorsement.json">/endorsement.json</a> ·
+<a href="/evaluation.json">/evaluation.json</a> ·
+<a href="/measurements.json">/measurements.json</a></p>
+<div class="honest"><h5>what no demonstration here shows</h5><p>A real counterparty. Every key on this
+site was generated on this machine, so the demonstrations prove the mechanism and say nothing about who
+is behind it. Nor do they show that the work done was the work wanted — only that what was recorded
+truthfully describes what was done, signably and checkably. Those two gaps are the ones worth arguing
+about, and they are stated here rather than left for a reader to find.</p></div>
+
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path) {
+  const r = await fetch('/api/' + path, {cache: 'no-store'});
+  const j = await r.json().catch(() => ({ok: false, error: 'HTTP ' + r.status}));
+  if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+function show(el, text) { el.textContent = text; }
+function fail(el, e) { el.textContent = 'the call did not complete: ' + (e && e.message ? e.message : e); }
+function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' + esc(text); }
+
+</script>
+</body></html>

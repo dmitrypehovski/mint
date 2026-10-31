@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mint — what learning costs</title>
+<meta name="description" content="Measured cost of learning a task once and running it thereafter.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/demos.css">
+</head><body>
+<header><nav>
+  <b><a href="/site" style="color:inherit">mint</a></b>
+  <a href="/demos" style="font-weight:600;color:var(--ink)">Demos</a>
+  <a href="/site#watch">Watch</a>
+  <a href="/site#proof">Proof</a>
+  <a href="/site#not">Why not an agent</a>
+  <a href="/site#surfaces">Surfaces</a>
+  <a href="/site#arli">ARLI</a>
+  <a href="/site#receipts">Receipts</a>
+  <a href="/site#tested">Tested</a>
+  <a href="/site#all">Applications</a>
+  <a href="/site#speed">What speed unlocks</a>
+  <a href="/site#evidence">Evidence</a>
+  <a href="/site#unproven">Not proven</a>
+  <a class="live" href="/live">Live run →</a>
+</nav></header>
+<div class="wrap">
+<div class="demohead">
+  <div class="eyebrow">demonstration 6</div>
+  <h1>What learning costs, and what using it costs.</h1>
+  <p class="lede">A task is solved once with a model, and what comes out the other side is not a recording — it is a small program of typed steps that describe the shape of what to act on. Here is what that costs, measured, including the one that is not finished.</p>
+
+  <a class="back" href="/demos">&larr; all demonstrations</a>
+</div>
+<h2 class="dh">Four skills, learned from four real repositories</h2>
+<table class="rt">
+  <tr><th>skill</th><th>steps</th><th>size</th><th>model calls to learn</th><th>time to learn</th><th>state</th></tr>
+  <tr><td class="m">gh-commit</td><td>2</td><td class="m">829</td>
+<td class="m">4</td><td class="m">4.1s</td>
+<td><span class='warnc'>not yet verified on every shape</span></td></tr>
+<tr><td class="m">gh-issues</td><td>1</td><td class="m">547</td>
+<td class="m">3</td><td class="m">2.6s</td>
+<td><span class='yes'>verified</span></td></tr>
+<tr><td class="m">gh-prs</td><td>1</td><td class="m">568</td>
+<td class="m">3</td><td class="m">2.3s</td>
+<td><span class='yes'>verified</span></td></tr>
+</table>
+<p class="why">Learning costs three or four questions to a model and about three seconds. After that the
+skill is a file under a kilobyte: 829 to 829
+bytes of typed steps. Running it calls no model at all.</p>
+
+<h2 class="dh">The same eighteen tasks, and when a model was needed</h2>
+<p class="why">Eighteen real tasks against six real repositories. A model was needed for
+5 of them, and for
+13 of them nothing was asked.</p>
+<table class="rt" id="tbl6"></table>
+<p class="cmdtxt"><b>the file:</b> <a href="/measurements.json">/measurements.json</a> ·
+<a href="/evaluation.json">/evaluation.json</a></p>
+<div class="honest"><h5>what this does not show</h5><p>It does not show that the second run is free in general. It is free when the page still matches the shape the skill was compiled against; when it does not, the runtime stops, asks about that one step, and pays for that step. The claim is not zero cost — it is that a mistake costs one question rather than a broken run, and that the same question is not paid for twice.</p></div>
+
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path) {
+  const r = await fetch('/api/' + path, {cache: 'no-store'});
+  const j = await r.json().catch(() => ({ok: false, error: 'HTTP ' + r.status}));
+  if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+function show(el, text) { el.textContent = text; }
+function fail(el, e) { el.textContent = 'the call did not complete: ' + (e && e.message ? e.message : e); }
+function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' + esc(text); }
+
+(async () => {
+  const e = await (await fetch('/evaluation.json', {cache:'no-store'})).json();
+  let h = '<tr><th>repository</th><th>task</th><th>decisions</th><th>model calls</th><th>time</th><th></th></tr>';
+  for (const r of e.runs) {
+    const zero = r.model_calls === 0;
+    h += '<tr><td class="m">' + esc(r.target) + '</td><td>' + esc(r.goal) + '</td><td class="m">' +
+         r.decisions + '</td><td class="m">' + (zero ? '<span class="yes">0</span>' : r.model_calls) +
+         '</td><td class="m">' + (r.wall_ms / 1000).toFixed(2) + 's</td><td>' +
+         (r.success ? '<span class="yes">done</span>' : '<span class="no">failed</span>') + '</td></tr>';
+  }
+  document.getElementById('tbl6').innerHTML = h;
+})();
+
+</script>
+</body></html>

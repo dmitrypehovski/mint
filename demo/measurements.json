@@ -1,0 +1,76 @@
+{
+ "pages": [
+  {
+   "url": "https://github.com/tokio-rs/tokio",
+   "elements": 228,
+   "capture_ms_median": 7.7,
+   "capture_ms_min": 6.3,
+   "capture_ms_max": 11.0,
+   "state_bytes": 28133,
+   "naive_text_bytes": 9785,
+   "naive_tree_bytes": 1157370,
+   "naive_tree_nodes": 2740,
+   "reduction_vs_tree": 41
+  },
+  {
+   "url": "https://github.com/rust-lang/rust",
+   "elements": 200,
+   "capture_ms_median": 5.5,
+   "capture_ms_min": 4.9,
+   "capture_ms_max": 8.9,
+   "state_bytes": 24854,
+   "naive_text_bytes": 5700,
+   "naive_tree_bytes": 935669,
+   "naive_tree_nodes": 2098,
+   "reduction_vs_tree": 38
+  },
+  {
+   "url": "https://github.com/facebook/react",
+   "elements": 245,
+   "capture_ms_median": 6.4,
+   "capture_ms_min": 6.2,
+   "capture_ms_max": 11.3,
+   "state_bytes": 30102,
+   "naive_text_bytes": 7112,
+   "naive_tree_bytes": 1247634,
+   "naive_tree_nodes": 2350,
+   "reduction_vs_tree": 41
+  }
+ ],
+ "model": {
+  "name": "google/gemini-2.5-flash via the configured endpoint",
+  "samples": 6,
+  "ms_median": 516,
+  "ms_min": 419,
+  "ms_max": 627,
+  "state_bytes_sent": 6126
+ },
+ "skills": {
+  "gh-commit": {
+   "bytes": 829,
+   "steps": 2,
+   "goal": "open the latest commit of this repository",
+   "verified": false,
+   "learn_model_calls": 4,
+   "learn_ms": 4081
+  },
+  "gh-issues": {
+   "bytes": 547,
+   "steps": 1,
+   "goal": "open the issue list of this repository",
+   "verified": true,
+   "learn_model_calls": 3,
+   "learn_ms": 2555
+  },
+  "gh-prs": {
+   "bytes": 568,
+   "steps": 1,
+   "goal": "open the pull request list of this repository",
+   "verified": true,
+   "learn_model_calls": 3,
+   "learn_ms": 2315
+  }
+ },
+ "notes": [],
+ "collected_at": "2026-10-31 04:47 CET"
+}

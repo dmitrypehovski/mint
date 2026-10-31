@@ -1,0 +1,9 @@
+arli-discovery
+arli-discovery-engine
+arli-discovery-rs
+arli-engine
+classic-books-markdown
+exorcism-swarm
+Hyperliquid-Data-Layer-API
+mongo-harness
+picoclaw

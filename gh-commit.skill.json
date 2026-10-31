@@ -1,0 +1,35 @@
+{
+ "goal": "open the latest commit of this repository",
+ "learned_from": "https://github.com/tokio-rs/tokio",
+ "host": "github.com",
+ "expect_final_page": "commit/*",
+ "steps": [
+  {
+   "action": "Click",
+   "role": "link",
+   "href_kind": "tokio/commits",
+   "name_shape": "sahvx655 wq",
+   "ordinal": 0,
+   "seen_label": "sahvx655-wq",
+   "learned_page": "",
+   "produced_page": "commits/master",
+   "intent": "open the latest commit",
+   "confidence": 0.9
+  },
+  {
+   "action": "Click",
+   "role": "link",
+   "href_kind": "commit/*",
+   "name_shape": "sync reset",
+   "ordinal": 0,
+   "seen_label": "sync: reset",
+   "learned_page": "commits/master",
+   "produced_page": "commit/*",
+   "intent": "open the latest commit",
+   "confidence": 1.0
+  }
+ ],
+ "learn_model_calls": 4,
+ "learn_ms": 4081,
+ "learn_declared_done": false
+}

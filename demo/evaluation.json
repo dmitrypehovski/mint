@@ -1,0 +1,617 @@
+{
+  "collected_at": "2026-10-31 19:47 CET",
+  "runs": [
+    {
+      "corrections": 0,
+      "decision_us": [
+        68,
+        112
+      ],
+      "decisions": 2,
+      "expected": "commit/*",
+      "gate": {
+        "allowed": 2,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the latest commit of this repository",
+      "landed": "commit/*",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 4,
+        "file": "demo/receipts/run-01.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 4
+      },
+      "skill": "gh-commit.skill",
+      "success": true,
+      "target": "R1",
+      "tiers": [
+        "shape",
+        "shape"
+      ],
+      "wall_ms": 3042
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        80
+      ],
+      "decisions": 1,
+      "expected": "issues",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the issue list of this repository",
+      "landed": "issues",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-02.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-issues.skill",
+      "success": true,
+      "target": "R1",
+      "tiers": [
+        "shape"
+      ],
+      "wall_ms": 527
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        43
+      ],
+      "decisions": 1,
+      "expected": "pulls",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the pull request list of this repository",
+      "landed": "pulls",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-03.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-prs.skill",
+      "success": true,
+      "target": "R1",
+      "tiers": [
+        "shape"
+      ],
+      "wall_ms": 616
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        122,
+        72
+      ],
+      "decisions": 2,
+      "expected": "commit/*",
+      "gate": {
+        "allowed": 2,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the latest commit of this repository",
+      "landed": "commit/*",
+      "model_calls": 1,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 4,
+        "file": "demo/receipts/run-04.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 4
+      },
+      "skill": "gh-commit.skill",
+      "success": true,
+      "target": "R2",
+      "tiers": [
+        "model",
+        "shape"
+      ],
+      "wall_ms": 3708
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        232
+      ],
+      "decisions": 1,
+      "expected": "issues",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the issue list of this repository",
+      "landed": "issues",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-05.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-issues.skill",
+      "success": true,
+      "target": "R2",
+      "tiers": [
+        "words"
+      ],
+      "wall_ms": 788
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        243
+      ],
+      "decisions": 1,
+      "expected": "pulls",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the pull request list of this repository",
+      "landed": "pulls",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-06.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-prs.skill",
+      "success": true,
+      "target": "R2",
+      "tiers": [
+        "words"
+      ],
+      "wall_ms": 736
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        187,
+        96
+      ],
+      "decisions": 2,
+      "expected": "commit/*",
+      "gate": {
+        "allowed": 2,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the latest commit of this repository",
+      "landed": "commit/*",
+      "model_calls": 1,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 4,
+        "file": "demo/receipts/run-07.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 4
+      },
+      "skill": "gh-commit.skill",
+      "success": true,
+      "target": "R3",
+      "tiers": [
+        "model",
+        "shape"
+      ],
+      "wall_ms": 3584
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        217
+      ],
+      "decisions": 1,
+      "expected": "issues",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the issue list of this repository",
+      "landed": "issues",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-08.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-issues.skill",
+      "success": true,
+      "target": "R3",
+      "tiers": [
+        "words"
+      ],
+      "wall_ms": 527
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        255
+      ],
+      "decisions": 1,
+      "expected": "pulls",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the pull request list of this repository",
+      "landed": "pulls",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-09.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-prs.skill",
+      "success": true,
+      "target": "R3",
+      "tiers": [
+        "words"
+      ],
+      "wall_ms": 793
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        238,
+        14
+      ],
+      "decisions": 2,
+      "expected": "commit/*",
+      "gate": {
+        "allowed": 2,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the latest commit of this repository",
+      "landed": "commit/*",
+      "model_calls": 1,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 4,
+        "file": "demo/receipts/run-10.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 4
+      },
+      "skill": "gh-commit.skill",
+      "success": true,
+      "target": "R4",
+      "tiers": [
+        "model",
+        "shape"
+      ],
+      "wall_ms": 3904
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        246
+      ],
+      "decisions": 1,
+      "expected": "issues",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the issue list of this repository",
+      "landed": "issues",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-11.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-issues.skill",
+      "success": true,
+      "target": "R4",
+      "tiers": [
+        "words"
+      ],
+      "wall_ms": 649
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        272
+      ],
+      "decisions": 1,
+      "expected": "pulls",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the pull request list of this repository",
+      "landed": "pulls",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-12.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-prs.skill",
+      "success": true,
+      "target": "R4",
+      "tiers": [
+        "words"
+      ],
+      "wall_ms": 776
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        308,
+        110
+      ],
+      "decisions": 2,
+      "expected": "commit/*",
+      "gate": {
+        "allowed": 2,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the latest commit of this repository",
+      "landed": "commit/*",
+      "model_calls": 1,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 4,
+        "file": "demo/receipts/run-13.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 4
+      },
+      "skill": "gh-commit.skill",
+      "success": true,
+      "target": "R5",
+      "tiers": [
+        "model",
+        "shape"
+      ],
+      "wall_ms": 3755
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        145
+      ],
+      "decisions": 1,
+      "expected": "issues",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the issue list of this repository",
+      "landed": "issues",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-14.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-issues.skill",
+      "success": true,
+      "target": "R5",
+      "tiers": [
+        "words"
+      ],
+      "wall_ms": 637
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        248
+      ],
+      "decisions": 1,
+      "expected": "pulls",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the pull request list of this repository",
+      "landed": "pulls",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-15.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-prs.skill",
+      "success": true,
+      "target": "R5",
+      "tiers": [
+        "words"
+      ],
+      "wall_ms": 526
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        169,
+        69
+      ],
+      "decisions": 2,
+      "expected": "commit/*",
+      "gate": {
+        "allowed": 2,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the latest commit of this repository",
+      "landed": "commit/*",
+      "model_calls": 1,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 4,
+        "file": "demo/receipts/run-16.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 4
+      },
+      "skill": "gh-commit.skill",
+      "success": true,
+      "target": "R6",
+      "tiers": [
+        "model",
+        "shape"
+      ],
+      "wall_ms": 3764
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        153
+      ],
+      "decisions": 1,
+      "expected": "issues",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the issue list of this repository",
+      "landed": "issues",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-17.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-issues.skill",
+      "success": true,
+      "target": "R6",
+      "tiers": [
+        "words"
+      ],
+      "wall_ms": 625
+    },
+    {
+      "corrections": 0,
+      "decision_us": [
+        167
+      ],
+      "decisions": 1,
+      "expected": "pulls",
+      "gate": {
+        "allowed": 1,
+        "blocked": [],
+        "held": 0,
+        "refused": 0
+      },
+      "goal": "open the pull request list of this repository",
+      "landed": "pulls",
+      "model_calls": 0,
+      "receipts": {
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "break": null,
+        "count": 2,
+        "file": "demo/receipts/run-18.json",
+        "signed": true,
+        "verified": true,
+        "verified_count": 2
+      },
+      "skill": "gh-prs.skill",
+      "success": true,
+      "target": "R6",
+      "tiers": [
+        "words"
+      ],
+      "wall_ms": 688
+    }
+  ],
+  "summary": {
+    "failed": 0,
+    "succeeded": 18,
+    "tasks": 18,
+    "zero_model_calls": 13
+  }
+}

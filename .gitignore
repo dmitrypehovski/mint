@@ -1,0 +1,28 @@
+# Build output
+/target/
+
+# Signing keys. These must never be committed. The runtime and the endorser
+# keys live outside the repository (on this machine, /root/.secrets/), so a
+# checkout never contains one.
+*.key
+
+# Anything else holding a secret: tokens, dashboards, tunnel credentials.
+*.secret
+*.token
+.secrets/
+*.pem
+
+# Local run artifacts and scratch
+*.log
+*.tmp
+
+# The call endpoint's key file. Named like a demo artifact, but it holds a key.
+demo/arli-serve.json
+
+# Demonstration media: large, and served from the machine that runs the demonstration.
+demo/frame-*
+demo/*.mp4
+
+# Frame dumps used to render the demonstration video. Build inputs, not the product.
+demo/frames/
+demo/shots/

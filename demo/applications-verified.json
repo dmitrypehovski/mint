@@ -1,0 +1,1033 @@
+{
+ "collected_at": "2026-10-31 05:04 CET",
+ "tests": {
+  "transfer": {
+   "what": "one compiled skill run against instances it never saw",
+   "instances": 20,
+   "targets": 3,
+   "runs": 60,
+   "completed": 56,
+   "rate": 0.933,
+   "threshold": 0.8,
+   "pass": true,
+   "seconds": 148,
+   "failures": [
+    {
+     "skill": "gh-issues.skill",
+     "target": "https://github.com/postgres/postgres",
+     "landed": "nowhere",
+     "expected": "issues",
+     "decisions": 0,
+     "model_calls": 1,
+     "why": "it never resolved a step, and the one question it asked led nowhere"
+    },
+    {
+     "skill": "gh-prs.skill",
+     "target": "https://github.com/postgres/postgres",
+     "landed": "nowhere",
+     "expected": "pulls",
+     "decisions": 0,
+     "model_calls": 1,
+     "why": "it never resolved a step, and the one question it asked led nowhere"
+    },
+    {
+     "skill": "gh-commit.skill",
+     "target": "https://github.com/prisma/prisma",
+     "landed": "pull/*",
+     "expected": "commit/*",
+     "decisions": 2,
+     "model_calls": 1,
+     "why": "it acted and landed on a different kind of page than the step promised"
+    },
+    {
+     "skill": "gh-issues.skill",
+     "target": "https://github.com/apache/kafka",
+     "landed": "nowhere",
+     "expected": "issues",
+     "decisions": 1,
+     "model_calls": 1,
+     "why": "it acted but never reached a page of any named kind"
+    }
+   ]
+  },
+  "cost": {
+   "what": "model calls per run once a skill exists",
+   "runs": 60,
+   "model_calls": 22,
+   "zero_model_runs": 38,
+   "per_run": 0.367,
+   "threshold": 0.5,
+   "pass": true,
+   "runs_that_asked_nothing": 38,
+   "note": "Most of this average comes from one skill. The other two ask nothing at all on this class; the third asks on nearly every instance because it does not transfer cleanly."
+  },
+  "shape": {
+   "what": "what resolved each step when the data differed",
+   "steps": 78,
+   "resolved_without_model": 58,
+   "needed_the_model": 20,
+   "share_without_model": 0.744,
+   "threshold": 0.5,
+   "pass": true,
+   "by_tier": {
+    "shape": 22,
+    "model": 20,
+    "words": 36
+   }
+  },
+  "verify": {
+   "what": "the verdict on work that was not done",
+   "targets": 2,
+   "reported_missed": 2,
+   "falsely_reported_done": 0,
+   "threshold": 1,
+   "pass": true
+  },
+  "offline": {
+   "what": "coverage with no reachable model",
+   "completed": 38,
+   "runs": 60,
+   "online_completed": 56,
+   "drop": 18,
+   "threshold": "no drop beyond the runs that needed a question",
+   "pass": true,
+   "seconds": 83,
+   "by_skill": {
+    "gh-commit.skill": {
+     "runs": 20,
+     "completed_online": 19,
+     "completed_offline": 1,
+     "model_calls_online": 19
+    },
+    "gh-issues.skill": {
+     "runs": 20,
+     "completed_online": 18,
+     "completed_offline": 18,
+     "model_calls_online": 2
+    },
+    "gh-prs.skill": {
+     "runs": 20,
+     "completed_online": 19,
+     "completed_offline": 19,
+     "model_calls_online": 1
+    }
+   },
+   "restriction": "The drop is not the execution needing a model - a compiled execution makes no such call. The drop is transfer: a step that does not resolve asks a question, and with nothing to ask, that run is lost. So the property holds exactly for the part of a class a skill transfers to.",
+   "worst_skill": {
+    "skill": "gh-commit.skill",
+    "completed_offline": 1,
+    "runs": 20,
+    "completed_online": 19
+   },
+   "verdict_label": "PASS, with the restriction named"
+  },
+  "artifact": {
+   "what": "size, structure and signability of a compiled skill",
+   "skills": [
+    {
+     "skill": "gh-commit",
+     "bytes": 829,
+     "steps": 2,
+     "readable": true,
+     "declares_outcomes": true,
+     "verified_goal": false
+    },
+    {
+     "skill": "gh-issues",
+     "bytes": 547,
+     "steps": 1,
+     "readable": true,
+     "declares_outcomes": true,
+     "verified_goal": true
+    },
+    {
+     "skill": "gh-prs",
+     "bytes": 553,
+     "steps": 1,
+     "readable": true,
+     "declares_outcomes": true,
+     "verified_goal": true
+    }
+   ],
+   "threshold": "under 2 KB, valid JSON, every step declares its outcome",
+   "pass": true
+  },
+  "traces": {
+   "what": "documents written per verified run",
+   "runs": 60,
+   "steps": 78,
+   "steps_with_tier": 78,
+   "steps_with_verified_flag": 78,
+   "threshold": "every step carries its tier and its verdict",
+   "pass": true
+  }
+ },
+ "applications": [
+  {
+   "application": "Company status across hundreds of registries",
+   "family": "Registries & compliance",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Licence and permit verification per jurisdiction",
+   "family": "Registries & compliance",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Sanctions and watchlist screening across portals",
+   "family": "Registries & compliance",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Filings on one platform, many companies",
+   "family": "Registries & compliance",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Tender and grant submissions across agency portals",
+   "family": "Registries & compliance",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Customs and shipping declarations per country",
+   "family": "Registries & compliance",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Visa and immigration forms per consulate",
+   "family": "Registries & compliance",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Court e-filing across jurisdictions",
+   "family": "Registries & compliance",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Proving two systems agree after a migration",
+   "family": "Verification & equivalence",
+   "property": "verify",
+   "breakthrough": true,
+   "property_pass": true,
+   "evidence": {
+    "what": "the verdict on work that was not done",
+    "targets": 2,
+    "reported_missed": 2,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "One entity checked across ten SaaS tools",
+   "family": "Verification & equivalence",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Reconciling a ledger against a provider portal",
+   "family": "Verification & equivalence",
+   "property": "verify",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "the verdict on work that was not done",
+    "targets": 2,
+    "reported_missed": 2,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Price and catalogue parity across storefronts",
+   "family": "Verification & equivalence",
+   "property": "verify",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "the verdict on work that was not done",
+    "targets": 2,
+    "reported_missed": 2,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "A regression suite for business processes",
+   "family": "Verification & equivalence",
+   "property": "verify",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "the verdict on work that was not done",
+    "targets": 2,
+    "reported_missed": 2,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Did the nightly batch actually finish the work?",
+   "family": "Verification & equivalence",
+   "property": "verify",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "the verdict on work that was not done",
+    "targets": 2,
+    "reported_missed": 2,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Bulk checking of AI-generated claims",
+   "family": "Verification of AI output",
+   "property": "cost",
+   "breakthrough": true,
+   "property_pass": true,
+   "evidence": {
+    "what": "model calls per run once a skill exists",
+    "runs": 60,
+    "per_run": 0.367,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Guardrails that read the result, not the words",
+   "family": "Verification of AI output",
+   "property": "verify",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "the verdict on work that was not done",
+    "targets": 2,
+    "reported_missed": 2,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Ground truth for agent benchmarks",
+   "family": "Verification of AI output",
+   "property": "traces",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "documents written per verified run",
+    "runs": 60,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Repository and project sweeps",
+   "family": "Sweeps at scale",
+   "property": "cost",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "model calls per run once a skill exists",
+    "runs": 60,
+    "per_run": 0.367,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "One dashboard, many tenants",
+   "family": "Sweeps at scale",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Merchant onboarding across provider portals",
+   "family": "Sweeps at scale",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Creator and publisher reporting across a hundred channels",
+   "family": "Sweeps at scale",
+   "property": "cost",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "model calls per run once a skill exists",
+    "runs": 60,
+    "per_run": 0.367,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Inventory truth across supplier portals",
+   "family": "Sweeps at scale",
+   "property": "cost",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "model calls per run once a skill exists",
+    "runs": 60,
+    "per_run": 0.367,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Real-estate syndication per portal",
+   "family": "Sweeps at scale",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Fleet registration and renewals per state",
+   "family": "Sweeps at scale",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Green-screen ERP automation",
+   "family": "Legacy & mainframe",
+   "property": "offline",
+   "breakthrough": true,
+   "property_pass": true,
+   "evidence": {
+    "what": "coverage with no reachable model",
+    "completed": 38,
+    "runs": 60,
+    "drop": 18,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "A CLI procedure rebuilt across a device fleet",
+   "family": "Legacy & mainframe",
+   "property": "cost",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "model calls per run once a skill exists",
+    "runs": 60,
+    "per_run": 0.367,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Incident runbooks that execute themselves",
+   "family": "Legacy & mainframe",
+   "property": "artifact",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "size, structure and signability of a compiled skill",
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Turning a web tool into an API by watching you use it",
+   "family": "Legacy & mainframe",
+   "property": "artifact",
+   "breakthrough": true,
+   "property_pass": true,
+   "evidence": {
+    "what": "size, structure and signability of a compiled skill",
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "A canary for interface drift",
+   "family": "Monitoring & drift",
+   "property": "shape",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "what resolved each step when the data differed",
+    "share_without_model": 0.744,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Uptime of a process, not of an endpoint",
+   "family": "Monitoring & drift",
+   "property": "shape",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "what resolved each step when the data differed",
+    "share_without_model": 0.744,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Silent change behind a supplier\\'s quoting page",
+   "family": "Monitoring & drift",
+   "property": "shape",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "what resolved each step when the data differed",
+    "share_without_model": 0.744,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Watching a regulator\\'s form for changes",
+   "family": "Monitoring & drift",
+   "property": "shape",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "what resolved each step when the data differed",
+    "share_without_model": 0.744,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Contract tests for a website you depend on",
+   "family": "Monitoring & drift",
+   "property": "artifact",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "size, structure and signability of a compiled skill",
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Schema and data drift across many databases",
+   "family": "Monitoring & drift",
+   "property": "verify",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "the verdict on work that was not done",
+    "targets": 2,
+    "reported_missed": 2,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "The air-gapped agent",
+   "family": "Offline & constrained",
+   "property": "offline",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "coverage with no reachable model",
+    "completed": 38,
+    "runs": 60,
+    "drop": 18,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Factory floor and industrial panels",
+   "family": "Offline & constrained",
+   "property": "offline",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "coverage with no reachable model",
+    "completed": 38,
+    "runs": 60,
+    "drop": 18,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Ship, rig and field equipment",
+   "family": "Offline & constrained",
+   "property": "offline",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "coverage with no reachable model",
+    "completed": 38,
+    "runs": 60,
+    "drop": 18,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Field data collection from an app with no export",
+   "family": "Offline & constrained",
+   "property": "cost",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "model calls per run once a skill exists",
+    "runs": 60,
+    "per_run": 0.367,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Working straight through a provider outage",
+   "family": "Offline & constrained",
+   "property": "offline",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "coverage with no reachable model",
+    "completed": 38,
+    "runs": 60,
+    "drop": 18,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Procedural memory for a machine",
+   "family": "Offline & constrained",
+   "property": "offline",
+   "breakthrough": true,
+   "property_pass": true,
+   "evidence": {
+    "what": "coverage with no reachable model",
+    "completed": 38,
+    "runs": 60,
+    "drop": 18,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Autopsy of a failing agent",
+   "family": "Agent engineering",
+   "property": "artifact",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "size, structure and signability of a compiled skill",
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "A regression suite for someone else\\'s agent",
+   "family": "Agent engineering",
+   "property": "artifact",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "size, structure and signability of a compiled skill",
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "The compiler as a data engine",
+   "family": "Agent engineering",
+   "property": "traces",
+   "breakthrough": true,
+   "property_pass": true,
+   "evidence": {
+    "what": "documents written per verified run",
+    "runs": 60,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Undocumented internal tools, made executable",
+   "family": "Agent engineering",
+   "property": "artifact",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "size, structure and signability of a compiled skill",
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Automation approved before it runs",
+   "family": "Agent engineering",
+   "property": "artifact",
+   "breakthrough": true,
+   "property_pass": true,
+   "evidence": {
+    "what": "size, structure and signability of a compiled skill",
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Self-expanding coverage",
+   "family": "Agent engineering",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Minimising a procedure from one demonstration",
+   "family": "Agent engineering",
+   "property": "cost",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "model calls per run once a skill exists",
+    "runs": 60,
+    "per_run": 0.367,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Underwriting task prices in an agent market",
+   "family": "Economics & markets",
+   "property": "cost",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "model calls per run once a skill exists",
+    "runs": 60,
+    "per_run": 0.367,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Skills as a tradeable asset",
+   "family": "Economics & markets",
+   "property": "artifact",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "size, structure and signability of a compiled skill",
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "One expert session turned into a capability",
+   "family": "Economics & markets",
+   "property": "cost",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "model calls per run once a skill exists",
+    "runs": 60,
+    "per_run": 0.367,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Pricing a service by the shape, not the hour",
+   "family": "Economics & markets",
+   "property": "cost",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "model calls per run once a skill exists",
+    "runs": 60,
+    "per_run": 0.367,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Reproducing a procedure described in a paper",
+   "family": "Research & data",
+   "property": "traces",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "documents written per verified run",
+    "runs": 60,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Re-running an old data pull to see what moved",
+   "family": "Research & data",
+   "property": "shape",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "what resolved each step when the data differed",
+    "share_without_model": 0.744,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Clinical and trial data entry across sites",
+   "family": "Research & data",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Archives and collections catalogued by convention",
+   "family": "Research & data",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  },
+  {
+   "application": "Environmental and safety reporting per regulator",
+   "family": "Research & data",
+   "property": "transfer",
+   "breakthrough": false,
+   "property_pass": true,
+   "evidence": {
+    "what": "one compiled skill run against instances it never saw",
+    "targets": 3,
+    "runs": 60,
+    "completed": 56,
+    "rate": 0.933,
+    "pass": true
+   },
+   "verdict": "the property it leans on passed on real targets",
+   "not_tested_here": "a real instance of this application, which needs its own access"
+  }
+ ],
+ "summary": {
+  "applications": 56,
+  "properties": 7,
+  "properties_passed": 7,
+  "properties_passed_cleanly": 6,
+  "properties_passed_with_restriction": 1,
+  "backed": 56,
+  "unbacked": 0,
+  "failed_targets": 4
+ }
+}

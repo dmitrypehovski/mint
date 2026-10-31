@@ -1,0 +1,23 @@
+{
+ "learned_from": "http://127.0.0.1:8840/gate-lab",
+ "host": "127.0.0.1:8840",
+ "learn_model_calls": 0,
+ "learn_ms": 0,
+ "learn_declared_done": true,
+ "goal": "open the record on the gate lab",
+ "expect_final_page": "gate-lab",
+ "steps": [
+  {
+   "action": "Click",
+   "role": "link",
+   "href_kind": "",
+   "name_shape": "open the record",
+   "ordinal": 0,
+   "seen_label": "Open the record",
+   "learned_page": "gate-lab",
+   "produced_page": "gate-lab",
+   "intent": "open the record",
+   "confidence": 1.0
+  }
+ ]
+}

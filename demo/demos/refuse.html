@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mint — when it does not understand</title>
+<meta name="description" content="The refusal, and the missing second receipt that proves nothing happened.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/demos.css">
+</head><body>
+<header><nav>
+  <b><a href="/site" style="color:inherit">mint</a></b>
+  <a href="/demos" style="font-weight:600;color:var(--ink)">Demos</a>
+  <a href="/site#watch">Watch</a>
+  <a href="/site#proof">Proof</a>
+  <a href="/site#not">Why not an agent</a>
+  <a href="/site#surfaces">Surfaces</a>
+  <a href="/site#arli">ARLI</a>
+  <a href="/site#receipts">Receipts</a>
+  <a href="/site#tested">Tested</a>
+  <a href="/site#all">Applications</a>
+  <a href="/site#speed">What speed unlocks</a>
+  <a href="/site#evidence">Evidence</a>
+  <a href="/site#unproven">Not proven</a>
+  <a class="live" href="/live">Live run →</a>
+</nav></header>
+<div class="wrap">
+<div class="demohead">
+  <div class="eyebrow">demonstration 2</div>
+  <h1>When it does not understand, nothing happens.</h1>
+  <p class="lede">The strongest thing a runtime can do is nothing at all. This is the run where it met an element it could not describe, refused it, and stopped — and the record of that refusal is the only thing it left behind.</p>
+
+  <a class="back" href="/demos">&larr; all demonstrations</a>
+</div>
+<h2 class="dh">The seven receipts of that run</h2>
+<p class="why">Read them as a ladder. Each rung is signed; each points at the one below it. Notice which
+kind of receipt is missing where.</p>
+<div class="ladder">
+<div class="st allow"><b>#0 decision</b>a Open the record<br>allow</div>
+<div class="st allow"><b>#1 decision</b>input reference number<br>allow</div>
+<div class="st hold"><b>#2 decision</b>button Submit the filing<br>hold</div>
+<div class="st refuse"><b>#3 decision</b>div Something we cannot cl<br>refuse</div>
+<div class="st allow"><b>#4 decision</b>button Submit the filing<br>allow</div>
+<div class="st allow"><b>#5 effect</b>button Submit the filing<br>completed</div>
+<div class="st refuse"><b>#6 decision</b>button Submit the filing<br>refuse</div>
+</div>
+<p class="why">After the refusal at <b>#3</b> there is no outcome receipt, and
+there is not supposed to be one. An outcome receipt is a statement that something happened. Its
+absence is the statement that nothing did. Both halves matter: a runtime that only records what it did
+can be silent about what it tried, and silence is exactly what an audit is looking for.</p>
+
+<h2 class="dh">The refusal, as it was signed</h2>
+<div class="rct">
+  <div class="k b">element</div><div class="v b">div "Something we cannot classify"</div>
+  <div class="k">what it saw</div><div class="v">tag = div ·
+    role = tab ·
+    has a link = no ·
+    approval presented = no</div>
+  <div class="k">would have done</div><div class="v">unknown</div>
+  <div class="k">verdict</div><div class="v"><span class="no">refuse</span></div>
+  <div class="k">why</div><div class="v">this element is neither a navigation nor a button, so what it would do cannot be described to anyone; refused rather than tried</div>
+  <div class="k">decided by</div><div class="v">policy</div>
+  <div class="k">rules it was decided under</div><div class="v">a8bed408510ec43af571e8bfc9cddf23…</div>
+</div>
+<p class="cmdtxt"><b>the command:</b> levos receipts --in receipts.json --policy policy.json</p>
+<p class="why"><a href="/gate-lab">The page it was looking at</a> — four elements, one of which is
+deliberately undescribable. The runtime was pointed at it and told to file something.</p>
+<div class="honest"><h5>what this does not show</h5><p>It does not show that refusing is always right. A runtime that refuses too much is useless, and this one has a real failure rate on pages it has never seen. What it shows is which way it fails when it does fail: the refusal is written down, signed, and visible — not a step that quietly did the wrong thing and reported success.</p></div>
+
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path) {
+  const r = await fetch('/api/' + path, {cache: 'no-store'});
+  const j = await r.json().catch(() => ({ok: false, error: 'HTTP ' + r.status}));
+  if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+function show(el, text) { el.textContent = text; }
+function fail(el, e) { el.textContent = 'the call did not complete: ' + (e && e.message ? e.message : e); }
+function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' + esc(text); }
+
+</script>
+</body></html>

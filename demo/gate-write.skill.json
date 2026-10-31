@@ -1,0 +1,23 @@
+{
+ "learned_from": "http://127.0.0.1:8840/gate-lab",
+ "host": "127.0.0.1:8840",
+ "learn_model_calls": 0,
+ "learn_ms": 0,
+ "learn_declared_done": true,
+ "goal": "submit the filing on the gate lab",
+ "expect_final_page": "gate-lab",
+ "steps": [
+  {
+   "action": "Click",
+   "role": "button",
+   "href_kind": "",
+   "name_shape": "submit the filing",
+   "ordinal": 0,
+   "seen_label": "Submit the filing",
+   "learned_page": "gate-lab",
+   "produced_page": "gate-lab",
+   "intent": "submit the filing",
+   "confidence": 1.0
+  }
+ ]
+}

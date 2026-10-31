@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mint — what a model is given</title>
+<meta name="description" content="Page capture measured on real repositories: what is sent to a model and what is not.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/demos.css">
+</head><body>
+<header><nav>
+  <b><a href="/site" style="color:inherit">mint</a></b>
+  <a href="/demos" style="font-weight:600;color:var(--ink)">Demos</a>
+  <a href="/site#watch">Watch</a>
+  <a href="/site#proof">Proof</a>
+  <a href="/site#not">Why not an agent</a>
+  <a href="/site#surfaces">Surfaces</a>
+  <a href="/site#arli">ARLI</a>
+  <a href="/site#receipts">Receipts</a>
+  <a href="/site#tested">Tested</a>
+  <a href="/site#all">Applications</a>
+  <a href="/site#speed">What speed unlocks</a>
+  <a href="/site#evidence">Evidence</a>
+  <a href="/site#unproven">Not proven</a>
+  <a class="live" href="/live">Live run →</a>
+</nav></header>
+<div class="wrap">
+<div class="demohead">
+  <div class="eyebrow">demonstration 8</div>
+  <h1>What it hands to a model, and what it refuses to hand over.</h1>
+  <p class="lede">Most of the cost and most of the mistakes in this kind of agent come from what gets sent to the model. So the runtime sends a small typed summary of a page instead of the page, and here is what that comes to on three real repositories.</p>
+
+  <a class="back" href="/demos">&larr; all demonstrations</a>
+</div>
+<table class="rt">
+  <tr><th>repository</th><th>elements</th><th>to read the page</th><th>sent to the model</th>
+  <th>a plain DOM dump would be</th><th>smaller by</th></tr>
+  <tr><td class="m">tokio-rs/tokio</td>
+<td class="m">228</td><td class="m">7.7 ms</td>
+<td class="m">28,133</td><td class="m">1,157,370</td>
+<td class="m"><b>41×</b></td></tr>
+<tr><td class="m">rust-lang/rust</td>
+<td class="m">200</td><td class="m">5.5 ms</td>
+<td class="m">24,854</td><td class="m">935,669</td>
+<td class="m"><b>38×</b></td></tr>
+<tr><td class="m">facebook/react</td>
+<td class="m">245</td><td class="m">6.4 ms</td>
+<td class="m">30,102</td><td class="m">1,247,634</td>
+<td class="m"><b>41×</b></td></tr>
+</table>
+<p class="why">Reading a page takes single-digit milliseconds. The summary is around
+28–30 kB.
+The same page serialised as a DOM tree is around a megabyte and a few thousand nodes, and that is what
+most agents in this category send — every time, at every step.</p>
+<h2 class="dh">Why this is a correctness argument, not a cost argument</h2>
+<p class="why">Two reasons, and neither is about money. First, a model given a megabyte of markup
+answers about the markup: it has more to look at and less to be sure of. Second, and worse, a step
+compiled against raw markup breaks when the markup changes — and markup changes on every page view,
+for reasons that have nothing to do with the task. A step compiled against a <b>shape</b> survives a
+deployment of the site it was learned on. That is the difference between a recording and a program.</p>
+<p class="cmdtxt"><b>the file:</b> <a href="/measurements.json">/measurements.json</a> — captured
+2026-10-31 04:47 CET</p>
+<div class="honest"><h5>what this does not show</h5><p>It does not show that the summary is sufficient for every task. It carries what the runtime knows how to act on: roles, names, whether something has a destination. A task that depends on a number buried in a table cell, or on a colour, or on text that is not a name, is not served by this summary — and the runtime refuses such a step rather than guessing at it.</p></div>
+
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path) {
+  const r = await fetch('/api/' + path, {cache: 'no-store'});
+  const j = await r.json().catch(() => ({ok: false, error: 'HTTP ' + r.status}));
+  if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+function show(el, text) { el.textContent = text; }
+function fail(el, e) { el.textContent = 'the call did not complete: ' + (e && e.message ? e.message : e); }
+function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' + esc(text); }
+
+</script>
+</body></html>
