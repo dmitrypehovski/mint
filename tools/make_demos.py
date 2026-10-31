@@ -153,6 +153,29 @@ CSS_EXTRA = """
   .livetask .btn{white-space:nowrap}
   @media(max-width:860px){.livewrap{grid-template-columns:1fr}
     .livesteps li{grid-template-columns:24px 56px minmax(0,1fr)}}
+  /* The comparison: two agents, two panes, one task. */
+  .cmpwrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0 0;align-items:start}
+  .cmpcol{display:grid;gap:10px;min-width:0}
+  .cmphead{border:1px solid var(--rule);border-radius:11px 11px 0 0;padding:12px 15px;background:var(--card)}
+  .cmphead b{display:block;font-family:var(--display);font-size:17px;letter-spacing:-.02em}
+  .cmphead span{font:12px/1.4 var(--mono);color:var(--dim2)}
+  .cmphead.slow{border-left:3px solid var(--dim2)}
+  .cmphead.fast{border-left:3px solid var(--green);background:var(--green-wash)}
+  .shotbox.cmp{min-height:210px}
+  .livesteps.one li{grid-template-columns:26px 58px minmax(0,1fr)}
+  .livesteps.one li .sn2,.livesteps.one li .note2{display:none}
+  .bignums{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;
+    border:1px solid var(--rule);border-radius:12px;background:var(--card);padding:20px;margin:20px 0 0}
+  .bignums .side{text-align:center}
+  .bignums .side .who{font:600 11.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim2)}
+  .bignums .side .num{font-family:var(--display);font-size:clamp(30px,4.4vw,46px);letter-spacing:-.04em;
+    margin:8px 0 2px;font-weight:800;line-height:1}
+  .bignums .side .num.zero{color:var(--green)}
+  .bignums .side .num.many{color:var(--red)}
+  .bignums .side .what{font:12px/1.5 var(--mono);color:var(--dim)}
+  .bignums .vs{font:600 12px/1 var(--mono);color:var(--dim2)}
+  @media(max-width:860px){.cmpwrap{grid-template-columns:1fr}
+    .bignums{grid-template-columns:1fr;gap:12px}.bignums .vs{text-align:center}}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0 0}
   @media(max-width:760px){.grid2{grid-template-columns:1fr}.rct{grid-template-columns:1fr}
     .tryrow{grid-template-columns:1fr auto;gap:9px}}
@@ -880,8 +903,210 @@ document.querySelectorAll('[data-run]').forEach((b) => {
 });
 """)
 
+# ── 10. the same task, both kinds of agent ────────────────────────────────────────────────────────
+import ast as _ast
+
+with open(os.path.join(DEMO, "relay.py"), encoding="utf-8") as _fh:
+    _relay = _fh.read()
+_m = re.search(r"COMPARE_TASKS = \[(.*?)\n\]", _relay, re.S)
+assert _m, "COMPARE_TASKS is not where it was in relay.py"
+compare_tasks = _ast.literal_eval("[" + _m.group(1) + "]")
+
+cmp_rows = []
+for t in compare_tasks:
+    cmp_rows.append(f"""  <div class="tryrow livetask" data-task="{t["n"]}">
+    <div><div class="el">{t["what"]}</div><div class="ob">{t["start"]}</div></div>
+    <button class="btn" data-cmp="{t["n"]}">run both</button>
+  </div>""")
+
+body = head(
+    10,
+    "The same task, twice: by an ordinary agent, and by mint.",
+    "Both halves below are real and both start from the same page in the same browser. On the left, a "
+    "model decides every step, the way almost every agent works today. On the right, the same task "
+    "runs as a compiled skill. Nothing is slowed down to make one look better, and the difference is "
+    "not the clock — it is what each of them pays, and what each of them can prove afterwards.",
+    "live, side by side",
+) + f"""
+<h2 class="dh">Pick a task</h2>
+<div class="try">
+{chr(10).join(cmp_rows)}
+</div>
+<p class="hint" id="cmphint">One comparison at a time — the browser is shared. The ordinary half runs
+first, alone, and is given every advantage; mint's half follows on the same page.</p>
+
+<div class="cmpwrap">
+  <div class="cmpcol">
+    <div class="cmphead slow"><b>The ordinary agent</b><span>a model decides every step</span></div>
+    <div class="shotbox cmp"><img id="slowframe" alt="the ordinary agent's browser"><div id="slowempty">not running</div></div>
+    <div class="livemeta">
+      <div class="lm"><span class="k">decisions</span><span id="slowsteps">—</span></div>
+      <div class="lm"><span class="k">questions to a model</span><span id="slowcalls">—</span></div>
+      <div class="lm"><span class="k">time per decision</span><span id="slowper">—</span></div>
+      <div class="lm"><span class="k">took</span><span id="slowtime">—</span></div>
+    </div>
+    <ol class="livesteps one" id="slowlist"></ol>
+  </div>
+  <div class="cmpcol">
+    <div class="cmphead fast"><b>mint</b><span>the same task, compiled</span></div>
+    <div class="shotbox cmp"><img id="fastframe" alt="mint's browser"><div id="fastempty">not running</div></div>
+    <div class="livemeta">
+      <div class="lm"><span class="k">decisions</span><span id="faststeps">—</span></div>
+      <div class="lm"><span class="k">questions to a model</span><span id="fastcalls">—</span></div>
+      <div class="lm"><span class="k">time per decision</span><span id="fastper">—</span></div>
+      <div class="lm"><span class="k">took</span><span id="fasttime">—</span></div>
+    </div>
+    <ol class="livesteps one" id="fastlist"></ol>
+  </div>
+</div>
+
+<div id="cmpresult"></div>
+
+<h2 class="dh">What the two halves actually change</h2>
+<div class="grid g2">
+  <div class="card"><span class="tag">1 · the bill</span>
+    <h4>It stops growing with use.</h4>
+    <p>The ordinary agent asks a model for every decision, on this run and on the next one and on
+    every one after that. mint asked once, when the task was learned, and asked <b>zero</b> times in
+    the run you just watched. Ten thousand runs of this task is ten thousand times as many questions
+    on the left, and the same none on the right — because the right-hand cost is reading a page, not
+    buying a judgement.</p></div>
+
+  <div class="card"><span class="tag">2 · the path</span>
+    <h4>It stops moving, which is what makes approving it possible.</h4>
+    <p>A model's answer is sampled, so two ordinary runs on the same page can take different routes
+    and touch different things — you cannot approve a procedure that will not do the same thing
+    tomorrow. A compiled step is the same program every time. That is what turns "an agent may do
+    this" into something a person can actually agree to.</p>
+    <p class="note2">It stops moving <i>until the page changes</i>. Then that one step stops, and
+    asks, or refuses. It does not guess.</p></div>
+
+  <div class="card"><span class="tag">3 · the record</span>
+    <h4>There is something to hand to somebody else.</h4>
+    <p>The right-hand half leaves a signed receipt for every decision, written <i>before</i> the action
+    it describes, chained so a missing one shows, and checkable by whoever receives it without asking
+    us. The left-hand half leaves a transcript of what it says it did. The difference is not the
+    existence of logs; it is whether anybody but the author can rely on them.</p></div>
+
+  <div class="card brk"><span class="tag">4 · what this costs</span>
+    <h4>The first run is not free, and this is the entire source of the saving.</h4>
+    <p>Learning this task cost three or four questions to a model and about three seconds, once. The
+    saving afterwards is exactly that cost, paid on the first run instead of on every run — there is
+    no second trick. And when mint meets a step it cannot recognise, it stops and asks about that one
+    step, or refuses it: a mistake costs one question, never a broken run.</p></div>
+</div>
+
+<p class="cmdtxt"><b>the command behind this page:</b> mint demo --skill SKILL.json --start URL --receipts compare/last.json</p>
+{honest("It does not show that mint is better at the task. Both halves reached the same page here, and on a page "
+        "with no stable structure the ordinary agent is the one that copes and mint is the one that stops — that "
+        "limitation is on every page of this site. It also does not compare against the best possible ordinary "
+        "agent: the left-hand half is a straightforward model-in-the-loop driver, built from the same runtime so "
+        "that both halves are measurably the same except for how the steps are decided.")}
+"""
+
+page("compare.html", "mint — the same task, both kinds of agent",
+     "One task, run by an ordinary agent and by mint, side by side in the same browser.", 10, "", "", body, """
+let cmpPoll = null;
+function sideFill(prefix, side) {
+  const steps = side.steps || [];
+  document.getElementById(prefix + 'steps').textContent = steps.length;
+  document.getElementById(prefix + 'calls').textContent = side.model_calls || 0;
+  const total = steps.reduce((a, s) => a + (s.decision_us || 0), 0);
+  document.getElementById(prefix + 'per').textContent =
+      steps.length ? (total / steps.length / 1000).toFixed(2) + ' ms' : '—';
+  document.getElementById(prefix + 'time').textContent =
+      side.total_ms ? (side.total_ms / 1000).toFixed(1) + ' s' : '—';
+  document.getElementById(prefix + 'list').innerHTML = steps.map((s) => {
+    const cls = s.tier === 'model' ? 'vd hold' : (s.tier === 'gate' ? 'vd refuse' : 'vd allow');
+    return '<li><span class="sn">' + s.n + '</span><span class="' + cls + '">' + esc(s.tier) +
+           '</span><span class="sl">' + esc(s.element) + '</span></li>';
+  }).join('');
+  const img = document.getElementById(prefix + 'frame');
+  if (side.frame) {
+    img.src = side.frame;
+    img.style.display = 'block';
+    document.getElementById(prefix + 'empty').style.display = 'none';
+  }
+}
+async function cmpTick() {
+  let d;
+  try { d = await (await fetch('/state', {cache: 'no-store'})).json(); }
+  catch (e) { cmpPoll = setTimeout(cmpTick, 900); return; }
+  sideFill('slow', d.sides.slow || {});
+  sideFill('fast', d.sides.fast || {});
+  if (d.sides.slow && d.sides.fast && d.sides.slow.finished && d.sides.fast.finished) {
+    cmpPoll = null;
+    await cmpFinish();
+  } else {
+    cmpPoll = setTimeout(cmpTick, 600);
+  }
+}
+function n(v) { return v === 0 ? '<span class="num zero">0</span>' : '<span class="num many">' + v + '</span>'; }
+async function cmpFinish() {
+  const box = document.getElementById('cmpresult');
+  let r;
+  try { r = await api('compare/result'); }
+  catch (e) { box.innerHTML = '<p class="why">' + esc(e.message) + '</p>'; return; }
+  const sl = r.slow, fa = r.fast, rec = fa.receipts || {};
+  const ratio = (sl.total_ms && fa.total_ms) ? (sl.total_ms / fa.total_ms).toFixed(1) : null;
+  box.innerHTML =
+    '<div class="bignums">' +
+      '<div class="side"><div class="who">ordinary agent</div>' + n(sl.model_calls) +
+        '<div class="what">questions to a model<br>' + (sl.total_ms / 1000).toFixed(1) + ' s</div></div>' +
+      '<div class="vs">vs</div>' +
+      '<div class="side"><div class="who">mint</div>' + n(fa.model_calls) +
+        '<div class="what">questions to a model<br>' + (fa.total_ms / 1000).toFixed(2) + ' s' +
+        (ratio ? ' · ' + ratio + '× faster' : '') + '</div></div>' +
+    '</div>' +
+    '<div class="rct">' +
+      '<div class="k b">did they reach the same place</div><div class="v b">' +
+        esc(sl.verdict || '—') + '<br>' + esc(fa.verdict || '—') + '</div>' +
+      '<div class="k">what mint can hand over</div><div class="v">' +
+        (rec.signed ? rec.count + ' signed receipts, one per decision, written before the action' +
+          (rec.verified ? ' — and they verify' : ' — and they do NOT verify') :
+          'nothing signed this run') + '</div>' +
+      '<div class="k">what the ordinary agent can hand over</div>' +
+        '<div class="v">a transcript of what it says it did. No signature, nothing an outsider can check</div>' +
+    '</div>' +
+    (rec.signed ? '<p><button class="btn ghost" id="cmpcheck">check mint\\'s log with the verifier</button></p>' +
+      '<pre class="runout" id="cmpcheckout"></pre>' : '');
+  const btn = document.getElementById('cmpcheck');
+  if (btn) btn.addEventListener('click', async () => {
+    const out = document.getElementById('cmpcheckout');
+    out.textContent = 'checking…';
+    try { const j = await api('compare/verify'); show(out, j.output); } catch (e) { fail(out, e); }
+  });
+}
+document.querySelectorAll('[data-cmp]').forEach((b) => {
+  b.addEventListener('click', async () => {
+    if (cmpPoll) { clearTimeout(cmpPoll); cmpPoll = null; }
+    document.getElementById('cmpresult').innerHTML = '';
+    ['slow', 'fast'].forEach((k) => {
+      document.getElementById(k + 'list').innerHTML = '';
+      document.getElementById(k + 'frame').style.display = 'none';
+      const e = document.getElementById(k + 'empty');
+      e.style.display = 'block';
+      e.textContent = 'waiting…';
+    });
+    document.querySelectorAll('[data-cmp]').forEach((x) => x.disabled = true);
+    try {
+      const j = await api('compare/start?task=' + b.dataset.cmp);
+      document.getElementById('cmphint').textContent =
+          'running both halves: ' + j.goal + ' — and the page scrolls itself down as they go';
+      document.querySelector('.cmpwrap').scrollIntoView({block: 'start', behavior: 'smooth'});
+      cmpPoll = setTimeout(cmpTick, 600);
+    } catch (e) {
+      document.getElementById('cmphint').textContent = e.message;
+    } finally {
+      document.querySelectorAll('[data-cmp]').forEach((x) => x.disabled = false);
+    }
+  });
+});
+""")
+
 # ── the hub ─────────────────────────────────────────────────────────────────────────────────────
 hub = [
+    ("compare", 10, "The same task, both kinds of agent", "One task, run twice in the same browser: on the left a model decides every step, on the right the same task runs compiled. Real counters, real frames, and the numbers that mean something. <b>Live, side by side.</b>", "live", True),
     ("live", 9, "Run it yourself, right now", "Pick a task and the runtime opens a real browser and does it while you watch — the frames as it moves, the steps with what resolved them, and a signed receipt at the end. One of the five gets stopped by the gate mid-run. <b>Live.</b>", "live", True),
     ("gate", 1, "Fit the gate to the effect", "Flip an approval switch and the real rules engine decides, live: reading passes, writing waits, and the undescribable is refused even with approval. <b>Interactive.</b>", "live", True),
     ("refuse.html", 2, "When it does not understand, nothing happens", "The run where the runtime met an element it could not describe. The absence of an outcome receipt is the evidence that nothing took place.", "", False),

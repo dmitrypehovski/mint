@@ -1224,8 +1224,12 @@ async fn gate_demo(args: &[String]) -> Result<()> {
 async fn demo(args: &[String]) -> Result<()> {
     let path = flag(args, "--skill").ok_or_else(|| anyhow!("--skill is required"))?;
     let target = flag(args, "--start").ok_or_else(|| anyhow!("--start is required"))?;
-    // One gate for the whole demonstration, so a repeat inside the run is seen as a repeat.
     let demo_host = skill::host_of_url(&target);
+    // Two gates, and the split is the point of the comparison. Both halves are bound by the same
+    // rules — nothing here acts without being decided first — but only the compiled half records
+    // what it decided, because a signed record of every step is the thing the other kind of agent
+    // does not have. Giving both one log would make the count meaningless.
+    let mut gate_slow = gate::Gate::new(&demo_host);
     let mut gate = gate::Gate::new(&demo_host);
     sign_for(&mut gate, &demo_host);
     let relay = flag(args, "--push").unwrap_or_else(|| "http://127.0.0.1:8840".into());
@@ -1277,7 +1281,7 @@ async fn demo(args: &[String]) -> Result<()> {
             "url": slow.current_url().await?,
         }));
         let slow_step = skill::step_from(&el, action.clone(), &d.intent, d.confidence);
-        if !perform(&mut slow, &mut gate, &slow_step, n, &el, None).await?.0 {
+        if !perform(&mut slow, &mut gate_slow, &slow_step, n, &el, None).await?.0 {
             break;
         }
         slow.settle(3000).await?;
@@ -1372,9 +1376,33 @@ async fn demo(args: &[String]) -> Result<()> {
     push_event(&relay, "/push", json!({ "side": "fast", "finished": true, "total_ms": fast_ms,
         "url": fast_url, "page_title": fast_title, "verdict": fast_verdict, "opinion": fast_opinion }));
 
+    // What the compiled half leaves behind, which is the half of the comparison that cannot be
+    // argued with: a signed record, one decision at a time, checkable by whoever receives it.
+    let mut record = json!({ "signed": false });
+    if let Some(out) = flag(args, "--receipts") {
+        if let Some(log) = gate.receipt_log() {
+            let doc = log.document();
+            std::fs::write(&out, serde_json::to_string_pretty(&doc)?)?;
+            let rules_file = format!("{out}.policy.json");
+            std::fs::write(&rules_file, serde_json::to_string_pretty(&log.rules)?)?;
+            let v = receipt::verify(&doc, Some(&log.rules));
+            record = json!({ "signed": true, "count": log.len(), "verified": v.ok,
+                             "file": out, "policy_file": rules_file });
+            println!("\nWHAT THE COMPILED HALF LEAVES BEHIND");
+            println!("  {} signed receipts, written before each action — and they verify: {}",
+                     log.len(), v.ok);
+            println!("  the ordinary half leaves nothing of the kind: its steps were decided by a model");
+            println!("  and no record of them was signed");
+        }
+    }
+    push_event(&relay, "/push", json!({ "side": "fast", "receipts": record }));
+
     println!("\nTHE NUMBER FOR THE STAGE");
     println!("  ordinary agent: {:.1} s, {n} steps, every one a model call", slow_ms as f64 / 1000.0);
     println!("  mint:         {:.2} s, {done} steps, model calls {escalated}", fast_ms as f64 / 1000.0);
+    println!("  the same task, the same page, and the difference is not the clock:");
+    println!("  the ordinary agent pays {n} questions to a model EVERY time this task is run.");
+    println!("  mint paid them once, when the task was learned, and pays {escalated} now.");
     Ok(())
 }
 

@@ -104,6 +104,34 @@ LIVE_TASKS = [
     },
 ]
 
+# The same task, run by both kinds of agent. The ordinary half is a model deciding every step; the
+# mint half is the compiled skill for the same task, on the same page, in the same browser.
+COMPARE_TASKS = [
+    {
+        "n": 1,
+        "skill": "gh-issues.skill.json",
+        "start": "https://github.com/tokio-rs/tokio",
+        "goal": "open the issue list of this repository",
+        "what": "Open the issue list of a repository the skill has never seen",
+    },
+    {
+        "n": 2,
+        "skill": "gh-commit.skill.json",
+        "start": "https://github.com/facebook/react",
+        "goal": "open the latest commit of this repository",
+        "what": "Open the latest commit — the task that needs two steps",
+    },
+    {
+        "n": 3,
+        "skill": "gh-prs.skill.json",
+        "start": "https://github.com/rust-lang/rust",
+        "goal": "open the pull request list of this repository",
+        "what": "Open the pull request list of a third repository",
+    },
+]
+COMPARE = {"running": False, "task": None, "started": 0.0, "took_ms": 0, "exit": None,
+           "stdout": "", "error": ""}
+
 # One at a time. The browser is a single shared thing, and two runs in it would produce a recording of
 # neither. A visitor who arrives mid-run is told the machine is busy rather than shown a mess.
 LIVE = {"running": False, "task": None, "started": 0.0, "took_ms": 0, "exit": None,
@@ -164,6 +192,96 @@ def live_reset(goal="", skill=""):
         side.update(steps=[], model_calls=0, decision_us=0, total_ms=0, frame="", url="",
                     page_title="", verdict="", opinion="", finished=False,
                     receipts=None, held=0, asked=0, goal=goal, skill=skill)
+
+
+def compare_start(n):
+    """Run the same task through both kinds of agent, one after the other, and stream both sides."""
+    with LIVE_LOCK:
+        if LIVE["running"] or COMPARE["running"]:
+            return None, "a run is already going — one at a time, try again in a moment"
+        if n < 0 or n >= len(COMPARE_TASKS):
+            return None, "no such task"
+        task = COMPARE_TASKS[n]
+        COMPARE.update(running=True, task=n, started=time.time(), exit=None, stdout="", error="")
+    # Both panes are the two halves of this comparison, so both are cleared and both are filled.
+    with LOCK:
+        STATE["goal"] = task["goal"]
+        STATE["started"] = time.time()
+        for name in ("slow", "fast"):
+            STATE["sides"][name].update(
+                steps=[], model_calls=0, decision_us=0, total_ms=0, frame="", url="",
+                page_title="", verdict="", opinion="", finished=False, receipts=None)
+
+    def worker():
+        out_dir = f"{DEMO_DIR}/compare"
+        os.makedirs(out_dir, exist_ok=True)
+        log_path = f"{out_dir}/last.json"
+        cmd = [MINT, "demo", "--skill", task["skill"], "--start", task["start"],
+               "--push", "http://127.0.0.1:8840", "--receipts", log_path]
+        code, out, err = None, "", ""
+        try:
+            done = subprocess.run(cmd, cwd="/root/mint", capture_output=True, text=True, timeout=300)
+            code, out, err = done.returncode, done.stdout or "", done.stderr or ""
+        except subprocess.TimeoutExpired:
+            code, err = -1, "the comparison did not finish in five minutes"
+        except OSError as exc:
+            code, err = -1, "could not start the runtime: %s" % exc
+        with LIVE_LOCK:
+            COMPARE.update(running=False, exit=code, stdout=out.strip()[-1200:],
+                           error=err.strip()[-600:] if err else out.strip()[-600:],
+                           took_ms=int((time.time() - COMPARE["started"]) * 1000))
+        with LOCK:
+            for name in ("slow", "fast"):
+                side = STATE["sides"][name]
+                if not side.get("finished"):
+                    side["finished"] = True
+                    if not side.get("verdict"):
+                        side["verdict"] = (err.strip()[-200:]
+                                           or "the run stopped without reporting a result")
+
+    threading.Thread(target=worker, daemon=True).start()
+    return {"ok": True, "task": task["n"], "what": task["what"], "goal": task["goal"]}, None
+
+
+def compare_result():
+    """Both halves, side by side, with what each of them leaves behind."""
+    with LOCK:
+        slow = dict(STATE["sides"]["slow"])
+        fast = dict(STATE["sides"]["fast"])
+    with LIVE_LOCK:
+        running, took, err = COMPARE["running"], COMPARE["took_ms"], COMPARE["error"]
+    idx = COMPARE["task"]
+    shown = COMPARE_TASKS[idx]["n"] if isinstance(idx, int) and 0 <= idx < len(COMPARE_TASKS) else None
+    log = f"{DEMO_DIR}/compare/last.json"
+    return {
+        "ok": True,
+        "task": shown,
+        "running": running,
+        "took_ms": took,
+        "error": err,
+        "goal": slow.get("goal") or fast.get("goal") or "",
+        "slow": {"steps": slow.get("steps", []), "model_calls": slow.get("model_calls", 0),
+                 "total_ms": slow.get("total_ms", 0), "verdict": slow.get("verdict", ""),
+                 "finished": slow.get("finished", False), "url": slow.get("url", "")},
+        "fast": {"steps": fast.get("steps", []), "model_calls": fast.get("model_calls", 0),
+                 "total_ms": fast.get("total_ms", 0), "verdict": fast.get("verdict", ""),
+                 "finished": fast.get("finished", False), "url": fast.get("url", ""),
+                 "receipts": fast.get("receipts")},
+        "log_url": "/compare-run.json",
+        "log_exists": os.path.exists(log),
+    }, None
+
+
+def compare_verify():
+    """Check the compiled half's log with the verifier a stranger would use."""
+    if not os.path.exists(f"{DEMO_DIR}/compare/last.json"):
+        return None, "that comparison did not write a log"
+    code, text = run_levos(["receipts", "--in", "compare/last.json",
+                            "--policy", "compare/last.json.policy.json"])
+    if code != 0 and not text:
+        return None, "the verifier produced nothing"
+    return {"ok": True, "output": text,
+            "command": "mint receipts --in compare/last.json --policy compare/last.json.policy.json"}, None
 
 
 def live_start(n):
@@ -362,6 +480,7 @@ DEMO_PAGES = {
     "tasks": "tasks.html",
     "state": "state.html",
     "live": "live.html",
+    "compare": "compare.html",
 }
 
 # What may be served as a file, and nothing else. The demo page shows real screenshots and a real
@@ -741,6 +860,12 @@ class Handler(BaseHTTPRequestHandler):
                 side["running"] = LIVE["running"]
                 side["took_ms"] = LIVE["took_ms"]
             self._send_json(200, side)
+        elif self.path.split("?")[0] == "/compare-run.json":
+            try:
+                self._send(200, open(f"{DEMO_DIR}/compare/last.json", "rb").read(),
+                           "application/json")
+            except FileNotFoundError:
+                self._send(404, b"no comparison has happened yet", "text/plain")
         elif self.path.split("?")[0] == "/live-run.json":
             try:
                 self._send(200, open(f"{DEMO_DIR}/live/last.json", "rb").read(),
@@ -801,6 +926,16 @@ class Handler(BaseHTTPRequestHandler):
                 body, why = live_result()
             elif wanted == "live/verify":
                 body, why = api_live_verify()
+            elif wanted == "compare/start":
+                if not _live_allowed(ip):
+                    self._send_json(429, {"ok": False, "error":
+                                          "you have started several runs; wait a few minutes"})
+                    return
+                body, why = compare_start(int(query.get("task", ["0"])[0]) - 1)
+            elif wanted == "compare/result":
+                body, why = compare_result()
+            elif wanted == "compare/verify":
+                body, why = compare_verify()
             else:
                 body, why = None, "no such call"
         except Exception as exc:  # a demonstration that dies silently looks like a demonstration

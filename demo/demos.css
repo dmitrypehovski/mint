@@ -200,6 +200,29 @@
   .livetask .btn{white-space:nowrap}
   @media(max-width:860px){.livewrap{grid-template-columns:1fr}
     .livesteps li{grid-template-columns:24px 56px minmax(0,1fr)}}
+  /* The comparison: two agents, two panes, one task. */
+  .cmpwrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0 0;align-items:start}
+  .cmpcol{display:grid;gap:10px;min-width:0}
+  .cmphead{border:1px solid var(--rule);border-radius:11px 11px 0 0;padding:12px 15px;background:var(--card)}
+  .cmphead b{display:block;font-family:var(--display);font-size:17px;letter-spacing:-.02em}
+  .cmphead span{font:12px/1.4 var(--mono);color:var(--dim2)}
+  .cmphead.slow{border-left:3px solid var(--dim2)}
+  .cmphead.fast{border-left:3px solid var(--green);background:var(--green-wash)}
+  .shotbox.cmp{min-height:210px}
+  .livesteps.one li{grid-template-columns:26px 58px minmax(0,1fr)}
+  .livesteps.one li .sn2,.livesteps.one li .note2{display:none}
+  .bignums{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;
+    border:1px solid var(--rule);border-radius:12px;background:var(--card);padding:20px;margin:20px 0 0}
+  .bignums .side{text-align:center}
+  .bignums .side .who{font:600 11.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim2)}
+  .bignums .side .num{font-family:var(--display);font-size:clamp(30px,4.4vw,46px);letter-spacing:-.04em;
+    margin:8px 0 2px;font-weight:800;line-height:1}
+  .bignums .side .num.zero{color:var(--green)}
+  .bignums .side .num.many{color:var(--red)}
+  .bignums .side .what{font:12px/1.5 var(--mono);color:var(--dim)}
+  .bignums .vs{font:600 12px/1 var(--mono);color:var(--dim2)}
+  @media(max-width:860px){.cmpwrap{grid-template-columns:1fr}
+    .bignums{grid-template-columns:1fr;gap:12px}.bignums .vs{text-align:center}}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0 0}
   @media(max-width:760px){.grid2{grid-template-columns:1fr}.rct{grid-template-columns:1fr}
     .tryrow{grid-template-columns:1fr auto;gap:9px}}
