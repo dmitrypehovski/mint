@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mint — the head of the log, signed twice</title>
+<style>
+  :root { --ink:#16161d; --mut:#5f5f6f; --line:#e6e6ef; --bg:#f8f8fb; --acc:#7c5ce7; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.62 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif; }
+  .wrap { max-width:820px; margin:0 auto; padding:0 20px 70px; }
+  header { padding:20px 0 6px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  header .mark { font-weight:700; font-size:18px; }
+  header nav { margin-left:auto; display:flex; gap:16px; flex-wrap:wrap; }
+  header nav a { color:var(--mut); text-decoration:none; font-size:14.5px; }
+  h1 { font-size:clamp(24px,4vw,34px); line-height:1.2; letter-spacing:-.02em; margin:22px 0 10px; }
+  h2 { font-size:20px; margin:30px 0 8px; letter-spacing:-.012em; }
+  p { margin:10px 0; }
+  .mut { color:var(--mut); }
+  .kicker { font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--acc); font-weight:700; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:14px 0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+  .k { font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--mut); }
+  .v { font-size:15px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; word-break:break-all; }
+  button { font:inherit; font-size:14.5px; padding:9px 15px; border-radius:9px; border:1px solid var(--acc);
+           background:var(--acc); color:#fff; cursor:pointer; margin:4px 6px 4px 0; }
+  button.alt { background:#fff; color:var(--acc); }
+  button[disabled] { opacity:.55; cursor:default; }
+  pre { background:#0f0f14; color:#e8e8f0; border-radius:10px; padding:14px 16px; overflow:auto;
+        font-size:13px; line-height:1.5; white-space:pre-wrap; margin:12px 0 0; }
+  .held { color:#1f7a45; font-weight:600; }
+  .failed { color:#a8321f; font-weight:600; }
+  .note { background:#f4f1ff; border-left:3px solid var(--acc); padding:13px 16px; border-radius:0 10px 10px 0; margin:16px 0; }
+  footer { border-top:1px solid var(--line); margin-top:40px; padding-top:18px; color:var(--mut); font-size:14px; }
+</style></head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="mark">mint</span>
+  <nav><a href="/">Guide</a><a href="/demos">Demonstrations</a>
+  <a href="https://github.com/dmitrypehovski/mint">Repository</a></nav>
+</header>
+
+<div style="max-width:760px;margin:18px 0 6px;background:#fff;border:1px solid #e6e6ef;border-radius:12px;padding:14px 18px;font-size:14.5px;line-height:1.55">
+  <div class="kicker">The record · 13 of 13</div>
+  <p style="margin:7px 0 4px"><b>What this is:</b> the log's head, signed by the runtime and countersigned by a second key.</p>
+  <p style="margin:4px 0"><b>Who it is for:</b> anyone who has to take a log from somebody else and cannot trust its holder.</p>
+  <p style="margin:4px 0"><b>What to look at:</b> press the second button — the shorter log verifies link by link and is still caught.</p>
+  <p style="margin:9px 0 0;font-size:13.5px"><a href="/demos/tamper" style="color:#7c5ce7;text-decoration:none">← tamper</a> · <a href="/demos" style="color:#7c5ce7;text-decoration:none">the path</a> · <a href="/demos/examples" style="color:#7c5ce7;text-decoration:none">examples →</a></p>
+</div>
+
+<p class="kicker">The gap a chain cannot close</p>
+<h1>A chain proves nothing was edited. It cannot prove nothing was removed.</h1>
+<p>Every receipt is signed, and each one commits to the hash of the one before it, so editing a
+receipt breaks the chain at exactly that point. But whoever holds the log can also simply <b>drop the
+last ten receipts</b> and hand you a shorter log in which every link verifies perfectly. Nothing inside
+a chain can tell you that the chain is the whole chain — that question is about the log, not about
+anything in it.</p>
+<p>A second party answers it, and the answer takes two small objects.</p>
+
+<div class="grid">
+  <div class="card"><div class="k">The checkpoint</div>
+    <p class="mut" style="margin:6px 0 0">The runtime signs the <b>head</b> of its own log: how many
+    receipts there are, which sequence number the last one carries, and the hash it ends with.</p></div>
+  <div class="card"><div class="k">The countersignature</div>
+    <p class="mut" style="margin:6px 0 0">A <b>different</b> key signs exactly that head, and the
+    witness keeps what it saw. A log presented later with fewer receipts, or with a different receipt
+    at a sequence number it already used, is then a contradiction rather than a matter of opinion.</p></div>
+  <div class="card"><div class="k">The ledger</div>
+    <p class="mut" style="margin:6px 0 0">The witness's own file of sightings, written by the witness
+    and not by the runtime — the thing a runtime cannot edit and so the thing that makes a shrink visible.</p></div>
+</div>
+
+<h2>The published objects</h2>
+<p class="mut">Read live from this site. Nothing here is typed in by hand.</p>
+<div class="card">
+  <div class="k">checkpoint — the runtime's signature over the head</div>
+  <div class="v" id="cp">loading…</div>
+  <div class="k" style="margin-top:10px">countersignature — a different key over the same head</div>
+  <div class="v" id="wit">loading…</div>
+  <div class="k" style="margin-top:10px">what the witness has seen</div>
+  <div class="v" id="led">loading…</div>
+</div>
+
+<h2>Try to get past it</h2>
+<p>Three fixed cases run the real verifier: nothing is built from what you send, and none of it writes
+anything. The output below is the runtime's own.</p>
+<div>
+  <button id="b0">Check the published log</button>
+  <button id="b1" class="alt">Drop the last two receipts and check again</button>
+  <button id="b2" class="alt">Let the runtime countersign its own head</button>
+</div>
+<div class="card" style="margin-top:14px">
+  <div id="what" class="mut">Press a button.</div>
+  <div id="verdict"></div>
+  <pre id="out" style="display:none"></pre>
+</div>
+
+<div class="note">
+  <b>What this does not prove.</b> On this site the witness runs on the same machine as the runtime:
+  both keys are held here, so what you are watching is the mechanism working, not a reason to trust
+  it. A witness worth the name is somebody who does not hold the log. And a witness says nothing about
+  the world — it countersigns what was recorded, including a lie, and can only say that the record did
+  not change afterwards.
+</div>
+
+<h2>From a shell</h2>
+<p class="mut">Each of these is one command and no service. A stranger needs the three files and this
+binary, nothing else.</p>
+<pre>mint checkpoint      --receipts receipts.json --out checkpoint.json    # the holder of the log
+mint witness         --checkpoint checkpoint.json --ledger ledger.json  # the witness, with its own key
+mint verify-witness  --receipts receipts.json --checkpoint checkpoint.json --witness witness.json</pre>
+
+<footer>
+  <p>The same three commands produced <a href="/checkpoint.json">checkpoint.json</a>,
+  <a href="/witness.json">witness.json</a> and <a href="/witness-ledger.json">witness-ledger.json</a>,
+  which are served here as they were written.</p>
+</footer>
+
+</div>
+<script>
+function show(caseId) {
+  var what = document.getElementById("what"), out = document.getElementById("out"),
+      verdict = document.getElementById("verdict");
+  what.textContent = "running the real verifier…";
+  verdict.textContent = ""; out.style.display = "none";
+  document.querySelectorAll("button").forEach(function (b) { b.disabled = true; });
+  fetch("/api/witness/check?case=" + caseId).then(function (r) { return r.json(); })
+    .then(function (d) {
+      document.querySelectorAll("button").forEach(function (b) { b.disabled = false; });
+      if (!d.ok) { what.textContent = d.error || "that did not run"; return; }
+      what.innerHTML = "<b>Case:</b> " + d.case;
+      verdict.innerHTML = d.held
+        ? '<span class="held">the check held</span>'
+        : '<span class="failed">the check did not hold</span>';
+      out.textContent = d.output || "(no output)";
+      out.style.display = "block";
+    })
+    .catch(function (e) { what.textContent = "could not reach the runtime: " + e; });
+}
+document.getElementById("b0").onclick = function () { show(""); };
+document.getElementById("b1").onclick = function () { show("1"); };
+document.getElementById("b2").onclick = function () { show("2"); };
+
+function short(v, n) { v = String(v); return v.length > n ? v.slice(0, n) + "…" : v; }
+fetch("/checkpoint.json").then(function (r) { return r.json(); }).then(function (c) {
+  document.getElementById("cp").textContent =
+    c.body.head.count + " receipts, head sequence " + c.body.head.head_seq +
+    ", hash " + short(c.body.head.head_hash, 24) + ", signed by " + short(c.body.runtime, 12);
+}).catch(function () { document.getElementById("cp").textContent = "not published"; });
+fetch("/witness.json").then(function (r) { return r.json(); }).then(function (w) {
+  document.getElementById("wit").textContent =
+    "countersigned by " + short(w.body.witness, 12) + " (the runtime is " + short(w.body.runtime, 12) +
+    "), and " + (w.body.previously ? "it saw " + w.body.previously.count + " receipts before" : "this is its first sighting");
+}).catch(function () { document.getElementById("wit").textContent = "not published"; });
+fetch("/witness-ledger.json").then(function (r) { return r.json(); }).then(function (l) {
+  var last = l[l.length - 1];
+  document.getElementById("led").textContent =
+    l.length + " sighting(s); last: " + last.count + " receipts at sequence " + last.head_seq +
+    ", hash " + short(last.head_hash, 24);
+}).catch(function () { document.getElementById("led").textContent = "nothing recorded"; });
+</script>
+</body></html>

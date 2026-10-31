@@ -9,7 +9,7 @@
 //! the runtime asks for that one step, checks itself again, and writes the correction back
 //! into the skill: one mistake costs one question, never a broken run.
 
-use mint::{decide, endorse, gate, policy, receipt, shell, skill, state};
+use mint::{checkpoint, decide, endorse, gate, policy, receipt, shell, skill, state};
 
 use anyhow::{anyhow, Result};
 use mint::cdp::{Cdp, Element};
@@ -46,6 +46,9 @@ async fn main() -> Result<()> {
         "dir-learn" => dir_learn(&args).await,
         "dir-run" => dir_run(&args).await,
         "dir-demo" => dir_demo(&args).await,
+        "checkpoint" => checkpoint_cmd(&args),
+        "witness" => witness_cmd(&args),
+        "verify-witness" => verify_witness_cmd(&args),
         "endorse" => endorse_cmd(&args),
         "rules" => rules_cmd(&args),
         _ => {
@@ -270,6 +273,130 @@ fn rules_cmd(args: &[String]) -> Result<()> {
 /// A separate command with a separate key, deliberately. The runtime writing its own endorsement
 /// would produce a document that looks like a counter-signature and is not one, which is worse than
 /// having none — a reader would stop looking for the missing half.
+/// Sign the head of a log.
+///
+/// A chain shows that nothing inside it was edited. It cannot show that the chain is the whole chain,
+/// because whoever holds it can drop the last receipts and present a shorter chain that verifies
+/// perfectly. This is the object that a second party can put its own signature on, so that a log which
+/// later shrinks is caught by somebody other than its author.
+fn checkpoint_cmd(args: &[String]) -> Result<()> {
+    let doc_path = flag(args, "--receipts").ok_or_else(|| anyhow!("--receipts is required"))?;
+    let text = std::fs::read_to_string(&doc_path)?;
+    let doc: serde_json::Value = serde_json::from_str(&text)?;
+    let head = checkpoint::head_of(&doc)?;
+
+    // The checkpoint must be signed by the key the log itself names. A head signed by some other key
+    // is a statement about somebody else's log, and a witness that countersigned it would be putting
+    // its name on the wrong document.
+    let named = doc
+        .get("receipts")
+        .and_then(serde_json::Value::as_array)
+        .and_then(|r| r.first())
+        .and_then(|r| r.get("body"))
+        .and_then(|b| b.get("agent"))
+        .and_then(serde_json::Value::as_str)
+        .unwrap_or_default()
+        .to_string();
+    let sealer = receipt::Sealer::load(&receipt_key())?;
+    if !named.is_empty() && named != sealer.agent {
+        anyhow::bail!(
+            "the log names the agent {} and this key is {}: a checkpoint has to be signed by the key \
+             whose log it is",
+            &named[..12.min(named.len())],
+            &sealer.agent[..12.min(sealer.agent.len())]
+        );
+    }
+
+    let cp = checkpoint::sign(&sealer, head.clone(), endorse::now_ms());
+    let out = flag(args, "--out").unwrap_or_else(|| "checkpoint.json".into());
+    std::fs::write(&out, serde_json::to_string_pretty(&serde_json::to_value(&cp)?)?)?;
+
+    println!("  {} receipts, head at sequence {}", head.count, head.head_seq);
+    println!("  head hash {}", &head.head_hash[..16.min(head.head_hash.len())]);
+    println!("  signed by {} as {}", &sealer.agent[..12.min(sealer.agent.len())], out);
+    println!("  document digest {}", &checkpoint::digest_of(&text)[..23]);
+    Ok(())
+}
+
+/// Countersign a checkpoint. This is the witness's command, and it is meant to be run by somebody who
+/// does not hold the log: only then is a second signature worth anything.
+fn witness_cmd(args: &[String]) -> Result<()> {
+    let cp_path = flag(args, "--checkpoint").ok_or_else(|| anyhow!("--checkpoint is required"))?;
+    let cp: checkpoint::Checkpoint = serde_json::from_str(&std::fs::read_to_string(&cp_path)?)?;
+    // Verified before it is signed. Countersigning an unverified claim turns the witness's key into a
+    // stamp that anyone can obtain by asking.
+    cp.verify()
+        .map_err(|e| anyhow!("nothing was countersigned: {e}"))?;
+
+    let ledger_path = flag(args, "--ledger").unwrap_or_else(|| "witness-ledger.json".into());
+    let mut ledger: Vec<checkpoint::Head> = std::fs::read_to_string(&ledger_path)
+        .ok()
+        .and_then(|t| serde_json::from_str(&t).ok())
+        .unwrap_or_default();
+    let previously = ledger.last().cloned();
+
+    let witness = receipt::Sealer::load_or_create(&endorser_key())?;
+    let at_ms = endorse::now_ms();
+    let cs = checkpoint::countersign(&witness, &cp, previously.clone(), at_ms)?;
+
+    let out = flag(args, "--out").unwrap_or_else(|| "witness.json".into());
+    std::fs::write(&out, serde_json::to_string_pretty(&serde_json::to_value(&cs)?)?)?;
+    // The witness's own record of what it saw. Written only after a countersignature exists, so the
+    // ledger never claims an observation that was refused.
+    ledger.push(cp.body.head.clone());
+    std::fs::write(&ledger_path, serde_json::to_string_pretty(&ledger)?)?;
+
+    println!(
+        "  countersigned {} receipts at sequence {} for runtime {}",
+        cp.body.head.count,
+        cp.body.head.head_seq,
+        &cp.body.runtime[..12.min(cp.body.runtime.len())]
+    );
+    println!("  witness key {}", &witness.agent[..12.min(witness.agent.len())]);
+    match &previously {
+        Some(prev) => println!(
+            "  seen before: {} receipts at sequence {} — the log grew, which is allowed",
+            prev.count, prev.head_seq
+        ),
+        None => println!("  first sighting of this log"),
+    }
+    println!("  written to {out}, and this sighting kept in {ledger_path}");
+    Ok(())
+}
+
+/// Check a log against its checkpoint and the countersignature over it. Anybody can run this: it needs
+/// no service, no network and no trust in either party.
+fn verify_witness_cmd(args: &[String]) -> Result<()> {
+    let doc_path = flag(args, "--receipts").ok_or_else(|| anyhow!("--receipts is required"))?;
+    let doc: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&doc_path)?)?;
+    let cp_path = flag(args, "--checkpoint").ok_or_else(|| anyhow!("--checkpoint is required"))?;
+    let cp: checkpoint::Checkpoint = serde_json::from_str(&std::fs::read_to_string(&cp_path)?)?;
+    let w_path = flag(args, "--witness").ok_or_else(|| anyhow!("--witness is required"))?;
+    let cs: checkpoint::Countersignature = serde_json::from_str(&std::fs::read_to_string(&w_path)?)?;
+
+    let log_head = checkpoint::head_of(&doc).ok();
+    let report = checkpoint::check(log_head.as_ref(), &cp, &cs);
+
+    println!("  checkpoint says: {} receipts, sequence {}", cp.body.head.count, cp.body.head.head_seq);
+    println!("  the log holds:   {} receipts", log_head.as_ref().map(|h| h.count).unwrap_or(0));
+    println!(
+        "  countersigned by: {} (the runtime is {})",
+        &cs.body.witness[..12.min(cs.body.witness.len())],
+        &cs.body.runtime[..12.min(cs.body.runtime.len())]
+    );
+    if report.ok {
+        println!("\n  the log presented is the log that was countersigned, and it has not shrunk");
+        println!("  the chain inside it is checked separately: mint receipts --verify --receipts {doc_path}");
+        Ok(())
+    } else {
+        println!("\n  the check did not hold:");
+        for f in &report.findings {
+            println!("   - {f}");
+        }
+        anyhow::bail!("{} finding(s)", report.findings.len())
+    }
+}
+
 fn endorse_cmd(args: &[String]) -> Result<()> {
     let policy_path = flag(args, "--policy").ok_or_else(|| anyhow!("--policy is required"))?;
     let rules = policy::Policy::from_file(&policy_path)?;

@@ -174,11 +174,16 @@ else on this site is detail behind those two things.</p>
     <li>Chained, so removing or reordering one receipt is detectable — and the check says which.</li>
     <li>Bound to the <b>rules document</b>, so a change in the rules invalidates what was done under
     the old ones.</li>
-    <li>Written to say what it does <b>not</b> prove: whose clock signed it, and that no second party
-    watched.</li>
+    <li>Topped by a <b>checkpoint</b>: the runtime signs the head of its own log — how many receipts,
+    which one it ends with — and a second key countersigns exactly that head. A log that is later
+    presented with receipts missing is caught by the witness's own record of what it saw, and the
+    countersignature dates that head without asking the runtime what time it is.</li>
+    <li>Written to say what it does <b>not</b> prove: anything about the world, and nothing about a
+    witness that watches a log recording a lie.</li>
   </ul>
   <p class="next"><a class="link" href="/demos/receipt">Read one, field by field →</a> ·
-  <a class="link" href="/demos/tamper">edit it and watch the check fail →</a></p>
+  <a class="link" href="/demos/tamper">edit it and watch the check fail →</a> ·
+  <a class="link" href="/demos/witness">take receipts out of the log and watch a second party catch it →</a></p>
 </div>
 
 <div class="chapter" id="limits">
@@ -193,9 +198,12 @@ else on this site is detail behind those two things.</p>
       site's project root, which is what lets a skill learned on one repository run on another; the
       cost is that an address like <code>/fieldwork/submit</code> has no name of its own, and a run
       that ends there is pinned by its last segment rather than by its shape.</li>
-      <li><b>The record has holes, and they are named.</b> Timestamps are the signer's clock. No
-      outsider witnesses the environment the observations came from. The runtime carries a
-      counter-signature slot and never fills it.</li>
+      <li><b>The witness on this site is on the same machine.</b> The log's head is signed by the
+      runtime and countersigned by a second key, and a log that shrank since the last sighting is
+      caught by name rather than argued about — but here both keys live on one computer, so what you
+      see is the mechanism working, not a reason to trust it. A real witness is somebody who does not
+      hold the log. And a witness says nothing about the world: it countersigns what was recorded,
+      including a lie, and it can only say that the record did not change afterwards.</li>
       <li><b>Transfer is proven on one family so far.</b> A skill learned on one repository runs on
       another; the same claim on other kinds of site is not yet shown.</li>
       <li><b>The check that decides success is a model, and it is wrong sometimes.</b> It failed

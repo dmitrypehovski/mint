@@ -288,6 +288,12 @@ PATHS = {
         "Anyone paying for tokens.",
         "The ratio, and that it is measured rather than estimated.",
     ),
+    "witness": (
+        "The record",
+        "The log's head, signed by the runtime and countersigned by a second key.",
+        "Anyone who has to take a log from somebody else and cannot trust its holder.",
+        "Press the second button: the shorter log verifies link by link and is still caught.",
+    ),
     "examples": (
         "Start here",
         "Every example on this site, one by one: the task, what each agent pays, what the receipt gives.",
@@ -1242,7 +1248,8 @@ document.querySelectorAll('[data-cmp]').forEach((b) => {
 hub = [
     ("compare", 10, "The same task, both kinds of agent", "One task, run twice in the same browser: on the left a model decides every step, on the right the same task runs compiled. The longest is four steps through a real repository, learned on a different one — and the left half asks a model at every step of it. <b>Live, side by side.</b>", "live", True),
     ("directory", 11, "The same task, on a filesystem", "Fifty invoices into twelve month folders — the same comparison as the page above, on a directory instead of a page. For an agent that asks a model about every step this is fifty decisions; for the compiled skill it is none. <b>Live.</b>", "live", True),
-      ("examples", 12, "What each example is for", "Every example on this site, one by one: what the task is, what each kind of agent pays for it, what the receipt leaves behind, and where that kind of work actually exists. Including the three things that did not work.", "", False),
+      ("witness", 13, "The head, signed twice", "The log's head signed by the runtime and countersigned by a second key — and what happens when receipts are taken out", "", True),
+    ("examples", 12, "What each example is for", "Every example on this site, one by one: what the task is, what each kind of agent pays for it, what the receipt leaves behind, and where that kind of work actually exists. Including the three things that did not work.", "", False),
       ("live", 9, "Run it yourself, right now", "Pick a task and the runtime opens a real browser and does it while you watch — the frames as it moves, the steps with what resolved them, and a signed receipt at the end. One of the five gets stopped by the gate mid-run. <b>Live.</b>", "live", True),
     ("gate", 1, "Fit the gate to the effect", "Flip an approval switch and the real rules engine decides, live: reading passes, writing waits, and the undescribable is refused even with approval. <b>Interactive.</b>", "live", True),
     ("refuse.html", 2, "When it does not understand, nothing happens", "The run where the runtime met an element it could not describe. The absence of an outcome receipt is the evidence that nothing took place.", "", False),

@@ -402,6 +402,51 @@ def api_live_verify():
             "command": "mint receipts --in live/last.json --policy live/last.json.policy.json"}, None
 
 
+def api_witness_check(case):
+    """Run the real verifier over the published objects, and over the two ways of lying about them.
+
+    Fixed cases chosen by index: nothing is built from what the caller sent, and nothing here writes.
+    Case 0 is the honest set of files. Case 1 is the same log with its last two receipts removed —
+    every link inside that shorter chain still verifies, which is exactly why a checkpoint exists.
+    Case 2 is the runtime trying to countersign its own head, and the refusal shown is the file the
+    runtime itself produced when it was run, not a sentence written for the page.
+    """
+    if not _allowed_check_case(case):
+        return {"ok": False, "error": "no such case"}, "refused"
+    if case == "2":
+        try:
+            text = open(f"{DEMO_DIR}/witness-cases/self-witness.txt").read().strip()
+        except FileNotFoundError:
+            return {"ok": False, "error": "that case has not been generated"}, None
+        return {
+            "ok": True,
+            "case": "the runtime countersigning its own head",
+            "held": False,
+            "output": text,
+        }, None
+    args = [
+        "verify-witness",
+        "--receipts", f"{DEMO_DIR}/gate-receipts.json" if case == "" else f"{DEMO_DIR}/witness-cases/truncated.json",
+        "--checkpoint", f"{DEMO_DIR}/checkpoint.json",
+        "--witness", f"{DEMO_DIR}/witness.json",
+    ]
+    done = subprocess.run(
+        [f"{REPO}/target/release/mint"] + args, cwd=REPO, capture_output=True, text=True, timeout=30
+    )
+    out = (done.stdout + done.stderr).strip()
+    what = (
+        "the log, its checkpoint, and the countersignature over it"
+        if case == ""
+        else "the same log with its last two receipts removed"
+    )
+    return {"ok": True, "case": what, "held": done.returncode == 0, "output": out}, None
+
+
+def _allowed_check_case(case):
+    """Three cases exist. Anything else is refused rather than guessed at."""
+    return case in ("", "1", "2")
+
+
 def run_mint(args, stdin_text=None, timeout=25):
     """Run the real binary with fixed arguments and hand back exactly what it printed."""
     if not API_SLOTS.acquire(timeout=10):
@@ -515,6 +560,7 @@ DEMO_PAGES = {
     "compare": "compare.html",
     "directory": "directory.html",
     "examples": "examples.html",
+    "witness": "witness.html",
 }
 
 # What may be served as a file, and nothing else. The demo page shows real screenshots and a real
@@ -1126,6 +1172,21 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, open(f"{DEMO_DIR}/gate-receipts.json", "rb").read(), "application/json")
             except FileNotFoundError:
                 self._send(404, b"no signed log yet", "text/plain")
+        elif self.path.split("?")[0] == "/checkpoint.json":
+            try:
+                self._send(200, open(f"{DEMO_DIR}/checkpoint.json", "rb").read(), "application/json")
+            except FileNotFoundError:
+                self._send(404, b"no checkpoint on file", "text/plain")
+        elif self.path.split("?")[0] == "/witness.json":
+            try:
+                self._send(200, open(f"{DEMO_DIR}/witness.json", "rb").read(), "application/json")
+            except FileNotFoundError:
+                self._send(404, b"no countersignature on file", "text/plain")
+        elif self.path.split("?")[0] == "/witness-ledger.json":
+            try:
+                self._send(200, open(f"{DEMO_DIR}/witness-ledger.json", "rb").read(), "application/json")
+            except FileNotFoundError:
+                self._send(404, b"the witness has recorded nothing yet", "text/plain")
         elif self.path.split("?")[0] == "/gate-lab":
             try:
                 self._send(200, open(f"{DEMO_DIR}/gate-lab.html", "rb").read(), "text/html; charset=utf-8")
@@ -1192,6 +1253,8 @@ class Handler(BaseHTTPRequestHandler):
                 body, why = api_tamper(query.get("case", [""])[0])
             elif wanted == "endorse":
                 body, why = api_endorse(query.get("case", [""])[0])
+            elif wanted == "witness/check":
+                body, why = api_witness_check(query.get("case", [""])[0])
             elif wanted == "verify":
                 body, why = api_verify()
             elif wanted == "live/start":

@@ -13,6 +13,9 @@
 //!   every verdict from the observations the receipts actually recorded.
 //! - [`endorse`] — a second party's signature over those rules, bound to the policy hash, the
 //!   runtime and an optional expiry. A runtime must never produce its own.
+//! - [`checkpoint`] — the runtime's signature over the head of its own log, and a second party's
+//!   countersignature over that head. A chain cannot show that the log handed over is the whole log;
+//!   a witness that records what it saw can.
 //!
 //! The agent itself is [`cdp`] (the browser), [`skill`] (the compiled task), [`state`] (comparing
 //! live state against what a step expects) and [`decide`] (the model adapter).
@@ -41,6 +44,7 @@
 //! demonstration site calls when a visitor flips a switch.
 
 pub mod cdp;
+pub mod checkpoint;
 pub mod decide;
 pub mod endorse;
 pub mod gate;

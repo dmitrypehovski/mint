@@ -1,0 +1,1 @@
+Error: the witness holds the same key as the log's runtime: a runtime's second signature over its own head is not a witness, whatever it is called

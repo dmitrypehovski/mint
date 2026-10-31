@@ -1,0 +1,17 @@
+{
+  "body": {
+    "at_ms": 1793490284952,
+    "head": {
+      "count": 7,
+      "head_hash": "9fa5e6ceed126ae34113f07761b41d46d9efeeaaaa27d4d18100ab030c349e67",
+      "head_seq": 6
+    },
+    "runtime": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+    "spec": "mint.checkpoint/0.1"
+  },
+  "sig": {
+    "alg": "ed25519",
+    "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+    "value": "4be342c75500b8e5b99a9817480fee373829eae5722c20b2bf6b66c439f0d0f8aceffa97b8e12224e200a751daafaa1e2f2b42dd7848b5b1f036d44739472d0d"
+  }
+}
