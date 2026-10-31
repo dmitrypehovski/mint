@@ -1,7 +1,7 @@
 {
   "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
   "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-  "count": 2,
+  "count": 1,
   "endorsement": null,
   "host": "127.0.0.1:8840",
   "policy": {
@@ -84,26 +84,26 @@
     {
       "body": {
         "action": {
-          "element": "a \"Open the record\"",
-          "identity": "109a1483ad375323477e7a61ec10c1fa1f6513a34387426acbcd88e523e2b90c",
-          "key": "60cbba27c7bfd32afd59a6943e1c1466",
+          "element": "button \"Submit the filing\"",
+          "identity": "56e14abad9a8e0c67826cdef9ef46ca6953904368e7aa00778885c8691c44295",
+          "key": "f48e30b60d12ad822b87a81708dd2326",
           "observed": {
             "action": "click",
             "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
+            "has_href": false,
+            "role": "button",
+            "tag": "button"
           },
-          "side_effect": "read",
+          "side_effect": "write",
           "step": 0
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793475338648,
+        "decided_at_ms": 1793475463748,
         "decision": {
           "decided_by": "policy",
-          "reason": "",
-          "verdict": "allow"
+          "reason": "this step commits something; it needs an approval for 56e14abad9a8",
+          "verdict": "hold"
         },
         "host": "127.0.0.1:8840",
         "id": "0cd20b19fef0-0000",
@@ -114,57 +114,14 @@
         "result_hash": null,
         "result_note": null,
         "seq": 0,
-        "signed_at_ms": 1793475338648,
+        "signed_at_ms": 1793475463748,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "105da57b9bdbb5f11cef6eca9726520757794d30d6111a09e73797dbc1fc8771e11abc93138a081b648f5baf561097ef7eaaed731454571fce452191a4543005"
-      }
-    },
-    {
-      "body": {
-        "action": {
-          "element": "a \"Open the record\"",
-          "identity": "109a1483ad375323477e7a61ec10c1fa1f6513a34387426acbcd88e523e2b90c",
-          "key": "60cbba27c7bfd32afd59a6943e1c1466",
-          "observed": {
-            "action": "click",
-            "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
-          },
-          "side_effect": "read",
-          "step": 0
-        },
-        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793475338653,
-        "decision": {
-          "decided_by": "policy",
-          "reason": "",
-          "verdict": "allow"
-        },
-        "host": "127.0.0.1:8840",
-        "id": "0cd20b19fef0-0001",
-        "kind": "outcome",
-        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "1322df49325b430ef93be5e043fc4f813dd77e5f4e887fb5a7b315ee794d9dc5",
-        "refers_to": "0cd20b19fef0-0000",
-        "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
-        "result_note": "performed",
-        "seq": 1,
-        "signed_at_ms": 1793475338653,
-        "spec": "mint.receipt/0.1",
-        "status": "completed"
-      },
-      "sig": {
-        "alg": "ed25519",
-        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "5ec2e7641e3e0151f1dfe35704a1fa63ae58eb0b52b96868ec28534cd2fc7c020d4a05987074bd3aa9a8c5ac0b5eb911311707b06017da5adfda1ea230401a04"
+        "value": "64d29657f2251fddb641893ccef857235fde479b74408e7fe51744097bec808613d8bc7f7482efbcd2fa7baf86196bb18fa6c70f00c5b3dece96e75eb4383305"
       }
     }
   ],

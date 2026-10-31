@@ -213,7 +213,11 @@ def live_result():
     with LOCK:
         side = dict(STATE["sides"]["live"])
     with LIVE_LOCK:
-        state = {"running": LIVE["running"], "task": LIVE["task"], "took_ms": LIVE["took_ms"],
+        # The number the page showed, so a caller can tell whether this summary describes the run it
+        # started or one somebody else started a moment earlier.
+        idx = LIVE["task"]
+        shown = LIVE_TASKS[idx]["n"] if isinstance(idx, int) and 0 <= idx < len(LIVE_TASKS) else None
+        state = {"running": LIVE["running"], "task": shown, "took_ms": LIVE["took_ms"],
                  "exit": LIVE["exit"], "error": LIVE["error"], "tail": LIVE["stdout"]}
     log = f"{DEMO_DIR}/live/last.json"
     state.update({
