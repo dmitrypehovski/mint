@@ -217,7 +217,12 @@ def live_result():
         # started or one somebody else started a moment earlier.
         idx = LIVE["task"]
         shown = LIVE_TASKS[idx]["n"] if isinstance(idx, int) and 0 <= idx < len(LIVE_TASKS) else None
-        state = {"running": LIVE["running"], "task": shown, "took_ms": LIVE["took_ms"],
+        if shown is None:
+            state_note = ("no run has been started since this server last restarted; what you see"
+                          " above is the last one, kept so the pane is never blank")
+        else:
+            state_note = ""
+        state = {"running": LIVE["running"], "task": shown, "note": state_note, "took_ms": LIVE["took_ms"],
                  "exit": LIVE["exit"], "error": LIVE["error"], "tail": LIVE["stdout"]}
     log = f"{DEMO_DIR}/live/last.json"
     state.update({

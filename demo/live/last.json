@@ -99,7 +99,7 @@
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793475463748,
+        "decided_at_ms": 1793475480760,
         "decision": {
           "decided_by": "policy",
           "reason": "this step commits something; it needs an approval for 56e14abad9a8",
@@ -114,14 +114,14 @@
         "result_hash": null,
         "result_note": null,
         "seq": 0,
-        "signed_at_ms": 1793475463748,
+        "signed_at_ms": 1793475480760,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "64d29657f2251fddb641893ccef857235fde479b74408e7fe51744097bec808613d8bc7f7482efbcd2fa7baf86196bb18fa6c70f00c5b3dece96e75eb4383305"
+        "value": "73b60276d3150c4326e7ae0532dfd9aab25e0b68891b0b489f537b158b648f5479f8b5122d8610b8de62c634d2489ff2af83b7128b0b9ee88a4d23353d386501"
       }
     }
   ],
