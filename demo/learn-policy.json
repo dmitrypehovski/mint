@@ -1,0 +1,75 @@
+{
+  "spec": "mint.policy/0.1",
+  "version": 1,
+  "note": "The rules a first run is learned under, when the person who asked for the goal is the one present. The writes this task needs are taken under this document, and every decision is still written down and signed. Replaying what was learned goes back to the strict document, which holds anything that commits.",
+  "on_write_without_approval": "allow",
+  "on_unclassifiable": "refuse",
+  "approvals_are_single_use": true,
+  "reads": [
+    {
+      "when": [
+        {
+          "attr": "has_href",
+          "value": "yes"
+        }
+      ],
+      "class": "read"
+    },
+    {
+      "when": [
+        {
+          "attr": "action",
+          "value": "type"
+        }
+      ],
+      "class": "read"
+    },
+    {
+      "when": [
+        {
+          "attr": "tag",
+          "value": "a"
+        }
+      ],
+      "class": "read"
+    },
+    {
+      "when": [
+        {
+          "attr": "role",
+          "value": "link"
+        }
+      ],
+      "class": "read"
+    }
+  ],
+  "writes": [
+    {
+      "when": [
+        {
+          "attr": "tag",
+          "value": "button"
+        }
+      ],
+      "class": "write"
+    },
+    {
+      "when": [
+        {
+          "attr": "role",
+          "value": "button"
+        }
+      ],
+      "class": "write"
+    },
+    {
+      "when": [
+        {
+          "attr": "tag",
+          "value": "input"
+        }
+      ],
+      "class": "write"
+    }
+  ]
+}

@@ -592,11 +592,15 @@ async fn run_with_model(
     goal: &str,
     category: &str,
     max_steps: usize,
+    rules: Option<policy::Policy>,
 ) -> Result<Run> {
     // Every run of this engine gets its own gate, made here rather than passed in, so there is no
     // call path that can reach an action without one.
     let run_host = skill::host_of_url(&cdp.current_url().await.unwrap_or_default());
     let mut gate = gate::Gate::new(&run_host);
+    if let Some(rules) = rules {
+        gate.adopt_policy(rules);
+    }
     sign_for(&mut gate, &run_host);
     let started = Instant::now();
     let mut calls = 0u32;
@@ -610,8 +614,14 @@ async fn run_with_model(
     // would encode the wandering. The productive prefix ends at the first reversal.
     let mut seen: Vec<String> = vec![state::page_kind(&cdp.current_url().await?)];
 
-    for _ in 0..max_steps {
+    for round in 0..max_steps {
+        if std::env::var("MINT_DEBUG_STATE").is_ok() {
+            println!("  [debug] iteration {} of {max_steps}, {} steps kept", round + 1, trail.len());
+        }
         let (els, here) = cdp.state().await?;
+        if std::env::var("MINT_DEBUG_STATE").is_ok() {
+            println!("  [debug] {} elements on {}", els.len(), here);
+        }
         screens.push(els.clone());
         let d = match decide::next_step(goal, &here, &els, &log, category) {
             Ok(d) => d,
@@ -643,6 +653,7 @@ async fn run_with_model(
         );
         let (mut acted, blocked) = perform(cdp, &mut gate, &step, trail.len(), &el, None).await?;
         if let Some(why) = blocked {
+            println!("  the gate did not allow this step: {why}");
             log.push(format!("the gate did not allow this step — {why}"));
             break;
         }
@@ -673,7 +684,8 @@ async fn run_with_model(
                         if let Some(why) = again_blocked {
                             // A retry is a second action. If the gate refuses it, the refusal is
                             // the answer — retrying around the gate is how a gate stops meaning
-                            // anything.
+                            // anything. And it is said out loud, for the same reason as above.
+                            println!("  the gate did not allow the retry: {why}");
                             log.push(format!("the gate did not allow the retry — {why}"));
                             break;
                         }
@@ -702,6 +714,76 @@ async fn run_with_model(
         misses = 0;
         let moved = cdp.wait_for_url_change(&here, 6000).await.unwrap_or_default();
         step.produced_page = state::page_kind(&moved);
+        if std::env::var("MINT_DEBUG_STATE").is_ok() {
+            println!(
+                "  [debug] learned «{}» produced «{}» moved to «{}»",
+                step.learned_page,
+                step.produced_page,
+                moved.chars().take(70).collect::<String>()
+            );
+        }
+        // A page that has just arrived is usually still filling itself in — lists, tables, counts that
+        // load a moment later. Deciding the next step against a half-built page aims it at elements
+        // that are about to be replaced. Let it finish first.
+        if step.produced_page != step.learned_page {
+            let _ = cdp.wait_until_stable(6000).await;
+        }
+        // Filling a field changes the page's state without changing its address, and that is
+        // progress of the plainest kind: a person filling in a form is doing the task. A runtime that
+        // only counts navigation can never learn to fill anything in, which is most of what anybody
+        // actually wants done. So a step counts if it either moved the page or the field took the
+        // text — and the field is checked, not assumed, so a click that typed nothing still fails.
+        if step.produced_page == step.learned_page {
+            // A tick-box clicked with nothing to navigate to is still the task being done — and most
+            // of what a form asks for is tick-boxes. Whether it moved is checked, not assumed, so a
+            // click that missed the box still counts as a miss.
+            if el.checked.is_some() && matches!(step.action, Action::Click) {
+                // Read the box back through the same list the runtime already builds, so the element
+                // is recognised exactly as it was recognised when it was clicked.
+                let now = cdp
+                    .state()
+                    .await
+                    .ok()
+                    .and_then(|(els_now, _)| {
+                        els_now
+                            .iter()
+                            .find(|e| e.role == el.role && e.name == el.name)
+                            .and_then(|e| e.checked)
+                    });
+                if now.is_some() && now != el.checked {
+                    println!(
+                        "  set «{}» — the address did not change, but the box did",
+                        el.name.chars().take(44).collect::<String>()
+                    );
+                    log.push(format!(
+                        "set {} «{}» to {}",
+                        el.role,
+                        el.name.chars().take(40).collect::<String>(),
+                        if now == Some(true) { "ticked" } else { "unticked" }
+                    ));
+                    trail.push((step, el.clone()));
+                    continue;
+                }
+            }
+            if let Action::Type { text } = &step.action {
+                let want = text.trim().to_string();
+                let holds = cdp.value_of(&el).await.unwrap_or_default().trim().to_string();
+                if !want.is_empty() && holds == want {
+                    println!(
+                        "  filled «{}» — the address did not change, but the field did",
+                        el.name.chars().take(44).collect::<String>()
+                    );
+                    log.push(format!(
+                        "filled {} «{}» with «{}»",
+                        el.role,
+                        el.name.chars().take(40).collect::<String>(),
+                        want.chars().take(30).collect::<String>()
+                    ));
+                    trail.push((step, el.clone()));
+                    continue;
+                }
+            }
+        }
         // A click that changed nothing is a miss, not progress backwards. Tell the model
         // so it can pick differently, and do not keep the step.
         if step.produced_page == step.learned_page {
@@ -749,11 +831,22 @@ struct FastRun {
 /// The fast run: no model, unless the runtime catches itself. Every step reports where its
 /// element came from; a step that produces a page other than the one it promised is
 /// treated as a failure and repaired on the spot.
-async fn run_skill(cdp: &mut Cdp, sk: &mut Skill, category: &str) -> Result<FastRun> {
+async fn run_skill(
+    cdp: &mut Cdp,
+    sk: &mut Skill,
+    category: &str,
+    rules: Option<policy::Policy>,
+) -> Result<FastRun> {
     // Every run of this engine gets its own gate, made here rather than passed in, so there is no
     // call path that can reach an action without one.
     let run_host = skill::host_of_url(&cdp.current_url().await.unwrap_or_default());
     let mut gate = gate::Gate::new(&run_host);
+    // Replaying runs under the shipped rules unless a document is given: the shipped ones hold
+    // anything that commits, which is what makes a replay safe to leave alone. A task that writes has
+    // to be replayed under a document that permits those writes, and the receipts then say so.
+    if let Some(rules) = rules {
+        gate.adopt_policy(rules);
+    }
     sign_for(&mut gate, &run_host);
     let started = Instant::now();
     let mut notes = Vec::new();
@@ -895,8 +988,18 @@ async fn learn(args: &[String]) -> Result<()> {
     let out = flag(args, "--skill").unwrap_or_else(|| "skill.json".into());
     let max: usize = flag(args, "--max-steps").and_then(|v| v.parse().ok()).unwrap_or(8);
     let category = flag(args, "--category").unwrap_or_else(|| "browser".into());
+    // The rules a first run is learned under. Without one the shipped document is used, which holds
+    // anything that commits — so a task that submits a form can be watched but never learned.
+    let learn_rules = match flag(args, "--policy") {
+        Some(path) => Some(policy::Policy::from_file(&path)?),
+        None => None,
+    };
 
     println!("FIRST RUN — the model decides every step\ngoal: {goal}\npage: {start}\n");
+    match flag(args, "--policy") {
+        Some(path) => println!("learned under the rules in {path}\n"),
+        None => println!("learned under the shipped rules: anything that commits is held\n"),
+    }
     if let Ok(closed) = Cdp::tidy_tabs(PORT).await {
         if closed > 0 {
             println!("  leftover tabs closed: {closed}\n");
@@ -909,7 +1012,7 @@ async fn learn(args: &[String]) -> Result<()> {
     // to stop moving before deciding anything, rather than trusting that the document is loaded.
     let rounds = cdp.wait_until_stable(12_000).await.unwrap_or(0);
     println!("  the page settled after {rounds} looks\n");
-    let run = run_with_model(&mut cdp, &goal, &category, max).await?;
+    let run = run_with_model(&mut cdp, &goal, &category, max, learn_rules.clone()).await?;
     let title = cdp.title().await?;
     // The kind of page the *kept* steps end on — not wherever the wandering run stopped.
     let final_kind = run
@@ -958,9 +1061,19 @@ async fn race(args: &[String]) -> Result<()> {
     let target = flag(args, "--start").ok_or_else(|| anyhow!("--start is required"))?;
     let max: usize = flag(args, "--max-steps").and_then(|v| v.parse().ok()).unwrap_or(8);
     let category = flag(args, "--category").unwrap_or_else(|| "browser".into());
+    // The rules the replay runs under. Without one, the shipped document is used and anything that
+    // commits is held — which is the safe default and the reason a written task stops to ask.
+    let run_rules = match flag(args, "--policy") {
+        Some(p) => Some(policy::Policy::from_file(&p)?),
+        None => None,
+    };
     let mut sk = Skill::load(&path)?;
 
     println!("NEW DATA, THE SAME SKILL\n");
+    match flag(args, "--policy") {
+        Some(p) => println!("replay runs under the rules in {p}\n"),
+        None => println!("replay runs under the shipped rules: anything that commits is held\n"),
+    }
     println!("learned on: {}", sk.learned_from);
     println!("what it cost back then: {} model calls, {:.1} s", sk.learn_model_calls, sk.learn_ms as f64 / 1000.0);
     println!(
@@ -972,7 +1085,9 @@ async fn race(args: &[String]) -> Result<()> {
     slow.navigate(&target).await?;
     slow.settle(4000).await?;
     println!("THE OLD PATH — the model decides every step:");
-    let slow_run = run_with_model(&mut slow, &sk.goal, &category, max).await?;
+    // The same rules for both halves: a comparison where one side is allowed less than the other
+    // is a comparison of permissions, not of agents.
+    let slow_run = run_with_model(&mut slow, &sk.goal, &category, max, run_rules.clone()).await?;
     let slow_url = slow.current_url().await?;
     let slow_title = slow.title().await?;
     println!(
@@ -987,7 +1102,7 @@ async fn race(args: &[String]) -> Result<()> {
     fast.navigate(&target).await?;
     fast.settle(4000).await?;
     println!("\nMINT — running the remembered program:");
-    let r = run_skill(&mut fast, &mut sk, &category).await?;
+    let r = run_skill(&mut fast, &mut sk, &category, run_rules.clone()).await?;
     for n in &r.notes {
         println!("{n}");
     }
@@ -1244,12 +1359,24 @@ async fn demo(args: &[String]) -> Result<()> {
     let path = flag(args, "--skill").ok_or_else(|| anyhow!("--skill is required"))?;
     let target = flag(args, "--start").ok_or_else(|| anyhow!("--start is required"))?;
     let demo_host = skill::host_of_url(&target);
+    // The rules both halves run under, when the task names a document of its own.
+    let rules = match flag(args, "--policy") {
+        Some(p) => Some(policy::Policy::from_file(&p)?),
+        None => None,
+    };
     // Two gates, and the split is the point of the comparison. Both halves are bound by the same
     // rules — nothing here acts without being decided first — but only the compiled half records
     // what it decided, because a signed record of every step is the thing the other kind of agent
     // does not have. Giving both one log would make the count meaningless.
     let mut gate_slow = gate::Gate::new(&demo_host);
     let mut gate = gate::Gate::new(&demo_host);
+    // Both halves run under the same document. A comparison where one side is allowed less than the
+    // other compares permissions rather than agents — and the shipped rules hold anything that
+    // commits, so a task that writes needs its own document named here.
+    if let Some(rules) = &rules {
+        gate_slow.adopt_policy(rules.clone());
+        gate.adopt_policy(rules.clone());
+    }
     sign_for(&mut gate, &demo_host);
     let relay = flag(args, "--push").unwrap_or_else(|| "http://127.0.0.1:8840".into());
     let max: usize = flag(args, "--max-steps").and_then(|v| v.parse().ok()).unwrap_or(6);

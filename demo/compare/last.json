@@ -1,14 +1,14 @@
 {
   "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
   "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-  "count": 8,
+  "count": 10,
   "endorsement": null,
-  "host": "github.com",
+  "host": "www.selenium.dev",
   "policy": {
     "approvals_are_single_use": true,
-    "note": "Reads pass. Anything that commits is held until an approval bound to that exact action is presented, and released once. A step that matches no rule is refused even if an approval is offered, because an approval authorises a described action and nothing here can be described.",
+    "note": "The rules a first run is learned under, when the person who asked for the goal is the one present. The writes this task needs are taken under this document, and every decision is still written down and signed. Replaying what was learned goes back to the strict document, which holds anything that commits.",
     "on_unclassifiable": "refuse",
-    "on_write_without_approval": "hold",
+    "on_write_without_approval": "allow",
     "reads": [
       {
         "class": "read",
@@ -79,350 +79,436 @@
       }
     ]
   },
-  "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
+  "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
   "receipts": [
     {
       "body": {
         "action": {
-          "element": "a \"Pull requests 1.5k (1.5k)\"",
-          "identity": "2f8d5ac54b49b29012b8d1d2f55117fe606583ecc2b92a5c72466bd52d0574c9",
-          "key": "7b1d081427e68cc92092e18d056001ea",
+          "element": "input \"Text input\"",
+          "identity": "f98ad928be508132a25b67ff574ddf4b4a1589a503d00500906589e18d6bb94d",
+          "key": "bd3c561e4736e4bd3d8ac8b48a26ec8f",
           "observed": {
-            "action": "click",
+            "action": "type",
             "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
+            "has_href": false,
+            "role": "textbox",
+            "tag": "input"
           },
           "side_effect": "read",
           "step": 0
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793477745649,
+        "decided_at_ms": 1793480261335,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
-        "host": "github.com",
+        "host": "www.selenium.dev",
         "id": "0cd20b19fef0-0000",
         "kind": "decision",
-        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
         "prev_hash": null,
         "refers_to": null,
         "result_hash": null,
         "result_note": null,
         "seq": 0,
-        "signed_at_ms": 1793477745649,
+        "signed_at_ms": 1793480261335,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "9c02faebe59ad2cc59c2c80139c4642887d4f75b363390701aa774353f700fe2608117bc9f63fa702eba39026bc0720e176d865dcfd84e20c39c1229e9147408"
+        "value": "307df2082b0d102ad346dabd2afacd3a96c532d3dd62ad6cede73a0d3ddc47df76dc90c9f281185374946bfd7777f006b3ebd1b40547082bfea895f9ff86cd01"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"Pull requests 1.5k (1.5k)\"",
-          "identity": "2f8d5ac54b49b29012b8d1d2f55117fe606583ecc2b92a5c72466bd52d0574c9",
-          "key": "7b1d081427e68cc92092e18d056001ea",
+          "element": "input \"Text input\"",
+          "identity": "f98ad928be508132a25b67ff574ddf4b4a1589a503d00500906589e18d6bb94d",
+          "key": "bd3c561e4736e4bd3d8ac8b48a26ec8f",
           "observed": {
-            "action": "click",
+            "action": "type",
             "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
+            "has_href": false,
+            "role": "textbox",
+            "tag": "input"
           },
           "side_effect": "read",
           "step": 0
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793477745664,
+        "decided_at_ms": 1793480261337,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
-        "host": "github.com",
+        "host": "www.selenium.dev",
         "id": "0cd20b19fef0-0001",
         "kind": "outcome",
-        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "9a36ee11ad27a7d8f3b1eea9c17d7b4866cb91d2cd945061ad19467bbda802f9",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "f6a8ff3079be04dce475422b0a70d75fdfdedc06b5d5d86351af753ca97049fd",
         "refers_to": "0cd20b19fef0-0000",
         "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
         "result_note": "performed",
         "seq": 1,
-        "signed_at_ms": 1793477745664,
+        "signed_at_ms": 1793480261337,
         "spec": "mint.receipt/0.1",
         "status": "completed"
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "e14262a7a6fbb39ca66ce4f1365af601309b73a4c34f4d3b495b80bdc72ba145846a83ac41d65803f6607adc6b9506a4977f57323e5be40344781c9ba8737c00"
+        "value": "e1efe122da3fa029de0eae34d6404b763b4844e3be0ac0249c5017ed58b3f70949e3435b10d6474690b0732f80b54080766f1f27a51e1c936b8a9a7715e51606"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"Cleanup rustdoc-html tests\"",
-          "identity": "55eaf84c5a5efb1b83925f37f2758c9f71098d7d95a68f8ab82a5f8298db0bc4",
-          "key": "48bd1710fc70c9fab7d3089be8f13ccb",
+          "element": "textarea \"Textarea\"",
+          "identity": "25b0006499448ec3b070042d60cc3be6916fa2f14bfefeb3736069386b0a9544",
+          "key": "65a91b1db05594a844a5955fab559be6",
           "observed": {
-            "action": "click",
+            "action": "type",
             "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
+            "has_href": false,
+            "role": "textbox",
+            "tag": "textarea"
           },
           "side_effect": "read",
           "step": 1
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793477746219,
+        "decided_at_ms": 1793480261500,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
-        "host": "github.com",
+        "host": "www.selenium.dev",
         "id": "0cd20b19fef0-0002",
         "kind": "decision",
-        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "fe6c603b759b53a40d864d48b4714744fb81769a700815e6fe432a8ba5f6f654",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "e24fed0498a84e4db5b390af23877adbc1b75fe2ab77ee4b271da4fb05a565ef",
         "refers_to": null,
         "result_hash": null,
         "result_note": null,
         "seq": 2,
-        "signed_at_ms": 1793477746219,
+        "signed_at_ms": 1793480261500,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "abb111aaecd86de3286d9a0696e9b037672b5afd0fca08088be12385a193d2c0e9045e0be9d7b97c5abafa28ce3fac2ecf1315580631894edaeb3b4bfc2cd90c"
+        "value": "2e0e699b7eb0c18e16c1aa140c22eb464182d757a033a932222623f45452b3a2a5b0b44479382bee0ddd32bfa2b4ec26a63b89c7870d146f24098490d2b94f0d"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"Cleanup rustdoc-html tests\"",
-          "identity": "55eaf84c5a5efb1b83925f37f2758c9f71098d7d95a68f8ab82a5f8298db0bc4",
-          "key": "48bd1710fc70c9fab7d3089be8f13ccb",
+          "element": "textarea \"Textarea\"",
+          "identity": "25b0006499448ec3b070042d60cc3be6916fa2f14bfefeb3736069386b0a9544",
+          "key": "65a91b1db05594a844a5955fab559be6",
           "observed": {
-            "action": "click",
+            "action": "type",
             "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
+            "has_href": false,
+            "role": "textbox",
+            "tag": "textarea"
           },
           "side_effect": "read",
           "step": 1
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793477746310,
+        "decided_at_ms": 1793480261502,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
-        "host": "github.com",
+        "host": "www.selenium.dev",
         "id": "0cd20b19fef0-0003",
         "kind": "outcome",
-        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "606869fc0fbd4f321de9705499d191467bc22b26a5f2505d6758f89d80e01203",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "a6da4bc82dbaae6590e448142ecef68ff82dfbdef23a966eb35c56e03b1ab9d4",
         "refers_to": "0cd20b19fef0-0002",
         "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
         "result_note": "performed",
         "seq": 3,
-        "signed_at_ms": 1793477746310,
+        "signed_at_ms": 1793480261502,
         "spec": "mint.receipt/0.1",
         "status": "completed"
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "91bff3a6437d85afa459aa6f2a80209971622bb86297650ea281a4e9ffe881fffdf90c93ee487d2d5665595db290bffd43332861d84a80b0412ad212cec51900"
+        "value": "0585f5bf46c86830b2f441fc84e3476f369667536142debf11d8a0e01f302a9f48315a2836b06ad2ea787c7054ea3f6d553dd6125e4d0bcc1c7e9dc2770b5a0c"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"Commits3 (3)\"",
-          "identity": "05e459f03e854a6ad6f3a65f5acbd55f8185cf4882171b56e96385487c8e8757",
-          "key": "ecbe5b0641ed103b4af5900446510755",
+          "element": "input \"Default checkbox\"",
+          "identity": "efbda79d7c1d4cd76b629f7f12b07e996191d1663bfe627708093bf3431a3c11",
+          "key": "e2170f7bb29968e31ee09f4dbeaff6b8",
           "observed": {
             "action": "click",
             "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
+            "has_href": false,
+            "role": "checkbox",
+            "tag": "input"
           },
-          "side_effect": "read",
+          "side_effect": "write",
           "step": 2
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793477746753,
+        "decided_at_ms": 1793480261668,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
-        "host": "github.com",
+        "host": "www.selenium.dev",
         "id": "0cd20b19fef0-0004",
         "kind": "decision",
-        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "5469806cc2727a3166f4a780b7a341d3c61f79344bd6fa4d4d69bf76862d3a1c",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "1d68afb87d8ac638c03dccd25a7f8ac71e9eaaa7104a2689c506d53bb9089a9e",
         "refers_to": null,
         "result_hash": null,
         "result_note": null,
         "seq": 4,
-        "signed_at_ms": 1793477746753,
+        "signed_at_ms": 1793480261668,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "9aa22f885585a7fd2231a0c3cc6e663ca1f3c5ea0e76e2e86e3ec5f9a6e4bd4edb79c648e8f96d8d448110e4ac8a313c440c3507ab56de161312ff23c8d61f01"
+        "value": "f86a2c299dd16eaa826327175d07147bc4a12d9a6f102141837a33edfef0a69334efb9f8b1b72f06344f68d470d008efb6afd266542867f3de1e84d9492b0f00"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"Commits3 (3)\"",
-          "identity": "05e459f03e854a6ad6f3a65f5acbd55f8185cf4882171b56e96385487c8e8757",
-          "key": "ecbe5b0641ed103b4af5900446510755",
+          "element": "input \"Default checkbox\"",
+          "identity": "efbda79d7c1d4cd76b629f7f12b07e996191d1663bfe627708093bf3431a3c11",
+          "key": "e2170f7bb29968e31ee09f4dbeaff6b8",
           "observed": {
             "action": "click",
             "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
+            "has_href": false,
+            "role": "checkbox",
+            "tag": "input"
           },
-          "side_effect": "read",
+          "side_effect": "write",
           "step": 2
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793477746757,
+        "decided_at_ms": 1793480261669,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
-        "host": "github.com",
+        "host": "www.selenium.dev",
         "id": "0cd20b19fef0-0005",
         "kind": "outcome",
-        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "da1dccdfcf8f2a3c2f66f55d79a883b7e8bb4dd4069e58da8d43113bff9bd735",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "1df7378828d3e0c3a54647606da82671af54b6dcfd50d0dd58511e853f8fd1b2",
         "refers_to": "0cd20b19fef0-0004",
         "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
         "result_note": "performed",
         "seq": 5,
-        "signed_at_ms": 1793477746757,
+        "signed_at_ms": 1793480261669,
         "spec": "mint.receipt/0.1",
         "status": "completed"
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "7d5c796871aa5967175b9a412d2012e10e8047ca4923b807b7065ee35f2caab3e6b6c2e433b74691633d4284972f28a78090c8ff5ac2894e01f8b49b2cd5540b"
+        "value": "c5ed376f9cb6c6b51dd862951e78f3cab0ed8977d7262560e2214980f3f6a7ddd9961438f18a726996a98c4cb83627ba2e5fa8bfecefdfcf227dbed555195c09"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"Remove useless test\"",
-          "identity": "f6197b81be9e9580441e189fe14f5c064c850ed025e186356051c326496e815f",
-          "key": "fb96b8b972ae819c9dad91861bff3f49",
+          "element": "input \"Default radio\"",
+          "identity": "5137fd86c0389568c268300f887ee46ba2219069b3ecb14d19fc3b97d0c5279d",
+          "key": "9c3da0909c203135bac2c217d89f4f4b",
           "observed": {
             "action": "click",
             "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
+            "has_href": false,
+            "role": "radio",
+            "tag": "input"
           },
-          "side_effect": "read",
+          "side_effect": "write",
           "step": 3
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793477746997,
+        "decided_at_ms": 1793480261765,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
-        "host": "github.com",
+        "host": "www.selenium.dev",
         "id": "0cd20b19fef0-0006",
         "kind": "decision",
-        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "bc98e9f9a8b9ad5268a243fc97d575d664d0e3c42e0c77a20587c1cadc0d4f34",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "b0970254457451f11b0142c0ba6ca814283450c5b0c117a17262e395cd9cd856",
         "refers_to": null,
         "result_hash": null,
         "result_note": null,
         "seq": 6,
-        "signed_at_ms": 1793477746997,
+        "signed_at_ms": 1793480261765,
         "spec": "mint.receipt/0.1",
         "status": ""
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "e472473930208311a15872a0fdfb6cbdf16bf13ebf0b02a099171337c2dbfb28a8af05b98f28a0899f4298cf243c6ab609235b844a558a8d9880ba28ea5fc806"
+        "value": "90252a3733f73ac3b77fcd784963e2274a82eb2841ea8de6f8f6b8b5a9a585e0cac413989faa794538434975001737c3e88a244a11b09304f550a7bee584a80c"
       }
     },
     {
       "body": {
         "action": {
-          "element": "a \"Remove useless test\"",
-          "identity": "f6197b81be9e9580441e189fe14f5c064c850ed025e186356051c326496e815f",
-          "key": "fb96b8b972ae819c9dad91861bff3f49",
+          "element": "input \"Default radio\"",
+          "identity": "5137fd86c0389568c268300f887ee46ba2219069b3ecb14d19fc3b97d0c5279d",
+          "key": "9c3da0909c203135bac2c217d89f4f4b",
           "observed": {
             "action": "click",
             "approval": false,
-            "has_href": true,
-            "role": "link",
-            "tag": "a"
+            "has_href": false,
+            "role": "radio",
+            "tag": "input"
           },
-          "side_effect": "read",
+          "side_effect": "write",
           "step": 3
         },
         "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
         "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
-        "decided_at_ms": 1793477747007,
+        "decided_at_ms": 1793480261766,
         "decision": {
           "decided_by": "policy",
           "reason": "",
           "verdict": "allow"
         },
-        "host": "github.com",
+        "host": "www.selenium.dev",
         "id": "0cd20b19fef0-0007",
         "kind": "outcome",
-        "policy_hash": "a8bed408510ec43af571e8bfc9cddf2322907a892c6758db88abe8d559d2fc80",
-        "prev_hash": "aa9de0312c3a2825c8ec11fbf6bed05328734a1181e47599d40552f8438510f0",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "4288bf704123673fb0406152d0fc0f119b65f57241bdfb04af815fe907526733",
         "refers_to": "0cd20b19fef0-0006",
         "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
         "result_note": "performed",
         "seq": 7,
-        "signed_at_ms": 1793477747007,
+        "signed_at_ms": 1793480261766,
         "spec": "mint.receipt/0.1",
         "status": "completed"
       },
       "sig": {
         "alg": "ed25519",
         "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
-        "value": "597ad108856b7f58fb313ace6214586c26b3059897f338bd64cb5ed9440058400449656ba08f1263c19bfb61d67279a2d51207bcd601442c206b6547d5990702"
+        "value": "12256e92d0b4da2d42d5f1d30d9bdcdc5e5d0da8fc80e99e1cde1eeb4be5807a44a497c8c3b1eea437386d02f5e7858fecdd6e6d3c1270391bb330b4a65c5108"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "button \"Submit\"",
+          "identity": "4852781eb83814dfda4b7e31fb9747e78dbc0bd31ea60a7fcf5beb5441128390",
+          "key": "0dca0aaac1574f2949997ccefaf79854",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "button"
+          },
+          "side_effect": "write",
+          "step": 4
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793480261844,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "www.selenium.dev",
+        "id": "0cd20b19fef0-0008",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "8e73d9c63aba2af75ce5698f550ab1fd989fb3b1417390e5205c93bcb1c9b5b3",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 8,
+        "signed_at_ms": 1793480261844,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "dcec312e27f230d97646deb146cd59a831a3b5bcfb04d85e55bfa3c48897984b2e57320772310a026ce6b6b23d60bfdd223bc5e70016bedfe9c7da8973454d08"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "button \"Submit\"",
+          "identity": "4852781eb83814dfda4b7e31fb9747e78dbc0bd31ea60a7fcf5beb5441128390",
+          "key": "0dca0aaac1574f2949997ccefaf79854",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "button"
+          },
+          "side_effect": "write",
+          "step": 4
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793480261846,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "www.selenium.dev",
+        "id": "0cd20b19fef0-0009",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "59fadade1dff38715f1d49672ed4f47b73e609ab47dde48590fe2477e422207d",
+        "refers_to": "0cd20b19fef0-0008",
+        "result_hash": "8b60aa24be25bde4032a2cdb40ef87e45e7ae04eb7c2584fc9d49f44646ed022",
+        "result_note": "performed",
+        "seq": 9,
+        "signed_at_ms": 1793480261846,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "3540b2166dada5eab4a27d32f9c792efe9b80204fb3b3b29746fbc04aeb35c31e538a3268b06975bbcc72df978f2e5f81ffe28204051b8ad469b5425cc30830a"
       }
     }
   ],

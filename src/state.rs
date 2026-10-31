@@ -42,14 +42,21 @@ pub fn host_of(url: &str) -> String {
 
 /// Is this path segment an identifier — a hash, a number, a slug nobody types twice?
 fn is_id_like(seg: &str) -> bool {
-    if seg.len() >= 12 {
-        return true;
-    }
+    // A name that says what the page is — "web-form.html", "Internet_Computer", "pull-requests" —
+    // has to survive being masked. Two pages are often told apart by exactly that name, and masking
+    // it makes them look like one page, so a step that worked is thrown away as "nothing changed".
     if seg.chars().all(|c| c.is_ascii_digit()) {
+        return true; // an issue number, a page number
+    }
+    // A commit hash or a uuid: hex letters, digits and dashes, and long enough to be opaque.
+    if seg.len() >= 7 && seg.chars().all(|c| c.is_ascii_hexdigit() || c == '-') {
         return true;
     }
-    let hex = seg.chars().filter(|c| c.is_ascii_hexdigit()).count();
-    hex == seg.len() && seg.len() >= 6
+    // A long run of letters and digits with nothing separating it, with both kinds in it: opaque.
+    if !seg.contains('.') && !seg.contains('-') && !seg.contains('_') && seg.len() >= 12 {
+        return seg.chars().any(|c| c.is_ascii_digit()) && seg.chars().any(char::is_alphabetic);
+    }
+    false
 }
 
 /// The shape of where an element points.

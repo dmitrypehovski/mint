@@ -35,6 +35,7 @@ fn step_click(role: &str) -> Step {
 fn element(tag: &str, role: &str, href: &str) -> Element {
     Element {
         on: true,
+        checked: None,
         handle: "h1".into(),
         tag: tag.into(),
         role: role.into(),

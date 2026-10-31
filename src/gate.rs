@@ -231,6 +231,16 @@ pub struct Gate {
 }
 
 impl Gate {
+    /// Learn, or run, under a document other than the shipped one.
+    ///
+    /// The shipped rules hold anything that commits, which is right for replaying a skill: the run is
+    /// meant to need nobody's permission. Learning is the other way round — a person is present and
+    /// has just asked for this task by name, so the writes the task needs are taken under a document
+    /// that says so, and every decision is still written down.
+    pub fn adopt_policy(&mut self, rules: policy::Policy) {
+        self.policy = rules;
+    }
+
     pub fn new(host: &str) -> Self {
         Gate {
             policy: policy::Policy::shipped(),

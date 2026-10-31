@@ -167,7 +167,7 @@ pub fn next_step(goal: &str, url: &str, state: &[Element], trail: &[String], cat
          it sits — it is usually inside a menu that is closed. Open that menu first, or choose \
          another element: a click on it would do nothing, and the page would not change.\n\
          \nChoose ONE next step. Reply with JSON only:\n\
-         {\"idx\": <number>, \"selector\": \"<the words by which this element is recognised on a page of the same kind with different data, up to 6 words>\", \"text\": \"<if this is an input field, what to type, otherwise empty>\", \"intent\": \"<what you are doing, up to 12 words>\", \"confidence\": <0..1>}\n\
+         {\"idx\": <number>, \"selector\": \"<the words by which this element is recognised on a page of the same kind with different data, up to 6 words>\", \"text\": \"<the value to write if this step fills a field; a field left empty when the goal asks for it has not been filled, and filling one is a step like any other; otherwise empty>\", \"intent\": \"<what you are doing, up to 12 words>\", \"confidence\": <0..1>}\n\
          If the goal is already reached — {\"idx\": -1, \"intent\": \"done\", \"confidence\": 1.0}.\n\
          If no element fits — {\"idx\": -2, \"intent\": \"a different approach is needed\", \"confidence\": 0.2}.",
     );

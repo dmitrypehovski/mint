@@ -1,10 +1,79 @@
 {
-  "goal": "Fill the text input with mint, fill the textarea with compiled once and run forever, tick the Default checkbox, choose the Default radio, and press Submit so the form is accepted",
+  "goal": "Fill the text input with mint, fill the textarea with compiled once, tick the Default checkbox, choose the Default radio, and press Submit",
   "learned_from": "https://www.selenium.dev/selenium/web/web-form.html",
   "host": "www.selenium.dev",
-  "expect_final_page": "*",
-  "steps": [],
-  "learn_model_calls": 1,
-  "learn_ms": 1321,
-  "learn_declared_done": false
+  "expect_final_page": "submitted-form.html",
+  "steps": [
+    {
+      "action": {
+        "Type": {
+          "text": "mint"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "text input",
+      "ordinal": 0,
+      "seen_label": "Text input",
+      "learned_page": "web-form.html",
+      "produced_page": "web-form.html",
+      "intent": "Fill the text input with mint",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "compiled once"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "textarea",
+      "ordinal": 0,
+      "seen_label": "Textarea",
+      "learned_page": "web-form.html",
+      "produced_page": "web-form.html",
+      "intent": "fill the textarea with compiled once",
+      "confidence": 1.0
+    },
+    {
+      "action": "Click",
+      "role": "checkbox",
+      "href_kind": "",
+      "name_shape": "default checkbox",
+      "ordinal": 0,
+      "seen_label": "Default checkbox",
+      "learned_page": "web-form.html",
+      "produced_page": "web-form.html",
+      "intent": "tick the Default checkbox",
+      "confidence": 1.0
+    },
+    {
+      "action": "Click",
+      "role": "radio",
+      "href_kind": "",
+      "name_shape": "default radio",
+      "ordinal": 0,
+      "seen_label": "Default radio",
+      "learned_page": "web-form.html",
+      "produced_page": "web-form.html",
+      "intent": "choose the Default radio",
+      "confidence": 1.0
+    },
+    {
+      "action": "Click",
+      "role": "button",
+      "href_kind": "",
+      "name_shape": "submit",
+      "ordinal": 0,
+      "seen_label": "Submit",
+      "learned_page": "web-form.html",
+      "produced_page": "submitted-form.html",
+      "intent": "Press Submit button",
+      "confidence": 1.0
+    }
+  ],
+  "learn_model_calls": 6,
+  "learn_ms": 33685,
+  "learn_declared_done": true
 }

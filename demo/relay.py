@@ -108,31 +108,42 @@ LIVE_TASKS = [
 # mint half is the compiled skill for the same task, on the same page, in the same browser.
 COMPARE_TASKS = [
     {
-        # The long one, and the reason this page exists: a four-step procedure that was learned on
-        # one repository and is replayed on a different one, where every page has different data in
-        # it. Each of the four steps is a page a person would have to reach by hand.
+        # The longest one: five steps of the plainest kind of work there is. Two fields filled, a box
+        # ticked, a choice made, and the form sent — none of which changes the address until the end,
+        # which is exactly why a runtime that only counts navigation could never learn it.
         "n": 1,
+        "skill": "form-fill.skill.json",
+        "start": "https://www.selenium.dev/selenium/web/web-form.html",
+        "goal": "fill in the form: the text field and the textarea, tick the Default checkbox, choose the Default radio, and submit it",
+        "what": "Five steps of real work: two fields filled, a box ticked, a choice made, the form sent",
+        # This task writes, so replaying it needs a document that permits those writes. Under the
+        # shipped rules the same skill stops at the tick and says which action needs approving.
+        "policy": "demo/learn-policy.json",
+    },
+    {
+        # Learned on one repository, replayed on a different one, where every page has different data.
+        "n": 2,
         "skill": "gh-pr-chain.skill.json",
         "start": "https://github.com/rust-lang/rust",
         "goal": "open the first pull request's commits, then the first commit in that list",
-        "what": "Four steps: pull requests, the first pull request, its Commits tab, the first commit",
+        "what": "Four steps through a real repository: pull requests, a pull request, its Commits tab, a commit",
     },
     {
-        "n": 2,
+        "n": 3,
         "skill": "gh-issues.skill.json",
         "start": "https://github.com/tokio-rs/tokio",
         "goal": "open the issue list of this repository",
         "what": "Two steps: open the issue list of a repository the skill has never seen",
     },
     {
-        "n": 3,
+        "n": 4,
         "skill": "gh-commit.skill.json",
         "start": "https://github.com/facebook/react",
         "goal": "open the latest commit of this repository",
         "what": "Two steps: open the latest commit of a third repository",
     },
     {
-        "n": 4,
+        "n": 5,
         "skill": "gh-prs.skill.json",
         "start": "https://github.com/rust-lang/rust",
         "goal": "open the pull request list of this repository",
@@ -228,6 +239,10 @@ def compare_start(n):
         log_path = f"{out_dir}/last.json"
         cmd = [MINT, "demo", "--skill", task["skill"], "--start", task["start"],
                "--push", "http://127.0.0.1:8840", "--receipts", log_path]
+        # A task that writes is run under the document it declares, so the run is permitted and the
+        # receipts name the rules it was permitted by. Tasks that only read use the shipped ones.
+        if task.get("policy"):
+            cmd += ["--policy", task["policy"]]
         code, out, err = None, "", ""
         try:
             done = subprocess.run(cmd, cwd="/root/mint", capture_output=True, text=True, timeout=300)

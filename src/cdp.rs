@@ -34,6 +34,10 @@ pub struct Element {
     /// at nothing and then reporting that the page did not change.
     #[serde(default = "reachable_by_default")]
     pub on: bool,
+    /// For a tick-box or a radio button: whether it is set. A good part of any form is these, and a
+    /// click on one changes nothing about the address — so the state is what has to be watched.
+    #[serde(default)]
+    pub checked: Option<bool>,
 }
 
 fn reachable_by_default() -> bool {
@@ -52,7 +56,16 @@ const EXTRACT: &str = r#"(() => {
     if (t === 'input') {
       const k = (el.getAttribute('type') || 'text').toLowerCase();
       if (k === 'search') return 'searchbox';
-      if (k === 'submit' || k === 'button') return 'button';
+      if (k === 'submit' || k === 'button' || k === 'reset' || k === 'image') return 'button';
+      // A checkbox and a radio button are not text fields, and calling them one means the runtime
+      // types into them and the model cannot tell a tick-box from a box to write in — which is most of
+      // what a form is made of.
+      if (k === 'checkbox') return 'checkbox';
+      if (k === 'radio') return 'radio';
+      if (k === 'color') return 'colour';
+      if (k === 'range') return 'slider';
+      if (k === 'file') return 'file';
+      if (k === 'date' || k === 'time' || k === 'datetime-local' || k === 'month' || k === 'week') return 'date';
       return 'textbox';
     }
     if (t === 'textarea') return 'textbox';
@@ -98,6 +111,14 @@ const text = (el.innerText || el.value || el.getAttribute('aria-label') || el.ge
       name = (el.getAttribute('placeholder') || fromLabel || el.getAttribute('name') || el.getAttribute('id') || '')
         .trim().replace(/\s+/g, ' ');
     }
+    // A tick-box's value is usually the word "on", which tells nobody anything. What it is called
+    // is written on its label, so that is where the name has to come from.
+    if ((role === 'checkbox' || role === 'radio' || role === 'colour' || role === 'slider') && el.value === name) {
+      const lab = el.closest('label') ||
+        (el.id ? document.querySelector('label[for="' + CSS.escape(el.id) + '"]') : null);
+      const from = lab ? (lab.innerText || '').trim().replace(/ +/g, ' ') : '';
+      if (from) name = from;
+    }
     if (!name && !href) continue;
     const key = role + '|' + name + '|' + href;
     if (seen.has(key)) continue;
@@ -105,6 +126,7 @@ const text = (el.innerText || el.value || el.getAttribute('aria-label') || el.ge
     const id = 'j' + out.length;
     el.setAttribute('data-mint-id', id);
     out.push({ handle: id, tag: el.tagName.toLowerCase(), role: role, on: on,
+                 checked: (role === 'checkbox' || role === 'radio') ? !!el.checked : null,
                name: name.slice(0, 140), href: href.slice(0, 300) });
     if (out.length >= 250) break;
   }
@@ -371,13 +393,58 @@ impl Cdp {
              if (desc && desc.set) desc.set.call(el, {text_json}); else el.value = {text_json}; \
              el.dispatchEvent(new Event('input', {{bubbles:true}})); \
              el.dispatchEvent(new Event('change', {{bubbles:true}})); \
-             if (el.form) {{ el.form.requestSubmit ? el.form.requestSubmit() : el.form.submit(); }} \
+             // Typing into a search box submits it, because that is what pressing Enter in one does.
+             // Typing into a field of a longer form must not: a form is filled one field at a time,
+             // and submitting it on the first field makes the other fields impossible to fill — the
+             // page has already gone. Submitting is a step of its own, taken by whoever fills the form.
+             if ({search} && el.form) {{ el.form.requestSubmit ? el.form.requestSubmit() : el.form.submit(); }} \
              return 'ok'; }})()",
             handle = el.handle,
             name = serde_json::to_string(&el.name)?,
+            search = el.role == "searchbox",
             text_json = serde_json::to_string(text)?
         );
         Ok(self.eval(&js).await?.as_str() == Some("ok"))
+    }
+
+    /// What a field holds now, found the same way an action finds it.
+    ///
+    /// Filling a field changes the page's state without changing its address, so this is how the
+    /// runtime can tell "I typed into it" from "I clicked at nothing".
+    pub async fn value_of(&mut self, el: &Element) -> Result<String> {
+        let js = format!(
+            "(() => {{ \
+             let e = document.querySelector('[data-mint-id=\"{handle}\"]'); \
+             if (!e) {{ \
+               for (const c of document.querySelectorAll('input,textarea,[role=\"searchbox\"],[role=\"combobox\"]')) {{ \
+                 const n = (c.innerText || c.value || c.getAttribute('aria-label') || c.getAttribute('placeholder') || c.getAttribute('title') || c.getAttribute('name') || c.getAttribute('id') || '').trim().replace(/\\s+/g, ' '); \
+                 if (n === {name}) {{ e = c; break; }} \
+               }} \
+             }} \
+             if (!e) return ''; \
+             return (e.value !== undefined ? e.value : (e.innerText || '')); }})()",
+            handle = el.handle,
+            name = serde_json::to_string(&el.name)?,
+        );
+        Ok(self.eval(&js).await?.as_str().unwrap_or("").to_string())
+    }
+
+    /// Whether a tick-box is set now, found the same way an action finds it.
+    pub async fn checked_of(&mut self, el: &Element) -> Result<Option<bool>> {
+        let js = format!(
+            "(() => {{ \
+             let e = document.querySelector('[data-mint-id=\"{handle}\"]'); \
+             if (!e) {{ \
+               for (const c of document.querySelectorAll('input')) {{ \
+                 const n = (c.value || c.getAttribute('aria-label') || c.getAttribute('name') || c.getAttribute('id') || '').trim(); \
+                 if (n === {name}) {{ e = c; break; }} \
+               }} \
+             }} \
+             if (!e || e.checked === undefined) return null; return e.checked; }})()",
+            handle = el.handle,
+            name = serde_json::to_string(&el.name)?,
+        );
+        Ok(self.eval(&js).await.ok().and_then(|v| v.as_bool()))
     }
 
     /// Wait until the address actually changes.
