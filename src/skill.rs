@@ -37,6 +37,11 @@ pub struct Step {
     /// The page it produced.
     pub produced_page: String,
     pub intent: String,
+    /// The command this step runs, on the surface where a step is a command rather than a click.
+    /// Absent for a browser step, which is why it is optional rather than a second kind of step: the
+    /// shape of a step is the same on both surfaces, and only what it acts with differs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cmd: Option<String>,
     pub confidence: f32,
 }
 
@@ -109,6 +114,7 @@ pub fn ordinal_of(screen: &[Element], el: &Element) -> usize {
 pub fn step_from(el: &Element, action: Action, intent: &str, confidence: f32) -> Step {
     let (hk, ns) = describe(el);
     Step {
+        cmd: None,
         action,
         role: el.role.clone(),
         href_kind: hk,

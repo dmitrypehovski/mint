@@ -108,9 +108,9 @@ LIVE_TASKS = [
 # mint half is the compiled skill for the same task, on the same page, in the same browser.
 COMPARE_TASKS = [
     {
-        # The longest one: five steps of the plainest kind of work there is. Two fields filled, a box
-        # ticked, a choice made, and the form sent — none of which changes the address until the end,
-        # which is exactly why a runtime that only counts navigation could never learn it.
+        # Five steps of the plainest kind of work there is: two fields filled, a box ticked, a choice
+        # made, and the form sent — none of which changes the address until the end, which is exactly
+        # why a runtime that only counts navigation could never learn it.
         "n": 1,
         "skill": "form-fill.skill.json",
         "start": "https://www.selenium.dev/selenium/web/web-form.html",
@@ -243,6 +243,10 @@ def compare_start(n):
         # receipts name the rules it was permitted by. Tasks that only read use the shipped ones.
         if task.get("policy"):
             cmd += ["--policy", task["policy"]]
+        # A task of fifty steps needs a ceiling that allows fifty, or the ordinary half is stopped by
+        # the harness rather than by the task.
+        if task.get("max_steps"):
+            cmd += ["--max-steps", str(task["max_steps"])]
         code, out, err = None, "", ""
         try:
             done = subprocess.run(cmd, cwd="/root/mint", capture_output=True, text=True, timeout=300)
@@ -764,6 +768,78 @@ setInterval(tick,300); tick();
 """
 
 
+
+# ---------------------------------------------------------------------------------------------
+# A long task of the plainest kind: fifty fields and a send button.
+#
+# It lives here rather than on somebody else's site so that a demonstration is the same task on every
+# day, and it is a real form: the values are received and counted, so "the form was sent" is not a
+# claim about a screenshot. Fifty is not a big number for a person and it is fifty decisions for an
+# agent that decides every step with a model — which is the point of putting it on this page.
+FIELD_COUNT = 50
+
+
+def fieldwork_page():
+    fields = "\n".join(
+        '    <label for="f%02d">Field %02d</label>\n'
+        '    <input id="f%02d" name="f%02d" type="text" autocomplete="off">' % (i, i, i, i)
+        for i in range(1, FIELD_COUNT + 1)
+    )
+    return """<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fieldwork — a long form</title>
+<style>
+  body { font: 15px/1.5 system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; padding: 24px 18px 60px;
+         background: #f7f7fa; color: #16161d; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  p.sub { color: #5c5c6b; margin: 0 0 18px; max-width: 62ch; }
+  form { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px 16px;
+         max-width: 1100px; }
+  label { display: block; font-size: 12px; color: #5c5c6b; margin-bottom: 3px; }
+  input { width: 100%%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #cfcfda;
+          border-radius: 7px; font: inherit; background: #fff; }
+  button { grid-column: 1 / -1; margin-top: 8px; padding: 11px 18px; border: 0; border-radius: 8px;
+           background: #16161d; color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  .note { max-width: 62ch; color: #5c5c6b; font-size: 13px; margin-top: 22px; }
+</style></head><body>
+<h1>Fieldwork</h1>
+<p class="sub">Fifty fields, one send button. The rule for this task: each field is filled with the
+text of its own label — Field 01 with "Field 01", and so on — and then the form is sent.</p>
+<form method="post" action="/fieldwork/submit">
+%s
+  <button type="submit">Send</button>
+</form>
+<p class="note">Nothing here is stored. The values are counted and echoed back so that a run can be
+checked against what it claims to have done.</p>
+</body></html>""" % fields
+
+
+def fieldwork_received(body):
+    """Count what arrived and echo it. A form that says 'thanks' tells a run nothing; this says how
+    many values arrived and what they were, which is what a goal check can be held to."""
+    from urllib.parse import parse_qs
+    try:
+        values = parse_qs(body.decode("utf-8", "replace"), keep_blank_values=True)
+    except Exception:
+        values = {}
+    filled = {k: v[0] for k, v in values.items() if k.startswith("f") and v and v[0].strip()}
+    ordered = sorted(filled.items())
+    right = sum(1 for k, v in ordered if v.strip() == "Field " + k[1:])
+    rows = "\n".join("    <li>%s = %s</li>" % (k, v) for k, v in ordered)
+    return """<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Fieldwork — received</title>
+<style>body { font: 15px/1.5 system-ui, sans-serif; margin: 0; padding: 24px 18px 60px; background: #f7f7fa; }
+h1 { font-size: 20px; } ul { columns: 3; max-width: 1000px; font-size: 13px; color: #3b3b48; }</style>
+</head><body>
+<h1>Received %d values, %d of them matching their own label.</h1>
+<p>Out of %d fields.</p>
+<ul>
+%s
+</ul>
+</body></html>""" % (len(ordered), right, FIELD_COUNT, rows)
+
+
 class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
@@ -903,6 +979,8 @@ class Handler(BaseHTTPRequestHandler):
                            "text/css; charset=utf-8")
             except FileNotFoundError:
                 self._send(404, b"no stylesheet", "text/plain")
+        elif self.path.split("?")[0] == "/fieldwork":
+            self._send(200, fieldwork_page().encode("utf-8"), "text/html; charset=utf-8")
         elif self.path.split("?")[0].startswith("/demos"):
             slug = self.path.split("?")[0][len("/demos"):].strip("/")
             name = DEMO_PAGES.get(slug)
@@ -976,6 +1054,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers.get("Content-Length") or 0)
         raw = self.rfile.read(length) if length else b"{}"
+        if self.path.startswith("/fieldwork/submit"):
+            self._send(200, fieldwork_received(raw).encode("utf-8"), "text/html; charset=utf-8")
+            return
         try:
             payload = json.loads(raw or b"{}")
         except json.JSONDecodeError:

@@ -336,7 +336,14 @@ impl Gate {
         let authorised = approval
             .map(|a| a == approval_for(&identity))
             .unwrap_or(false);
-        let observed = observe(&step.action, el, authorised);
+        // Which reading of the action applies is the surface's to say. A page's element is read from
+        // its role and where it points; a shell command is read from what the command does to the
+        // files it names. The rules are the same document either way — that is the whole claim.
+        let observed = if el.tag == "command" {
+            crate::shell::observed(step.cmd.as_deref().unwrap_or(""), authorised)
+        } else {
+            observe(&step.action, el, authorised)
+        };
         let ruling = policy::ruling(&observed, &self.policy);
         let class = SideEffect::from_str(&ruling.class);
 

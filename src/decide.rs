@@ -162,6 +162,26 @@ pub fn next_step(goal: &str, url: &str, state: &[Element], trail: &[String], cat
             prompt.push_str(&format!("- {t}\n"));
         }
     }
+    // How much of the work is already done, counted from the state itself. A model has no memory
+    // between steps but the trail, and the trail is six steps long — so over a form of fifty fields
+    // it loses count, and the failure is quiet and plausible: it presses Send after ten of them and
+    // calls the task finished. The count is given to it rather than left to its arithmetic.
+    let fields: Vec<&Element> = state
+        .iter()
+        .filter(|e| e.role == "textbox" || e.role == "searchbox")
+        .collect();
+    if !fields.is_empty() {
+        let empty = fields
+            .iter()
+            .filter(|e| e.value.as_deref().map(|v| v.trim().is_empty()).unwrap_or(true))
+            .count();
+        prompt.push_str(&format!(
+            "\n{} of the {} fields on this page are still empty. Fill the empty ones. A step that \
+             submits or sends is the right step only when nothing the goal asks for is left empty.\n",
+            empty,
+            fields.len()
+        ));
+    }
     prompt.push_str(
         "\nAn element marked [not reachable here] is in the page but cannot be clicked from where \
          it sits — it is usually inside a menu that is closed. Open that menu first, or choose \
@@ -198,6 +218,63 @@ pub fn next_step(goal: &str, url: &str, state: &[Element], trail: &[String], cat
     })
 }
 
+/// Ask for one next command, on a surface where a step is a shell command rather than a click.
+///
+/// The reply has the same shape as a browser decision — which thing to act on, what to do to it, the
+/// words it would be recognised by next time — because it is the same decision being made about a
+/// different kind of thing. The command rides in `text`, the field a browser step uses for the value
+/// to type: one field, two surfaces, and no second decision format to keep in step.
+pub fn next_command(goal: &str, dir: &str, state: &[Element], trail: &[String]) -> Result<Decision> {
+    let started = Instant::now();
+    let mut prompt = String::new();
+    prompt.push_str(&format!(
+        "You are working in one directory on a machine, with a shell. Goal: {goal}\n\
+         The directory is: {dir}\n\nWhat is in it:\n{}\n",
+        as_table(state)
+    ));
+    if !trail.is_empty() {
+        prompt.push_str("\nWhat has already been done:\n");
+        for t in trail.iter().rev().take(6).rev() {
+            prompt.push_str(&format!("- {t}\n"));
+        }
+    }
+    prompt.push_str(
+        "\nChoose ONE next step: the entry it acts on, and the shell command to run. The command runs \
+         from that directory, so name files by their name alone. One step is one command — do not \
+         combine several into one line. Reply with JSON only:\n\
+         {\"idx\": <number of the entry>, \"cmd\": \"<one shell command>\", \"selector\": \"<the words by which this entry would be recognised among files of the same kind, up to 6 words>\", \"intent\": \"<what you are doing, up to 12 words>\", \"confidence\": <0..1>}\n\
+         If the goal is already reached — {\"idx\": -1, \"intent\": \"done\", \"confidence\": 1.0}.\n\
+         If no entry fits — {\"idx\": -2, \"intent\": \"a different approach is needed\", \"confidence\": 0.2}.",
+    );
+
+    let content = ask(&prompt, 300)?;
+    let latency_us = started.elapsed().as_micros() as u64;
+    let cleaned = extract_object(&content)
+        .ok_or_else(|| anyhow!("reply was not an object: {}", &content[..content.len().min(120)]))?;
+    let parsed: Value = serde_json::from_str(&cleaned)?;
+    let raw_idx = parsed
+        .get("idx")
+        .and_then(Value::as_i64)
+        .ok_or_else(|| anyhow!("reply has no idx"))?;
+    let idx = match raw_idx {
+        -1 | -2 => None,
+        n if n >= 0 && (n as usize) < state.len() => Some(n as usize),
+        other => return Err(anyhow!("chose an entry that is not in the directory: {other}")),
+    };
+    Ok(Decision {
+        idx,
+        intent: parsed.get("intent").and_then(Value::as_str).unwrap_or("").to_string(),
+        selector: parsed.get("selector").and_then(Value::as_str).unwrap_or("").to_string(),
+        text: parsed
+            .get("cmd")
+            .and_then(Value::as_str)
+            .map(|s| s.to_string())
+            .filter(|s| !s.trim().is_empty()),
+        confidence: parsed.get("confidence").and_then(Value::as_f64).unwrap_or(0.5) as f32,
+        latency_us,
+    })
+}
+
 fn extract_object(s: &str) -> Option<String> {
     let start = s.find('{')?;
     let mut depth = 0i32;
@@ -222,11 +299,20 @@ fn extract_object(s: &str) -> Option<String> {
 /// nothing.
 pub fn judge_success(goal: &str, url: &str, title: &str, text: &str) -> Result<(bool, String)> {
     let excerpt: String = text.split_whitespace().collect::<Vec<_>>().join(" ");
-    let excerpt: String = excerpt.chars().take(600).collect();
+    // How much of the finished state the check is shown. This was 600 characters, which is enough
+    // for a page's visible text and not nearly enough for a directory of fifty sorted files: the
+    // check was reading a truncated listing and failing work that was in fact correct, twice, with
+    // confident and specific reasons. A check that cannot see the work cannot judge it.
+    let excerpt: String = excerpt.chars().take(4000).collect();
     let prompt = format!(
         "The task that was set: {goal}\n\nWhere we ended up:\naddress: {url}\ntitle: {title}\n\
          what is visible on the page: {excerpt}\n\nWas the task reached? Reply with JSON only:\
-         {{\"success\": true or false, \"why\": \"<up to 15 words>\"}}"
+         {{\"success\": true or false, \"why\": \"<up to 15 words>\"}}\n\
+         Judge only what the task as written asks for. Do not add requirements it does not state — \
+         evenness, tidiness, an extra check, a particular arrangement. If you answer false, you must \
+         name in \"why\" one concrete item that is in the wrong place, exactly as it appears above; if \
+         you cannot name one, then answer true. A verdict that fails correct work is worse than a \
+         verdict that misses a fault, because it throws away work that was done."
     );
     let content = ask(&prompt, 120)?;
     let cleaned = extract_object(&content).ok_or_else(|| anyhow!("verdict was not an object"))?;

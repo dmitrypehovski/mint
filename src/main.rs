@@ -9,7 +9,7 @@
 //! the runtime asks for that one step, checks itself again, and writes the correction back
 //! into the skill: one mistake costs one question, never a broken run.
 
-use mint::{decide, endorse, gate, policy, receipt, skill, state};
+use mint::{decide, endorse, gate, policy, receipt, shell, skill, state};
 
 use anyhow::{anyhow, Result};
 use mint::cdp::{Cdp, Element};
@@ -43,6 +43,8 @@ async fn main() -> Result<()> {
         "gate-demo" => gate_demo(&args).await,
         "live" => live(&args).await,
         "receipts" => receipts_cmd(&args),
+        "dir-learn" => dir_learn(&args).await,
+        "dir-run" => dir_run(&args).await,
         "endorse" => endorse_cmd(&args),
         "rules" => rules_cmd(&args),
         _ => {
@@ -57,6 +59,11 @@ async fn probe(url: String) -> Result<()> {
     let nav_us = cdp.navigate(&url).await?;
     let t = Instant::now();
     let (els, here) = cdp.state().await?;
+    // MINT_DEBUG_STATE=2 prints exactly what the model is given, which is the only way
+    // to tell a model that cannot see its own work from one that sees it and ignores it.
+    if std::env::var("MINT_DEBUG_STATE").as_deref() == Ok("2") {
+        println!("  [state as the model reads it]\n{}", state::as_table(&els));
+    }
     let state_us = t.elapsed().as_micros() as u64;
     let payload = serde_json::to_string(&els)?.len();
     let (naive_bytes, naive_nodes) = cdp.naive_payload().await?;
@@ -316,6 +323,232 @@ fn endorse_cmd(args: &[String]) -> Result<()> {
 ///
 /// The second half matters more than the first. A verifier that has only ever been run on honest
 /// input has not been shown to verify anything at all.
+// ── the directory surface ────────────────────────────────────────────────────────────────────────
+//
+// The same runtime pointed at a directory instead of a page. The browser came first because it is the
+// hardest surface — the page redraws under you, the contents change, nothing is versioned. Nothing in
+// the middle knows the difference: the decision, the gate, the rules and the receipts are the same
+// objects, and a document written for a page governs a folder, because it never knew what a page was.
+
+/// Learn a task that is a sequence of commands in one directory.
+async fn dir_learn(args: &[String]) -> Result<()> {
+    let dir = flag(args, "--dir").ok_or_else(|| anyhow!("--dir is required"))?;
+    let goal = flag(args, "--goal").ok_or_else(|| anyhow!("--goal is required"))?;
+    let out = flag(args, "--skill").unwrap_or_else(|| "dir.skill.json".into());
+    let max: usize = flag(args, "--max-steps").and_then(|v| v.parse().ok()).unwrap_or(20);
+    let rules = match flag(args, "--policy") {
+        Some(p) => Some(policy::Policy::from_file(&p)?),
+        None => None,
+    };
+    let sh = shell::Shell::new(&dir)?;
+    let host = format!("dir:{dir}");
+    let mut gate = gate::Gate::new(&host);
+    if let Some(r) = rules {
+        gate.adopt_policy(r);
+    }
+    sign_for(&mut gate, &host);
+
+    println!("FIRST RUN IN A DIRECTORY — the model decides every command\n");
+    println!("directory: {dir}\ngoal: {goal}");
+    match flag(args, "--policy") {
+        Some(p) => println!("learned under the rules in {p}\n"),
+        None => println!("learned under the shipped rules: anything that changes files is held\n"),
+    }
+
+    let started = Instant::now();
+    let mut calls = 0u32;
+    let mut misses = 0u32;
+    let mut trail: Vec<String> = Vec::new();
+    let mut steps: Vec<Step> = Vec::new();
+    let mut declared_done = false;
+    let mut expect_final = sh.kind()?;
+
+    for round in 0..max {
+        let entries = sh.entries()?;
+        let here = sh.kind()?;
+        let d = match decide::next_command(&goal, &dir, &entries, &trail) {
+            Ok(d) => d,
+            Err(e) => {
+                println!("  the model's answer could not be acted on: {e}");
+                calls += 1;
+                misses += 1;
+                if misses >= 2 {
+                    println!("  two answers in a row could not be acted on — stopping");
+                    break;
+                }
+                continue;
+            }
+        };
+        calls += 1;
+        let Some(idx) = d.idx else {
+            let (ok, why) = decide::judge_success(&goal, &dir, "directory", &sh.listing()?)?;
+            declared_done = ok;
+            println!("   model: goal reached ({})", d.intent);
+            println!("  goal check: {} — {why}", if ok { "reached" } else { "NOT reached" });
+            break;
+        };
+        let el = entries[idx].clone();
+        let Some(cmd) = d.text.clone() else {
+            println!("  no command came with that step — telling the model and going on");
+            misses += 1;
+            if misses >= 2 {
+                println!("  two steps in a row without a command — stopping");
+                break;
+            }
+            continue;
+        };
+        misses = 0;
+
+        let mut step = skill::step_from(&el, Action::Click, &d.intent, d.confidence);
+        step.cmd = Some(cmd.clone());
+        step.learned_page = here.clone();
+
+        // The decision is written before anything runs, on this surface as much as on a page.
+        let (verdict, key) = gate.decide(&step, steps.len(), &el, None);
+        if !verdict.performed() {
+            println!("  the gate did not allow this step: {} — {}", verdict.as_str(), verdict.reason());
+            break;
+        }
+        let (ran, output) = sh.run(&cmd)?;
+        let after = sh.kind()?;
+        let moved = after != here;
+        step.produced_page = after.clone();
+        gate.record_outcome(
+            &key,
+            ran && moved,
+            if ran && moved {
+                "the directory changed"
+            } else if ran {
+                "the command ran and changed nothing"
+            } else {
+                "the command failed"
+            },
+        );
+
+        if ran && moved {
+            println!("  step {}: {} 「{}」 — {}", steps.len() + 1, el.role, el.name, cmd);
+            println!("    moved — the directory changed: {}", first_line(&output, &cmd));
+            expect_final = after.clone();
+            trail.push(format!("{cmd} — {output}"));
+            steps.push(step);
+        } else if ran {
+            println!("  step {}: {} 「{}」 — {cmd}", steps.len() + 1, el.role, el.name);
+            println!("    nothing changed in the directory — not counted as a step");
+            trail.push(format!("{cmd} — changed nothing"));
+        } else {
+            println!("  step {}: {} 「{}」 — {cmd}", steps.len() + 1, el.role, el.name);
+            println!("    the command failed: {output}");
+            trail.push(format!("{cmd} — failed: {output}"));
+        }
+    }
+
+    let sk = Skill {
+        goal: goal.clone(),
+        learned_from: host.clone(),
+        host: host.clone(),
+        expect_final_page: expect_final,
+        steps,
+        learn_model_calls: calls,
+        learn_ms: started.elapsed().as_millis() as u64,
+        learn_declared_done: declared_done,
+    };
+    sk.save(&out)?;
+    println!("\n  result: {} steps, {calls} model calls, {:.1} s", sk.steps.len(), sk.learn_ms as f64 / 1000.0);
+    if !declared_done {
+        println!("  WARNING: this skill is marked unverified — do not present its success as proven");
+    }
+    println!("  the experience is written down as a program: {out}");
+    receipt_summary(&gate, flag(args, "--receipts").as_deref(), 0);
+    Ok(())
+}
+
+/// Replay a learned directory task: the recorded commands, no model at all.
+async fn dir_run(args: &[String]) -> Result<()> {
+    let path = flag(args, "--skill").ok_or_else(|| anyhow!("--skill is required"))?;
+    let dir = flag(args, "--dir").ok_or_else(|| anyhow!("--dir is required"))?;
+    let rules = match flag(args, "--policy") {
+        Some(p) => Some(policy::Policy::from_file(&p)?),
+        None => None,
+    };
+    let sh = shell::Shell::new(&dir)?;
+    let host = format!("dir:{dir}");
+    let mut gate = gate::Gate::new(&host);
+    if let Some(r) = rules {
+        gate.adopt_policy(r);
+    }
+    sign_for(&mut gate, &host);
+    let sk = Skill::load(&path)?;
+
+    println!("REPLAY — the recorded commands, and no model\n");
+    println!("learned in: {}", sk.learned_from);
+    println!("what it cost back then: {} model calls, {:.1} s", sk.learn_model_calls, sk.learn_ms as f64 / 1000.0);
+    println!("the goal check confirmed success: {}\n", if sk.learn_declared_done { "yes" } else { "NO — the skill is unverified" });
+
+    let started = Instant::now();
+    let mut done = 0usize;
+    for (i, step) in sk.steps.iter().enumerate() {
+        let entries = sh.entries()?;
+        let here = sh.kind()?;
+        // The entry the step means, found by its shape — the same reading as on a page, and the reason
+        // a skill learned in one directory works in another one whose files are named differently.
+        let found = match entries.iter().find(|e| e.name == step.seen_label) {
+            Some(e) => Some(e.clone()),
+            None => entries
+                .iter()
+                .find(|e| {
+                    // Nothing with that exact name: match by the shape of the name instead, which is
+                    // how a skill learned in one directory fits another whose files are named
+                    // differently — the same reading as a page whose data has changed.
+                    let (_, shape) = skill::describe(e);
+                    shape == step.name_shape && e.role == step.role
+                })
+                .cloned(),
+        };
+        let Some(el) = found else {
+            println!("  step {}: nothing in the directory matches — the skill does not fit here", i + 1);
+            break;
+        };
+        let Some(cmd) = step.cmd.clone() else {
+            println!("  step {}: no command recorded — this is not a directory skill", i + 1);
+            break;
+        };
+        let (verdict, key) = gate.decide(step, i, &el, None);
+        if !verdict.performed() {
+            println!("  step {}: the gate held it — {}: {}", i + 1, verdict.as_str(), verdict.reason());
+            println!("    this is where a skill that changes files stops to be approved, which is the");
+            println!("    point of having a gate; nothing was run.");
+            break;
+        }
+        let t = Instant::now();
+        let (ran, output) = sh.run(&cmd)?;
+        let after = sh.kind()?;
+        let moved = after != here;
+        gate.record_outcome(&key, ran && moved, if ran && moved { "the directory changed" } else { "no change" });
+        println!(
+            "  step {}: {} — {}  ({} µs of decision)",
+            i + 1,
+            cmd,
+            if ran && moved { "moved" } else { "no change" },
+            t.elapsed().as_micros()
+        );
+        if !output.is_empty() && !ran {
+            println!("    {output}");
+        }
+        if ran && moved {
+            done += 1;
+        }
+    }
+    println!("\n  {} steps replayed, 0 model calls, {:.2} s", done, started.elapsed().as_secs_f64());
+    println!("  landed on: {}", sh.kind()?);
+    receipt_summary(&gate, flag(args, "--receipts").as_deref(), 2);
+    Ok(())
+}
+
+fn first_line(output: &str, fallback: &str) -> String {
+    let l = output.lines().next().unwrap_or("").trim();
+    if l.is_empty() { fallback.to_string() } else { l.chars().take(60).collect() }
+}
+
 fn receipts_cmd(args: &[String]) -> Result<()> {
     let path = flag(args, "--in").ok_or_else(|| anyhow!("--in is required"))?;
     let doc: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&path)?)?;
@@ -619,6 +852,11 @@ async fn run_with_model(
             println!("  [debug] iteration {} of {max_steps}, {} steps kept", round + 1, trail.len());
         }
         let (els, here) = cdp.state().await?;
+        // MINT_DEBUG_STATE=2 prints what the model is given, which is the only way to tell a model
+        // that cannot see its own work from one that sees it and ignores it.
+        if std::env::var("MINT_DEBUG_STATE").as_deref() == Ok("2") {
+            println!("  [state as the model reads it]\n{}", state::as_table(&els));
+        }
         if std::env::var("MINT_DEBUG_STATE").is_ok() {
             println!("  [debug] {} elements on {}", els.len(), here);
         }
@@ -626,8 +864,17 @@ async fn run_with_model(
         let d = match decide::next_step(goal, &here, &els, &log, category) {
             Ok(d) => d,
             Err(e) => {
-                println!("  no decision came back: {e}");
-                break;
+                // A reply that cannot be acted on is a step that did not happen, not the end of the
+                // run. Over fifty steps a model gets one wrong, and throwing away the other
+                // forty-nine because of it is how a long task is made impossible to learn.
+                println!("  the model's answer could not be acted on: {e}");
+                calls += 1;
+                misses += 1;
+                if misses >= 2 {
+                    println!("  two answers in a row could not be acted on — stopping");
+                    break;
+                }
+                continue;
             }
         };
         calls += 1;
@@ -712,7 +959,17 @@ async fn run_with_model(
             continue;
         }
         misses = 0;
-        let moved = cdp.wait_for_url_change(&here, 6000).await.unwrap_or_default();
+        // How long to wait for the address to move depends on whether this action could move it.
+        // Typing cannot, and waiting the full six seconds anyway is what made one field cost six
+        // seconds: over fifty fields that is five minutes spent watching an address that was never
+        // going to change. Whether a fill worked is checked against the field, not the address.
+        let could_move = matches!(step.action, Action::Click)
+            && el.role != "checkbox"
+            && el.role != "radio";
+        let moved = cdp
+            .wait_for_url_change(&here, if could_move { 6000 } else { 700 })
+            .await
+            .unwrap_or_default();
         step.produced_page = state::page_kind(&moved);
         if std::env::var("MINT_DEBUG_STATE").is_ok() {
             println!(
@@ -1394,14 +1651,24 @@ async fn demo(args: &[String]) -> Result<()> {
     let slow_started = Instant::now();
     let mut log: Vec<String> = Vec::new();
     let mut n = 0usize;
+    // An answer this half cannot act on is a step it did not take, not the end of its run. Ending
+    // there would report the comparison as a task the ordinary agent could not do at all, which
+    // would be the harness's fault rather than the agent's — and over fifty steps a model will get
+    // one wrong. Five is the ceiling: past that it is not bad luck.
+    let mut unusable = 0u32;
     println!("\nORDINARY AGENT");
     for _ in 0..max {
         let (els, here) = slow.state().await?;
         let d = match decide::next_step(&goal, &here, &els, &log, &category) {
             Ok(d) => d,
             Err(e) => {
-                println!("  no decision came back: {e}");
-                break;
+                println!("  the model's answer could not be acted on: {e}");
+                unusable += 1;
+                if unusable >= 5 {
+                    println!("  five answers that could not be acted on — stopping");
+                    break;
+                }
+                continue;
             }
         };
         let Some(idx) = d.idx else {

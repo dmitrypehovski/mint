@@ -38,6 +38,13 @@ pub struct Element {
     /// click on one changes nothing about the address — so the state is what has to be watched.
     #[serde(default)]
     pub checked: Option<bool>,
+    /// What a field holds right now, when it is the kind of field that holds anything.
+    ///
+    /// Without this a model cannot tell a field it has already filled from one it has not. The trail
+    /// remembers the last few steps and nothing else remembers anything, so a form of fifty fields
+    /// gets filled in circles — which is exactly what happened the first time this was tried.
+    #[serde(default)]
+    pub value: Option<String>,
 }
 
 fn reachable_by_default() -> bool {
@@ -78,12 +85,19 @@ const EXTRACT: &str = r#"(() => {
     if (r.width < 1 || r.height < 1) continue;
     const st = getComputedStyle(el);
     if (st.visibility === 'hidden' || st.display === 'none' || st.opacity === '0') continue;
-    // Reachable means: inside the viewport, and the element a click at its centre would actually
-// land on. One that fails this is marked rather than hidden, so the model can see it exists and
-// still choose something else.
+    // Reachable means a person could get to it: it has a size, nothing above it in the page has
+// hidden it, and — when it is on screen right now — a click at its centre would land on it rather
+// than on something lying over it. It does NOT mean "inside the viewport". A person scrolls, and
+// this runtime scrolls an element into view before it clicks, so a field below the fold is
+// reachable; calling it unreachable is what makes a long form impossible, because the model is told
+// the remaining fields cannot be clicked and stops with forty-six of fifty filled.
 const inView = r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth;
-let on = inView;
-if (inView) {
+let on = true;
+for (let p = el; p && p !== document.documentElement; p = p.parentElement) {
+  const ps = getComputedStyle(p);
+  if (ps.display === 'none' || ps.visibility === 'hidden' || ps.opacity === '0') { on = false; break; }
+}
+if (on && inView) {
   const hit = document.elementFromPoint(Math.round(r.left + r.width / 2),
                                           Math.round(r.top + r.height / 2));
   on = !!hit && (hit === el || el.contains(hit) || hit.contains(el));
@@ -127,6 +141,9 @@ const text = (el.innerText || el.value || el.getAttribute('aria-label') || el.ge
     el.setAttribute('data-mint-id', id);
     out.push({ handle: id, tag: el.tagName.toLowerCase(), role: role, on: on,
                  checked: (role === 'checkbox' || role === 'radio') ? !!el.checked : null,
+                 value: (role === 'textbox' || role === 'searchbox')
+                     ? String(el.value === undefined || el.value === null ? '' : el.value).slice(0, 60)
+                     : null,
                name: name.slice(0, 140), href: href.slice(0, 300) });
     if (out.length >= 250) break;
   }

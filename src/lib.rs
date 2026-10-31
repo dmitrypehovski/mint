@@ -46,5 +46,6 @@ pub mod endorse;
 pub mod gate;
 pub mod policy;
 pub mod receipt;
+pub mod shell;
 pub mod skill;
 pub mod state;

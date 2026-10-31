@@ -162,7 +162,21 @@ pub fn as_table(els: &[Element]) -> String {
         // Marked, not hidden: an element that exists but cannot be reached is a fact about the
         // page, and the model does better knowing it than wondering why a click did nothing.
         let reach = if e.on { "" } else { " [not reachable here]" };
-        s.push_str(&format!("{}: {} \"{}\"{}{}\n", i, e.role, e.name, where_to, reach));
+        // What the field already holds, and whether a box is ticked. A form is filled once, and a
+        // model that cannot see its own work fills it in circles: this is the whole reason a long
+        // form is possible at all.
+        let holds = match (&e.value, e.checked) {
+            (Some(v), _) if !v.is_empty() => {
+                format!(" [= {}]", v.chars().take(40).collect::<String>())
+            }
+            (_, Some(true)) => " [ticked]".to_string(),
+            (_, Some(false)) => " [not ticked]".to_string(),
+            _ => String::new(),
+        };
+        s.push_str(&format!(
+            "{}: {} \"{}\"{}{}{}\n",
+            i, e.role, e.name, where_to, reach, holds
+        ));
     }
     s
 }
