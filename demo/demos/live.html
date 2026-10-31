@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mint — run it yourself, now</title>
+<meta name="description" content="Start a real task and watch the runtime do it in a real browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/demos.css">
+</head><body>
+<header><nav>
+  <b><a href="/site" style="color:inherit">mint</a></b>
+  <a href="/demos" style="font-weight:600;color:var(--ink)">Demos</a>
+  <a href="/site#watch">Watch</a>
+  <a href="/site#proof">Proof</a>
+  <a href="/site#not">Why not an agent</a>
+  <a href="/site#surfaces">Surfaces</a>
+  <a href="/site#arli">ARLI</a>
+  <a href="/site#receipts">Receipts</a>
+  <a href="/site#use">Take it</a>
+  <a href="/site#tested">Tested</a>
+  <a href="/site#all">Applications</a>
+  <a href="/site#speed">What speed unlocks</a>
+  <a href="/site#evidence">Evidence</a>
+  <a href="/site#unproven">Not proven</a>
+  <a class="live" href="/live">Live run →</a>
+</nav></header>
+<div class="wrap">
+<div class="demohead">
+  <div class="eyebrow">demonstration 9 · live, on demand</div>
+  <h1>Press a button. It goes and does the thing.</h1>
+  <p class="lede">The other demonstrations show what the machinery decides. This one does not decide anything: it opens a real browser, goes to a real page, and works — while you watch. The frames below are the browser as it moves, the steps are what it did, and the receipts at the end are what it can prove.</p>
+
+  <a class="back" href="/demos">&larr; all demonstrations</a>
+</div>
+<h2 class="dh">Pick a task</h2>
+<p class="why">Each of these is a skill the runtime learned once and still has. The first three run on
+repositories it has never seen — the same skill, learned on one project, executing on another. The last
+two are on our own page: one reads it, one tries to submit a form and gets stopped.</p>
+<div class="try">
+  <div class="tryrow livetask" data-task="1">
+    <div><div class="el">Open the latest commit — on a repository the skill has never seen</div><div class="ob">https://github.com/facebook/react · 0 model calls, in a real browser</div></div>
+    <button class="btn" data-run="1">run it</button>
+  </div>
+  <div class="tryrow livetask" data-task="2">
+    <div><div class="el">Open the issue list — a different repository, a different layout</div><div class="ob">https://github.com/rust-lang/rust · 0 model calls, in a real browser</div></div>
+    <button class="btn" data-run="2">run it</button>
+  </div>
+  <div class="tryrow livetask" data-task="3">
+    <div><div class="el">Open the pull request list — the third transfer</div><div class="ob">https://github.com/facebook/react · 0 model calls, in a real browser</div></div>
+    <button class="btn" data-run="3">run it</button>
+  </div>
+  <div class="tryrow livetask" data-task="4">
+    <div><div class="el">Try to submit a form — and watch the gate hold it</div><div class="ob">http://127.0.0.1:8840/gate-lab · the gate holds this one</div></div>
+    <button class="btn" data-run="4">run it</button>
+  </div>
+  <div class="tryrow livetask" data-task="5">
+    <div><div class="el">Read the same page — which the gate lets through</div><div class="ob">http://127.0.0.1:8840/gate-lab · 0 model calls, in a real browser</div></div>
+    <button class="btn" data-run="5">run it</button>
+  </div>
+</div>
+<p class="hint" id="livehint">One run at a time — the browser is a single shared thing. If somebody else
+is mid-run you will be told, and nothing will be half-recorded.</p>
+
+<h2 class="dh">The run</h2>
+<div class="livewrap">
+  <div class="shotbox"><img id="liveframe" alt="the browser, as the runtime drives it">
+    <div id="liveempty">nothing running — pick a task above</div></div>
+  <div class="livemeta">
+    <div class="lm"><span class="k">goal</span><span id="livegoal">—</span></div>
+    <div class="lm"><span class="k">where it is</span><span id="liveurl">—</span></div>
+    <div class="lm"><span class="k">elapsed</span><span id="livetime">—</span></div>
+    <div class="lm"><span class="k">model calls</span><span id="livemodel">—</span></div>
+    <div class="lm"><span class="k">held by the gate</span><span id="liveheld">—</span></div>
+  </div>
+</div>
+<ol class="livesteps" id="livesteps"></ol>
+<div id="liveresult"></div>
+
+<h2 class="dh">Why this is the honest version of a demo</h2>
+<p class="why">A recorded video proves that something worked once, under conditions the person who
+recorded it chose. A page that runs the real thing in front of you proves what happened just then —
+including when it goes wrong, which it does: the third task runs on a page it has never seen and
+occasionally has to ask a model about a step, and you will see that in the counters rather than read
+that it was smoothed out. The run writes a signed log as it goes, and the button at the end checks it
+with the same verifier a stranger would use.</p>
+<div class="honest"><h5>what this does not show</h5><p>It does not show that it will work on your page. Three repositories with clean, well-marked structure are the easy case, and these are all such pages. It also does not show that the first run was free: the skill running here was learned once with a model in the loop, and that cost is paid before any of this. What you are watching is the second time.</p></div>
+
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path) {
+  const r = await fetch('/api/' + path, {cache: 'no-store'});
+  const j = await r.json().catch(() => ({ok: false, error: 'HTTP ' + r.status}));
+  if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+function show(el, text) { el.textContent = text; }
+function fail(el, e) { el.textContent = 'the call did not complete: ' + (e && e.message ? e.message : e); }
+function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' + esc(text); }
+
+let polling = null;
+function tierBadge(t) {
+  const cls = t === 'gate' ? 'vd refuse' : (t === 'model' ? 'vd hold' : 'vd allow');
+  return '<span class="' + cls + '">' + esc(t) + '</span>';
+}
+function renderSteps(steps) {
+  const ol = document.getElementById('livesteps');
+  ol.innerHTML = steps.map((s) =>
+    '<li><span class="sn">' + s.n + '</span>' + tierBadge(s.tier) +
+    '<span class="sl">' + esc(s.element) + '</span>' +
+    '<span class="sn2">' + (s.tier === 'skill' ? (s.decision_us / 1000).toFixed(2) + ' ms' : '') +
+    '</span><span class="note2">' + esc(s.note || '') + '</span></li>').join('');
+}
+function render(d) {
+  document.getElementById('livegoal').textContent = d.goal || '—';
+  document.getElementById('liveurl').textContent = d.url || '—';
+  document.getElementById('livetime').textContent = d.total_ms ? (d.total_ms / 1000).toFixed(1) + ' s' : '—';
+  document.getElementById('livemodel').textContent = d.model_calls;
+  document.getElementById('liveheld').textContent = d.held;
+  if (d.frame) {
+    document.getElementById('liveframe').src = d.frame;
+    document.getElementById('liveframe').style.display = 'block';
+    document.getElementById('liveempty').style.display = 'none';
+  }
+  renderSteps(d.steps || []);
+}
+function stopPolling() { if (polling) { clearTimeout(polling); polling = null; } }
+async function tick() {
+  let d;
+  try {
+    d = await (await fetch('/live-state', {cache: 'no-store'})).json();
+  } catch (e) { polling = setTimeout(tick, 900); return; }
+  render(d);
+  if (d.running || !d.finished) {
+    polling = setTimeout(tick, 550);
+  } else {
+    polling = null;
+    await finish();
+  }
+}
+async function finish() {
+  const box = document.getElementById('liveresult');
+  let r;
+  try { r = await api('live/result'); } catch (e) { box.innerHTML = '<p class="why">' + esc(e.message) + '</p>'; return; }
+  const rec = r.receipts || {};
+  box.innerHTML =
+    '<h3 class="dh">What it just did</h3>' +
+    '<div class="rct">' +
+      '<div class="k b">the verdict</div><div class="v b">' + esc(r.verdict || '(no verdict reported)') + '</div>' +
+      '<div class="k">steps performed</div><div class="v">' + r.steps_done + '</div>' +
+      '<div class="k">steps it had to ask about</div><div class="v">' + r.asked + '</div>' +
+      '<div class="k">steps the gate held</div><div class="v">' + r.held + '</div>' +
+      '<div class="k">took</div><div class="v">' + (r.took_ms / 1000).toFixed(1) + ' s</div>' +
+      '<div class="k">signed receipts</div><div class="v">' + (rec.signed ? rec.count : 'none') +
+        (rec.verified ? ' — and they verify' : '') + '</div>' +
+    '</div>' +
+    (rec.signed ? '<p><button class="btn ghost" id="checklog">check this log with the verifier</button></p>' +
+      '<pre class="runout" id="logcheck"></pre>' : '');
+  const btn = document.getElementById('checklog');
+  if (btn) btn.addEventListener('click', async () => {
+    const out = document.getElementById('logcheck');
+    out.textContent = 'checking…';
+    try { const j = await api('live/verify'); show(out, j.output); } catch (e) { fail(out, e); }
+  });
+}
+document.querySelectorAll('[data-run]').forEach((b) => {
+  b.addEventListener('click', async () => {
+    stopPolling();
+    const box = document.getElementById('liveresult');
+    box.innerHTML = '';
+    document.getElementById('livesteps').innerHTML = '';
+    document.getElementById('liveempty').style.display = 'block';
+    document.getElementById('liveempty').textContent = 'starting — the browser is opening…';
+    document.getElementById('liveframe').style.display = 'none';
+    document.querySelectorAll('[data-run]').forEach((x) => x.disabled = true);
+    try {
+      const j = await api('live/start?task=' + b.dataset.run);
+      document.getElementById('livehint').textContent = 'running: ' + j.goal;
+      polling = setTimeout(tick, 500);
+    } catch (e) {
+      document.getElementById('livehint').textContent = e.message;
+    } finally {
+      document.querySelectorAll('[data-run]').forEach((x) => x.disabled = false);
+    }
+  });
+});
+
+</script>
+</body></html>

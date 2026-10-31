@@ -703,9 +703,165 @@ deployment of the site it was learned on. That is the difference between a recor
 page("state.html", "mint — what a model is given",
      "Page capture measured on real repositories: what is sent to a model and what is not.", 8, "", "", body)
 
+# ── 9. a run you start yourself ─────────────────────────────────────────────────────────────────
+# The five tasks the relay will run. Kept in step with LIVE_TASKS in demo/relay.py by reading that
+# file, so a task added there appears here rather than going unmentioned.
+import ast
+
+with open(os.path.join(DEMO, "relay.py"), encoding="utf-8") as fh:
+    relay_src = fh.read()
+m = re.search(r"LIVE_TASKS = \[(.*?)\n\]", relay_src, re.S)
+assert m, "LIVE_TASKS is not where it was in relay.py"
+live_tasks = ast.literal_eval("[" + m.group(1) + "]")
+
+task_rows = []
+for t in live_tasks:
+    watch = "the gate holds this one" if "write" in t["skill"] else "0 model calls, in a real browser"
+    task_rows.append(f"""  <div class="tryrow livetask" data-task="{t["n"]}">
+    <div><div class="el">{t["what"]}</div><div class="ob">{t["start"]} · {watch}</div></div>
+    <button class="btn" data-run="{t["n"]}">run it</button>
+  </div>""")
+
+body = head(
+    9,
+    "Press a button. It goes and does the thing.",
+    "The other demonstrations show what the machinery decides. This one does not decide anything: it "
+    "opens a real browser, goes to a real page, and works — while you watch. The frames below are the "
+    "browser as it moves, the steps are what it did, and the receipts at the end are what it can prove.",
+    "live, on demand",
+) + f"""
+<h2 class="dh">Pick a task</h2>
+<p class="why">Each of these is a skill the runtime learned once and still has. The first three run on
+repositories it has never seen — the same skill, learned on one project, executing on another. The last
+two are on our own page: one reads it, one tries to submit a form and gets stopped.</p>
+<div class="try">
+{chr(10).join(task_rows)}
+</div>
+<p class="hint" id="livehint">One run at a time — the browser is a single shared thing. If somebody else
+is mid-run you will be told, and nothing will be half-recorded.</p>
+
+<h2 class="dh">The run</h2>
+<div class="livewrap">
+  <div class="shotbox"><img id="liveframe" alt="the browser, as the runtime drives it">
+    <div id="liveempty">nothing running — pick a task above</div></div>
+  <div class="livemeta">
+    <div class="lm"><span class="k">goal</span><span id="livegoal">—</span></div>
+    <div class="lm"><span class="k">where it is</span><span id="liveurl">—</span></div>
+    <div class="lm"><span class="k">elapsed</span><span id="livetime">—</span></div>
+    <div class="lm"><span class="k">model calls</span><span id="livemodel">—</span></div>
+    <div class="lm"><span class="k">held by the gate</span><span id="liveheld">—</span></div>
+  </div>
+</div>
+<ol class="livesteps" id="livesteps"></ol>
+<div id="liveresult"></div>
+
+<h2 class="dh">Why this is the honest version of a demo</h2>
+<p class="why">A recorded video proves that something worked once, under conditions the person who
+recorded it chose. A page that runs the real thing in front of you proves what happened just then —
+including when it goes wrong, which it does: the third task runs on a page it has never seen and
+occasionally has to ask a model about a step, and you will see that in the counters rather than read
+that it was smoothed out. The run writes a signed log as it goes, and the button at the end checks it
+with the same verifier a stranger would use.</p>
+{honest("It does not show that it will work on your page. Three repositories with clean, well-marked structure are "
+        "the easy case, and these are all such pages. It also does not show that the first run was free: the skill "
+        "running here was learned once with a model in the loop, and that cost is paid before any of this. What you "
+        "are watching is the second time.")}
+"""
+
+page("live.html", "mint — run it yourself, now",
+     "Start a real task and watch the runtime do it in a real browser.", 9, "", "", body, """
+let polling = null;
+function tierBadge(t) {
+  const cls = t === 'gate' ? 'vd refuse' : (t === 'model' ? 'vd hold' : 'vd allow');
+  return '<span class="' + cls + '">' + esc(t) + '</span>';
+}
+function renderSteps(steps) {
+  const ol = document.getElementById('livesteps');
+  ol.innerHTML = steps.map((s) =>
+    '<li><span class="sn">' + s.n + '</span>' + tierBadge(s.tier) +
+    '<span class="sl">' + esc(s.element) + '</span>' +
+    '<span class="sn2">' + (s.tier === 'skill' ? (s.decision_us / 1000).toFixed(2) + ' ms' : '') +
+    '</span><span class="note2">' + esc(s.note || '') + '</span></li>').join('');
+}
+function render(d) {
+  document.getElementById('livegoal').textContent = d.goal || '—';
+  document.getElementById('liveurl').textContent = d.url || '—';
+  document.getElementById('livetime').textContent = d.total_ms ? (d.total_ms / 1000).toFixed(1) + ' s' : '—';
+  document.getElementById('livemodel').textContent = d.model_calls;
+  document.getElementById('liveheld').textContent = d.held;
+  if (d.frame) {
+    document.getElementById('liveframe').src = d.frame;
+    document.getElementById('liveframe').style.display = 'block';
+    document.getElementById('liveempty').style.display = 'none';
+  }
+  renderSteps(d.steps || []);
+}
+function stopPolling() { if (polling) { clearTimeout(polling); polling = null; } }
+async function tick() {
+  let d;
+  try {
+    d = await (await fetch('/live-state', {cache: 'no-store'})).json();
+  } catch (e) { polling = setTimeout(tick, 900); return; }
+  render(d);
+  if (d.running || !d.finished) {
+    polling = setTimeout(tick, 550);
+  } else {
+    polling = null;
+    await finish();
+  }
+}
+async function finish() {
+  const box = document.getElementById('liveresult');
+  let r;
+  try { r = await api('live/result'); } catch (e) { box.innerHTML = '<p class="why">' + esc(e.message) + '</p>'; return; }
+  const rec = r.receipts || {};
+  box.innerHTML =
+    '<h3 class="dh">What it just did</h3>' +
+    '<div class="rct">' +
+      '<div class="k b">the verdict</div><div class="v b">' + esc(r.verdict || '(no verdict reported)') + '</div>' +
+      '<div class="k">steps performed</div><div class="v">' + r.steps_done + '</div>' +
+      '<div class="k">steps it had to ask about</div><div class="v">' + r.asked + '</div>' +
+      '<div class="k">steps the gate held</div><div class="v">' + r.held + '</div>' +
+      '<div class="k">took</div><div class="v">' + (r.took_ms / 1000).toFixed(1) + ' s</div>' +
+      '<div class="k">signed receipts</div><div class="v">' + (rec.signed ? rec.count : 'none') +
+        (rec.verified ? ' — and they verify' : '') + '</div>' +
+    '</div>' +
+    (rec.signed ? '<p><button class="btn ghost" id="checklog">check this log with the verifier</button></p>' +
+      '<pre class="runout" id="logcheck"></pre>' : '');
+  const btn = document.getElementById('checklog');
+  if (btn) btn.addEventListener('click', async () => {
+    const out = document.getElementById('logcheck');
+    out.textContent = 'checking…';
+    try { const j = await api('live/verify'); show(out, j.output); } catch (e) { fail(out, e); }
+  });
+}
+document.querySelectorAll('[data-run]').forEach((b) => {
+  b.addEventListener('click', async () => {
+    stopPolling();
+    const box = document.getElementById('liveresult');
+    box.innerHTML = '';
+    document.getElementById('livesteps').innerHTML = '';
+    document.getElementById('liveempty').style.display = 'block';
+    document.getElementById('liveempty').textContent = 'starting — the browser is opening…';
+    document.getElementById('liveframe').style.display = 'none';
+    document.querySelectorAll('[data-run]').forEach((x) => x.disabled = true);
+    try {
+      const j = await api('live/start?task=' + b.dataset.run);
+      document.getElementById('livehint').textContent = 'running: ' + j.goal;
+      polling = setTimeout(tick, 500);
+    } catch (e) {
+      document.getElementById('livehint').textContent = e.message;
+    } finally {
+      document.querySelectorAll('[data-run]').forEach((x) => x.disabled = false);
+    }
+  });
+});
+""")
+
 # ── the hub ─────────────────────────────────────────────────────────────────────────────────────
 hub = [
-    ("gate.html", 1, "Fit the gate to the effect", "Flip an approval switch and the real rules engine decides, live: reading passes, writing waits, and the undescribable is refused even with approval. <b>Interactive.</b>", "live", True),
+    ("live", 9, "Run it yourself, right now", "Pick a task and the runtime opens a real browser and does it while you watch — the frames as it moves, the steps with what resolved them, and a signed receipt at the end. One of the five gets stopped by the gate mid-run. <b>Live.</b>", "live", True),
+    ("gate", 1, "Fit the gate to the effect", "Flip an approval switch and the real rules engine decides, live: reading passes, writing waits, and the undescribable is refused even with approval. <b>Interactive.</b>", "live", True),
     ("refuse.html", 2, "When it does not understand, nothing happens", "The run where the runtime met an element it could not describe. The absence of an outcome receipt is the evidence that nothing took place.", "", False),
     ("tamper.html", 3, "Five ways to lie to the log", "Edit a line, delete a receipt, reorder two, rewrite a verdict and re-sign the whole chain with the real key, or swap the rules. The verifier runs on each forged copy in front of you. <b>Interactive.</b>", "live", True),
     ("endorse.html", 4, "Four ways to lie about who agreed", "A second key signs the rules. Four forgeries, each rejected for its own reason — starting with the one where the runtime signs its own rules. <b>Interactive.</b>", "live", True),
@@ -717,7 +873,7 @@ hub = [
 cards = []
 for href, n, title, desc, tagx, live in hub:
     badge = f'<span class="tagx{" live" if live else ""}">{"live" if live else "real run, printed"} </span>'
-    cards.append(f"""<a class="demo" href="/demos/{href[:-5]}">
+    cards.append(f"""<a class="demo" href="/demos/{href.replace(".html", "")}">
   <div class="n">demonstration {n}</div>
   <h3>{title}</h3>
   <p>{desc}</p>

@@ -34,6 +34,11 @@ levOS — an agent runtime that does not pay twice for the same decision.
     runtime signed those rules, and report the endorsement if it does not hold. With --tamper, also
     check copies that lie
 
+  levos live --skill FILE.json --start URL [--push URL] [--receipts FILE.json]
+    run one already-learned task on a live page, in front of whoever is watching, and sign what it
+    does. No model is called unless a step cannot be recognised at all. Drives a real browser, so it
+    is meant to run one at a time
+
   levos gate-demo [--url URL] [--out FILE.json]
       put four kinds of element to the write gate and show what it decided, and why
 

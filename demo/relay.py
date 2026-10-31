@@ -60,6 +60,59 @@ API_ENDORSE = {
     "3": f"{API_TAMPER_DIR}/endorse-3.json",
 }
 
+# One task a visitor can start, run by the real runtime in the real browser while they watch.
+#
+# Every one of these was measured to work before it was put here, and the targets are the ones the
+# evaluation used: the skills were learned on one repository and these are the transfers. The last two
+# point at our own gate lab, because watching a write get held is the part of this that is hardest to
+# believe and easiest to show.
+LIVE_TASKS = [
+    {
+        "n": 1,
+        "skill": "gh-commit.skill.json",
+        "start": "https://github.com/facebook/react",
+        "goal": "open the latest commit of this repository",
+        "what": "Open the latest commit — on a repository the skill has never seen",
+    },
+    {
+        "n": 2,
+        "skill": "gh-issues.skill.json",
+        "start": "https://github.com/rust-lang/rust",
+        "goal": "open the issue list of this repository",
+        "what": "Open the issue list — a different repository, a different layout",
+    },
+    {
+        "n": 3,
+        "skill": "gh-prs.skill.json",
+        "start": "https://github.com/facebook/react",
+        "goal": "open the pull request list of this repository",
+        "what": "Open the pull request list — the third transfer",
+    },
+    {
+        "n": 4,
+        "skill": "demo/gate-write.skill.json",
+        "start": "http://127.0.0.1:8840/gate-lab",
+        "goal": "submit the filing on the gate lab",
+        "what": "Try to submit a form — and watch the gate hold it",
+    },
+    {
+        "n": 5,
+        "skill": "demo/gate-read.skill.json",
+        "start": "http://127.0.0.1:8840/gate-lab",
+        "goal": "open the record on the gate lab",
+        "what": "Read the same page — which the gate lets through",
+    },
+]
+
+# One at a time. The browser is a single shared thing, and two runs in it would produce a recording of
+# neither. A visitor who arrives mid-run is told the machine is busy rather than shown a mess.
+LIVE = {"running": False, "task": None, "started": 0.0, "took_ms": 0, "exit": None,
+        "stdout": "", "error": ""}
+LIVE_LOCK = threading.Lock()
+LIVE_BY_IP = defaultdict(deque)
+LIVE_IP_MAX = 6
+LIVE_WINDOW_S = 600.0
+
 # A page of buttons is not a load test. Sixty calls a minute from one address is far more than a
 # person clicking can produce, and low enough that nothing here can be used to keep the machine busy.
 API_BUDGET = deque()
@@ -68,6 +121,20 @@ API_WINDOW_S = 60.0
 API_BY_IP = defaultdict(deque)
 API_IP_MAX = 20
 API_SLOTS = threading.Semaphore(2)
+
+
+def _live_allowed(ip):
+    """A run costs seconds of a shared browser. Six in ten minutes per address is generous for a person
+    and useless for anyone trying to use this as free compute."""
+    now = time.time()
+    with LOCK:
+        mine = LIVE_BY_IP[ip]
+        while mine and now - mine[0] > LIVE_WINDOW_S:
+            mine.popleft()
+        if len(mine) >= LIVE_IP_MAX:
+            return False
+        mine.append(now)
+        return True
 
 
 def _allowed(ip):
@@ -86,6 +153,93 @@ def _allowed(ip):
         API_BUDGET.append(now)
         mine.append(now)
         return True
+
+
+def live_reset(goal="", skill=""):
+    """Clear only the live pane. The stage race keeps its own recording, and a visitor starting a run
+    should not blank what the projector is showing."""
+    with LOCK:
+        STATE["goal"] = goal
+        side = STATE["sides"]["live"]
+        side.update(steps=[], model_calls=0, decision_us=0, total_ms=0, frame="", url="",
+                    page_title="", verdict="", opinion="", finished=False,
+                    receipts=None, held=0, asked=0, goal=goal, skill=skill)
+
+
+def live_start(n):
+    """Start one task. Fixed table, one at a time, and the process is the real runtime."""
+    with LIVE_LOCK:
+        if LIVE["running"]:
+            return None, "a run is already going — one at a time, try again in a moment"
+        if n < 0 or n >= len(LIVE_TASKS):
+            return None, "no such task"
+        task = LIVE_TASKS[n]
+        LIVE.update(running=True, task=n, started=time.time(), exit=None, stdout="", error="")
+    live_reset(task["goal"], task["skill"])
+
+    def worker():
+        out_dir = f"{DEMO_DIR}/live"
+        os.makedirs(out_dir, exist_ok=True)
+        log_path = f"{out_dir}/last.json"
+        cmd = [LEVOS, "live", "--skill", task["skill"], "--start", task["start"],
+               "--push", "http://127.0.0.1:8840", "--receipts", log_path]
+        code, out, err = None, "", ""
+        try:
+            done = subprocess.run(cmd, cwd="/root/levos", capture_output=True, text=True,
+                                  timeout=240)
+            code, out, err = done.returncode, done.stdout or "", done.stderr or ""
+        except subprocess.TimeoutExpired:
+            code, err = -1, "the run did not finish in four minutes"
+        except OSError as exc:
+            code, err = -1, "could not start the runtime: %s" % exc
+        with LIVE_LOCK:
+            LIVE.update(running=False, exit=code, stdout=out.strip()[-1200:],
+                        error=err.strip()[-600:], took_ms=int((time.time() - LIVE["started"]) * 1000))
+        # The pane must not sit on "running" if the process died before its last push.
+        with LOCK:
+            if not STATE["sides"]["live"].get("finished"):
+                STATE["sides"]["live"]["finished"] = True
+                if not STATE["sides"]["live"].get("verdict"):
+                    STATE["sides"]["live"]["verdict"] = (
+                        err.strip()[-200:] or "the run stopped without reporting a result")
+
+    threading.Thread(target=worker, daemon=True).start()
+    return {"ok": True, "task": n, "what": task["what"], "goal": task["goal"]}, None
+
+
+def live_result():
+    """What the last run produced: the verdict the runtime reached and its signed receipts."""
+    with LOCK:
+        side = dict(STATE["sides"]["live"])
+    with LIVE_LOCK:
+        state = {"running": LIVE["running"], "task": LIVE["task"], "took_ms": LIVE["took_ms"],
+                 "exit": LIVE["exit"], "error": LIVE["error"], "tail": LIVE["stdout"]}
+    log = f"{DEMO_DIR}/live/last.json"
+    state.update({
+        "ok": True,
+        "goal": side.get("goal", ""),
+        "verdict": side.get("verdict", ""),
+        "steps_done": len(side.get("steps", [])),
+        "asked": side.get("asked", 0),
+        "held": side.get("held", 0),
+        "receipts": side.get("receipts"),
+        "log_url": "/live-run.json",
+        "log_exists": os.path.exists(log),
+    })
+    return state, None
+
+
+def api_live_verify():
+    """Check the log the run just wrote, with the same verifier a stranger would use."""
+    log = f"{DEMO_DIR}/live/last.json"
+    if not os.path.exists(log):
+        return None, "that run did not write a log"
+    args = ["receipts", "--in", "live/last.json", "--policy", "live/last.json.policy.json"]
+    code, text = run_levos(args)
+    if code != 0 and not text:
+        return None, "the verifier produced nothing"
+    return {"ok": True, "output": text,
+            "command": "levos receipts --in live/last.json --policy live/last.json.policy.json"}, None
 
 
 def run_levos(args, stdin_text=None, timeout=25):
@@ -197,6 +351,7 @@ DEMO_PAGES = {
     "learn": "learn.html",
     "tasks": "tasks.html",
     "state": "state.html",
+    "live": "live.html",
 }
 
 # What may be served as a file, and nothing else. The demo page shows real screenshots and a real
@@ -224,6 +379,25 @@ STATE = {
             "verdict": "",
             "opinion": "",
             "finished": False,
+        },
+        "live": {
+            "title": "A run you asked for",
+            "subtitle": "the real runtime, in the real browser",
+            "steps": [],
+            "model_calls": 0,
+            "decision_us": 0,
+            "total_ms": 0,
+            "frame": "",
+            "url": "",
+            "page_title": "",
+            "verdict": "",
+            "opinion": "",
+            "finished": False,
+            "receipts": None,
+            "held": 0,
+            "asked": 0,
+            "goal": "",
+            "skill": "",
         },
         "fast": {
             "title": "levOS",
@@ -276,6 +450,9 @@ def push(payload: dict) -> None:
             s["finished"] = True
         if payload.get("total_ms"):
             s["total_ms"] = payload["total_ms"]
+        for key in ("receipts", "held", "asked", "goal", "skill"):
+            if payload.get(key) is not None:
+                s[key] = payload[key]
         if payload.get("step"):
             step = payload["step"]
             s["steps"].append(step)
@@ -317,7 +494,12 @@ def _restore() -> None:
     except Exception:
         return
     with LOCK:
+        # The saved run predates whatever panes have been added since. Merging rather than replacing
+        # restores the race from disk *and* leaves a pane added later in place, instead of dropping it
+        # until the next restart — which is how a live view ends up missing from a working server.
+        fresh = dict(STATE["sides"])
         STATE.update(data)
+        STATE["sides"] = {**fresh, **STATE.get("sides", {})}
     fast = len(STATE["sides"].get("fast", {}).get("steps", []))
     slow = len(STATE["sides"].get("slow", {}).get("steps", []))
     print(f"restored the last run: {fast} fast steps, {slow} slow steps", flush=True)
@@ -542,6 +724,19 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, open(f"{DEMO_DIR}/gate-lab.html", "rb").read(), "text/html; charset=utf-8")
             except FileNotFoundError:
                 self._send(404, b"no lab page", "text/plain")
+        elif self.path.split("?")[0] == "/live-state":
+            with LOCK:
+                side = dict(STATE["sides"]["live"])
+            with LIVE_LOCK:
+                side["running"] = LIVE["running"]
+                side["took_ms"] = LIVE["took_ms"]
+            self._send_json(200, side)
+        elif self.path.split("?")[0] == "/live-run.json":
+            try:
+                self._send(200, open(f"{DEMO_DIR}/live/last.json", "rb").read(),
+                           "application/json")
+            except FileNotFoundError:
+                self._send(404, b"no run has happened yet", "text/plain")
         elif self.path.split("?")[0] == "/demos.css":
             try:
                 self._send(200, open(f"{DEMO_DIR}/demos.css", "rb").read(),
@@ -584,6 +779,18 @@ class Handler(BaseHTTPRequestHandler):
                 body, why = api_endorse(query.get("case", [""])[0])
             elif wanted == "verify":
                 body, why = api_verify()
+            elif wanted == "live/start":
+                if not _live_allowed(ip):
+                    self._send_json(429, {"ok": False, "error":
+                                          "you have started several runs; wait a few minutes"})
+                    return
+                # The page numbers the tasks from one, because a person picks a task, not an index.
+                n = int(query.get("task", ["0"])[0])
+                body, why = live_start(n - 1)
+            elif wanted == "live/result":
+                body, why = live_result()
+            elif wanted == "live/verify":
+                body, why = api_live_verify()
             else:
                 body, why = None, "no such call"
         except Exception as exc:  # a demonstration that dies silently looks like a demonstration
@@ -604,7 +811,9 @@ class Handler(BaseHTTPRequestHandler):
         except json.JSONDecodeError:
             self._send(400, b"bad json", "text/plain")
             return
-        if self.path.startswith("/reset"):
+        if self.path.startswith("/live/reset"):
+            live_reset(payload.get("goal", ""), payload.get("skill", ""))
+        elif self.path.startswith("/reset"):
             reset(payload.get("goal", ""))
         elif self.path.startswith("/push"):
             push(payload)

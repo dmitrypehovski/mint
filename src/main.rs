@@ -41,6 +41,7 @@ async fn main() -> Result<()> {
         "traces" => traces(&args).await,
         "arli-payload" => arli_payload(&args).await,
         "gate-demo" => gate_demo(&args).await,
+        "live" => live(&args).await,
         "receipts" => receipts_cmd(&args),
         "endorse" => endorse_cmd(&args),
         "rules" => rules_cmd(&args),
@@ -1377,6 +1378,125 @@ async fn demo(args: &[String]) -> Result<()> {
     Ok(())
 }
 
+
+/// Run one already-learned task on a live page, in front of whoever is watching.
+///
+/// This is the working half of `demo` on its own: no second pane, no race, and no model unless a step
+/// cannot be recognised at all. It exists for the demonstration page, where somebody presses a button
+/// and the runtime goes and does the thing while they watch — the frames of the real browser, every
+/// step with the tier that resolved it, and a signed receipt for each decision, including the one the
+/// gate refused.
+async fn live(args: &[String]) -> Result<()> {
+    let path = flag(args, "--skill").ok_or_else(|| anyhow!("--skill is required"))?;
+    let target = flag(args, "--start").ok_or_else(|| anyhow!("--start is required"))?;
+    let relay = flag(args, "--push").unwrap_or_else(|| "http://127.0.0.1:8840".into());
+    let out = flag(args, "--receipts").unwrap_or_else(|| "live-run.json".into());
+    let category = flag(args, "--category").unwrap_or_else(|| "browser".into());
+
+    let sk = Skill::load(&path)?;
+    let goal = sk.goal.clone();
+    let host = skill::host_of_url(&target);
+    let mut gate = gate::Gate::new(&host);
+    sign_for(&mut gate, &host);
+    push_event(&relay, "/live/reset", json!({ "goal": goal, "skill": path }));
+    println!("live: {goal}");
+
+    let mut page = Cdp::connect(PORT).await?;
+    page.navigate(&target).await?;
+    page.settle(3500).await?;
+    let started = Instant::now();
+    let (mut done, mut asked, mut held) = (0usize, 0usize, 0usize);
+
+    for i in 0..sk.steps.len() {
+        let (els, _here) = page.state().await?;
+        let step = sk.steps[i].clone();
+        let t = Instant::now();
+        let (el, tier, note) = match sk.resolve(&step, &els) {
+            Some((idx, _c, how)) => (
+                els[idx].clone(),
+                "skill",
+                format!("recognised by {}", how.as_str()),
+            ),
+            None => {
+                asked += 1;
+                match recover(&mut page, &goal, &category, &mut Vec::new()).await? {
+                    Some(el) => (el, "model", "not recognised — asked the model".to_string()),
+                    None => break,
+                }
+            }
+        };
+        let decision_us = t.elapsed().as_micros() as u64;
+        done += 1;
+        let described = format!("{} «{}»", el.role, el.name.chars().take(40).collect::<String>());
+        let frame = page.screenshot(55).await.unwrap_or_default();
+        push_event(
+            &relay,
+            "/push",
+            json!({
+                "side": "live",
+                "step": { "n": i + 1, "element": described, "tier": tier,
+                          "decision_us": decision_us, "note": note },
+                "frame": frame,
+                "url": page.current_url().await?,
+                "total_ms": started.elapsed().as_millis() as u64,
+            }),
+        );
+
+        // The gate decides here, as it does everywhere else. A step it refuses is not performed, and
+        // the refusal is what the viewer sees — which is the demonstration, not an interruption.
+        let (performed, why) = perform(&mut page, &mut gate, &step, i, &el, None).await?;
+        if !performed {
+            held += 1;
+            push_event(
+                &relay,
+                "/push",
+                json!({ "side": "live", "step": { "n": i + 1, "element": described,
+                        "tier": "gate", "decision_us": 0,
+                        "note": why.unwrap_or_else(|| "not performed".into()) } }),
+            );
+            break;
+        }
+        settle_until(&mut page, &step.produced_page, 2500).await?;
+        let frame = page.screenshot(55).await.unwrap_or_default();
+        push_event(&relay, "/push", json!({ "side": "live", "frame": frame }));
+    }
+
+    let ms = started.elapsed().as_millis() as u64;
+    let landed = page.current_url().await?;
+    let kind = state::page_kind(&landed);
+    let ok = kind == sk.expect_final_page;
+    let verdict = format!(
+        "landed on page «{}», expected «{}» — {}",
+        kind,
+        sk.expect_final_page,
+        if ok { "matches" } else { "does NOT match" }
+    );
+
+    let mut receipts = json!({ "signed": false, "reason": "signing was unavailable for this run" });
+    if let Some(log) = gate.receipt_log() {
+        let doc = log.document();
+        std::fs::write(&out, serde_json::to_string_pretty(&doc)?)?;
+        let rules_file = format!("{out}.policy.json");
+        std::fs::write(&rules_file, serde_json::to_string_pretty(&log.rules)?)?;
+        let v = receipt::verify(&doc, Some(&log.rules));
+        receipts = json!({
+            "signed": true,
+            "count": log.len(),
+            "verified": v.ok,
+            "file": out,
+            "policy_file": rules_file,
+        });
+    }
+    println!("  {done} steps, {asked} asked, {held} held | {verdict}");
+    push_event(
+        &relay,
+        "/push",
+        json!({ "side": "live", "finished": true, "total_ms": ms, "url": landed,
+                "verdict": verdict, "receipts": receipts,
+                "steps_done": done, "asked": asked, "held": held }),
+    );
+    Ok(())
+}
 
 #[derive(serde::Deserialize)]
 struct Job {
