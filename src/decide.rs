@@ -307,18 +307,48 @@ pub fn judge_success(goal: &str, url: &str, title: &str, text: &str) -> Result<(
     let prompt = format!(
         "The task that was set: {goal}\n\nWhere we ended up:\naddress: {url}\ntitle: {title}\n\
          what is visible on the page: {excerpt}\n\nWas the task reached? Reply with JSON only:\
-         {{\"success\": true or false, \"why\": \"<up to 15 words>\"}}\n\
-         Judge only what the task as written asks for. Do not add requirements it does not state — \
-         evenness, tidiness, an extra check, a particular arrangement. If you answer false, you must \
-         name in \"why\" one concrete item that is in the wrong place, exactly as it appears above; if \
-         you cannot name one, then answer true. A verdict that fails correct work is worse than a \
-         verdict that misses a fault, because it throws away work that was done."
+         {{\"wrong\": [\"<each thing that is in the wrong place, exactly as it appears above>\"], \"why\": \"<up to 15 words>\"}}\n\
+         List every item that is in the wrong place and nothing else. If nothing is wrong, reply \
+         {{\"wrong\": [], \"why\": \"nothing is in the wrong place\"}}. Judge only what the task as \
+         written asks for: do not add requirements it does not state — evenness, tidiness, an extra \
+         check, a particular arrangement. A verdict that fails correct work is worse than one that \
+         misses a fault, because it throws away work that was done."
     );
-    let content = ask(&prompt, 120)?;
+    let content = ask(&prompt, 200)?;
     let cleaned = extract_object(&content).ok_or_else(|| anyhow!("verdict was not an object"))?;
     let v: Value = serde_json::from_str(&cleaned)?;
+    // The verdict is read from the findings rather than from a flag sitting beside them. A model
+    // that answers "nothing is wrong" and sets success=false in the same breath has told two
+    // different things, and the flag was winning: the page showed "did not reach the goal" next to
+    // a sentence saying the work was done correctly. Asking only for what is wrong leaves nothing
+    // to contradict.
+    let wrong: Vec<String> = v
+        .get("wrong")
+        .and_then(Value::as_array)
+        .map(|a| {
+            a.iter()
+                .filter_map(Value::as_str)
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty())
+                .collect()
+        })
+        .unwrap_or_default();
+    let why = v.get("why").and_then(Value::as_str).unwrap_or("").to_string();
+    if v.get("wrong").is_some() {
+        let ok = wrong.is_empty();
+        let why = if ok {
+            if why.is_empty() {
+                "nothing was named as being in the wrong place".to_string()
+            } else {
+                why
+            }
+        } else {
+            format!("{}: {}", wrong.len(), wrong.join("; "))
+        };
+        return Ok((ok, why.chars().take(300).collect()));
+    }
     Ok((
         v.get("success").and_then(Value::as_bool).unwrap_or(false),
-        v.get("why").and_then(Value::as_str).unwrap_or("").to_string(),
+        why,
     ))
 }

@@ -644,7 +644,10 @@ def push(payload: dict) -> None:
             s["finished"] = True
         if payload.get("total_ms"):
             s["total_ms"] = payload["total_ms"]
-        for key in ("receipts", "held", "asked", "goal", "skill"):
+        # "reached" and "listing" belong here too: without them a side says "did not reach the
+        # goal" while the verdict printed beside it says the work was done correctly, which reads
+        # as a contradiction on the page and is worse than a wrong number.
+        for key in ("receipts", "held", "asked", "goal", "skill", "reached", "listing"):
             if payload.get(key) is not None:
                 s[key] = payload[key]
         if payload.get("step"):
