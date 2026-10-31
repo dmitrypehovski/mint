@@ -28,9 +28,11 @@ levOS — an agent runtime that does not pay twice for the same decision.
     put a counterparty's signature on a policy: these rules, for this runtime, in this scope.
     Runs under a separate key — the runtime must never mint its own endorsement
 
-  levos receipts --in FILE.json [--policy FILE.json] [--tamper DIR]
+  levos receipts --in FILE.json [--policy FILE.json] [--endorsement FILE.json] [--tamper DIR]
     check a signed log: every signature, every link, and — with --policy — that the published rules
-    reproduce every recorded verdict. With --tamper, also check copies that lie
+    reproduce every recorded verdict. With --endorsement, also check that somebody other than the
+    runtime signed those rules, and report the endorsement if it does not hold. With --tamper, also
+    check copies that lie
 
   levos gate-demo [--url URL] [--out FILE.json]
       put four kinds of element to the write gate and show what it decided, and why
