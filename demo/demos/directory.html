@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mint — the same task, on a filesystem</title>
+<link rel="stylesheet" href="/demos.css">
+<style>
+  .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 18px 0 10px; }
+  @media (max-width: 820px) { .panes { grid-template-columns: 1fr; } }
+  .pane { background: #fff; border: 1px solid #e4e4ee; border-radius: 12px; padding: 16px 16px 12px; }
+  .pane h3 { margin: 0 0 2px; font-size: 15px; }
+  .pane .sub2 { color: #6b6b7b; font-size: 12.5px; margin-bottom: 10px; }
+  .big { display: flex; gap: 26px; align-items: baseline; margin: 6px 0 14px; flex-wrap: wrap; }
+  .big .n { font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+  .big .l { font-size: 11.5px; color: #6b6b7b; text-transform: uppercase; letter-spacing: .05em; }
+  .cmds { max-height: 300px; overflow: auto; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+          background: #fbfbfd; border: 1px solid #ececf4; border-radius: 8px; padding: 8px 10px; }
+  .cmds div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cmds .m { color: #1f7a4d; } .cmds .s { color: #4b4bd6; } .cmds .x { color: #a33; }
+  .verdict { margin-top: 10px; font-size: 12.5px; }
+  .ok { color: #1f7a4d; font-weight: 600; } .no { color: #a33; font-weight: 600; }
+  .btnrow { display: flex; gap: 10px; align-items: center; margin: 14px 0 4px; flex-wrap: wrap; }
+  button { padding: 10px 16px; border: 0; border-radius: 8px; background: #16161d; color: #fff;
+           font: inherit; font-weight: 600; cursor: pointer; }
+  button[disabled] { opacity: .5; cursor: default; }
+  .state { font-size: 13px; color: #6b6b7b; }
+  .card { background: #fff; border: 1px solid #e4e4ee; border-radius: 12px; padding: 16px; margin-top: 18px; }
+  .card h4 { margin: 0 0 8px; font-size: 14.5px; }
+  .tag { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #7c5ce7; font-weight: 700; }
+  pre { background: #fbfbfd; border: 1px solid #ececf4; border-radius: 8px; padding: 10px 12px; overflow: auto;
+        font-size: 12.5px; }
+</style></head><body>
+<div class="wrap">
+
+<span class="kicker">DEMONSTRATION 11 · NOT A BROWSER</span>
+<h1>The same task, on a filesystem.</h1>
+<p class="sub">Fifty invoices and the twelve month folders they belong in. For a person this is a
+minute of dragging. For an agent that asks a model about every step it is fifty decisions — and that
+is the number this page exists to show.</p>
+<p><a href="/demos">← all demonstrations</a> · <a href="/demos/examples">what each example is for →</a></p>
+
+<div class="btnrow">
+  <button id="go">sort the pile, both ways</button>
+  <span class="state" id="state">not running</span>
+</div>
+
+<div class="panes">
+  <div class="pane">
+    <h3>Ordinary agent</h3>
+    <div class="sub2">a model decides every command</div>
+    <div class="big"><div><div class="n" id="m-n">—</div><div class="l">commands</div></div>
+      <div><div class="n" id="m-s">—</div><div class="l">took</div></div></div>
+    <div class="cmds" id="m-list"></div>
+    <div class="verdict" id="m-verdict"></div>
+  </div>
+  <div class="pane">
+    <h3>mint</h3>
+    <div class="sub2">the same task, compiled</div>
+    <div class="big"><div><div class="n" id="f-n">—</div><div class="l">commands</div></div>
+      <div><div class="n" id="f-s">—</div><div class="l">took</div></div>
+      <div><div class="n" id="f-q">—</div><div class="l">questions to a model</div></div></div>
+    <div class="cmds" id="f-list"></div>
+    <div class="verdict" id="f-verdict"></div>
+  </div>
+</div>
+
+<div class="card brk"><span class="tag">why this page exists</span>
+  <h4>Nothing in the middle knows what a browser is.</h4>
+  <p>Everything else on this site drives a page. This drives a directory, and it is the same runtime:
+  the same shape of decision, the same gate, the same rules document, the same signed receipts.
+  Only two things differ — what counts as state (the entries of a directory) and what counts as an
+  action (a shell command).</p>
+  <pre>mint dir-learn --dir DIR --goal GOAL --skill SKILL.json
+mint dir-run   --skill SKILL.json --dir DIR</pre>
+  <p>The rule is in the names: <code>invoice-2026-03-0147.pdf</code> belongs in <code>2026-03</code>.
+  Both halves start from a fresh copy of the same fifty files, because a task that moves files cannot
+  be run twice in the same place — comparing one side on work the other side has already done would be
+  nonsense.</p>
+</div>
+
+<div class="card"><span class="tag">what is being measured</span>
+  <h4>Decisions, not milliseconds.</h4>
+  <p>The clock is interesting; the bill is the point. The ordinary agent asks a model about all fifty
+  files, and it will ask again on every run, tomorrow and next week. mint asked fifty-one questions
+  once — fifty for the files and one for the check that the work was done — and asks none now.</p>
+  <p>Verified on this machine: learned in 51 questions and 39 s; replayed in a <b>different</b>
+  directory in 0.14 s with <b>0</b> model calls, all fifty invoices in their month folders — checked
+  by a script, not by eye: nothing left loose, nothing in the wrong folder.</p>
+</div>
+
+<div class="card"><span class="tag">the gate, on a filesystem</span>
+  <h4>A move is a write, and a write needs an approval.</h4>
+  <p>Run the same skill under the shipped rules and it stops at the first move and names the exact
+  action that needs approving — <code>hold: this step commits something; it needs an approval for
+  5171e2cdcb8e</code> — with nothing run. That is the gate doing to a directory what it does to a
+  page, which is the claim this page is here to support.</p>
+</div>
+
+<div class="card"><span class="tag">what this does not show</span>
+  <h5>WHAT THIS DOES NOT SHOW</h5>
+  <p>It does not compare against a script. For a pile of files with a rule in the names, a person
+  writes eight lines of shell in a minute, and those eight lines cost nothing at all. What mint is
+  for is the task where you cannot write the script because you do not know the rule — the pile where
+  deciding <i>which</i> file goes where needs judgement, and the judgement is the thing you want
+  written down, approved once, and repeated without a model in the loop.</p>
+  <p>The left-hand half is the same runtime with a model deciding each step, so the two halves differ
+  only in how a step is decided. Neither half is allowed to act without a decision being written
+  first.</p>
+</div>
+
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+let timer = null;
+
+function fmt(ms) { return ms >= 1000 ? (ms / 1000).toFixed(1) + " s" : ms + " ms"; }
+
+function drawStep(step) {
+  const d = document.createElement("div");
+  const cls = step.moved ? (step.tier === "model" ? "m" : "s") : "x";
+  const us = step.decision_us ? " · " + step.decision_us + " µs" : "";
+  d.className = cls;
+  d.textContent = (step.n || "·") + ". " + (step.name || "") + " — " + (step.cmd || "") + us;
+  return d;
+}
+
+async function poll() {
+  const r = await fetch("/api/dir/result?t=" + Date.now());
+  const d = await r.json();
+  const sl = d.slow || {}, fa = d.fast || {};
+  $("state").textContent = d.running ? "running…" : (d.error ? "stopped: " + d.error : "finished");
+  if (!d.running) { clearInterval(timer); timer = null; $("go").disabled = false; }
+
+  $("m-n").textContent = (sl.steps || []).length || "—";
+  $("m-s").textContent = sl.total_ms ? fmt(sl.total_ms) : "—";
+  $("m-verdict").innerHTML = sl.verdict
+    ? (sl.reached ? '<span class="ok">reached the goal</span> — ' : '<span class="no">did not reach the goal</span> — ')
+      + sl.verdict.replace(/</g, "&lt;")
+    : "";
+  const ml = $("m-list");
+  if (ml.childElementCount !== (sl.steps || []).length) {
+    ml.innerHTML = "";
+    (sl.steps || []).forEach((s) => ml.appendChild(drawStep(s)));
+  }
+
+  $("f-n").textContent = (fa.steps || []).length || "—";
+  $("f-s").textContent = fa.total_ms ? fmt(fa.total_ms) : "—";
+  $("f-q").textContent = fa.steps && fa.steps.length ? (fa.model_calls || 0) : "—";
+  const rec = fa.receipts;
+  $("f-verdict").innerHTML = (fa.verdict
+    ? (fa.reached ? '<span class="ok">reached the goal</span> — ' : '<span class="no">did not reach the goal</span> — ')
+      + fa.verdict.replace(/</g, "&lt;")
+    : "") + (rec && rec.count ? '<br>' + rec.count + " signed receipts, one per decision, written before the command ran" : "");
+  const fl = $("f-list");
+  if (fl.childElementCount !== (fa.steps || []).length) {
+    fl.innerHTML = "";
+    (fa.steps || []).forEach((s) => fl.appendChild(drawStep(s)));
+  }
+}
+
+$("go").onclick = async () => {
+  $("go").disabled = true;
+  $("state").textContent = "starting…";
+  const r = await fetch("/api/dir/start?task=0");
+  const d = await r.json();
+  if (!d.ok) { $("state").textContent = d.error || "could not start"; $("go").disabled = false; return; }
+  if (timer) clearInterval(timer);
+  timer = setInterval(poll, 2000);
+  poll();
+};
+
+poll();
+</script>
+</body></html>

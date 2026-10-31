@@ -1,0 +1,4386 @@
+{
+  "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+  "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+  "count": 100,
+  "endorsement": null,
+  "host": "dir:/tmp/mint-dir-demo/skill",
+  "policy": {
+    "approvals_are_single_use": true,
+    "note": "The rules a first run is learned under, when the person who asked for the goal is the one present. The writes this task needs are taken under this document, and every decision is still written down and signed. Replaying what was learned goes back to the strict document, which holds anything that commits.",
+    "on_unclassifiable": "refuse",
+    "on_write_without_approval": "allow",
+    "reads": [
+      {
+        "class": "read",
+        "when": [
+          {
+            "attr": "has_href",
+            "value": "yes"
+          }
+        ]
+      },
+      {
+        "class": "read",
+        "when": [
+          {
+            "attr": "action",
+            "value": "type"
+          }
+        ]
+      },
+      {
+        "class": "read",
+        "when": [
+          {
+            "attr": "tag",
+            "value": "a"
+          }
+        ]
+      },
+      {
+        "class": "read",
+        "when": [
+          {
+            "attr": "role",
+            "value": "link"
+          }
+        ]
+      }
+    ],
+    "spec": "mint.policy/0.1",
+    "version": 1,
+    "writes": [
+      {
+        "class": "write",
+        "when": [
+          {
+            "attr": "tag",
+            "value": "button"
+          }
+        ]
+      },
+      {
+        "class": "write",
+        "when": [
+          {
+            "attr": "role",
+            "value": "button"
+          }
+        ]
+      },
+      {
+        "class": "write",
+        "when": [
+          {
+            "attr": "tag",
+            "value": "input"
+          }
+        ]
+      }
+    ]
+  },
+  "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+  "receipts": [
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-01-0256.pdf\"",
+          "identity": "a6fe97a65b68e7c2353e772c9a9867aa8eea9a51458ecdc41d5cc1f75e45af2c",
+          "key": "3818fc35fa99647010132433703f3af7",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 0
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955683,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0000",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": null,
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 0,
+        "signed_at_ms": 1793482955683,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "cf93618ab74490cc97f9155933989514b18bcee73aed8ed5681ce703b578fbfa7c23a7fc38f01a1fa449349f8e17ae04ee1dba24d2e6ad167b655e95f29e6f04"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-01-0256.pdf\"",
+          "identity": "a6fe97a65b68e7c2353e772c9a9867aa8eea9a51458ecdc41d5cc1f75e45af2c",
+          "key": "3818fc35fa99647010132433703f3af7",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 0
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955685,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0001",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "2f85ce959c55bd562c570957997dd8651e171168d759de434dc50c88f319d38f",
+        "refers_to": "0cd20b19fef0-0000",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 1,
+        "signed_at_ms": 1793482955685,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "d59a28dc895f46d67b52af3ce0bd658e83f6c32c084072f1d5762d95280456c87c57db5cded956306dedc3feba5b8872537325601f9a16556aff0a3fbd26c90e"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-01-0412.pdf\"",
+          "identity": "25ab560c2b27da28e42fddd9982de89b4bf79dd43768a0999f857261bf594fce",
+          "key": "398420015b8035d587893c81c7ad5dbd",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 1
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955686,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0002",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "8452bfd08eb51519a24794979e008d1482d8d4c289cb5fa2c7ebe80b303ebcc9",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 2,
+        "signed_at_ms": 1793482955686,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "fe6bc046d2bcef337a7c4711d2c8bcbe9d493cc7447cca72cd34c9fced10d90dd92dd73d513a4fd5d41a37ffd581bd165b65587ec5eab2c36c3d6c3a16d5ed0c"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-01-0412.pdf\"",
+          "identity": "25ab560c2b27da28e42fddd9982de89b4bf79dd43768a0999f857261bf594fce",
+          "key": "398420015b8035d587893c81c7ad5dbd",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 1
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955687,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0003",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "0638d5694049dfabc9e7389cf2cad6d0db29599923fb963a62d5c094c0cbc394",
+        "refers_to": "0cd20b19fef0-0002",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 3,
+        "signed_at_ms": 1793482955687,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "e045de07b078e2f25fec01a748277428c183a3000d7de8820f45c3e369d623db4c7a9b8f2cfec8730836f4d4e7e60c2c108c866ee58d15cf57acbed2e0042506"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-01-0568.pdf\"",
+          "identity": "944efc8cb08ef01388807fee6c1cb5618df76c532fe5d1c4e69d7e57a15bd294",
+          "key": "669597ceb424d36050304d9e071be488",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 2
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955688,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0004",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "bcabd23cb9a9e3aa836aaff431c150602879fbf0f23af8cdc769f34b15c91597",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 4,
+        "signed_at_ms": 1793482955688,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "bdf90f8e2dadd3d819f9001a11c382c60e8cdccba0510cfdfd386f963b4961903ce7de2bcac62105620b245840e389733cf23c197ec2a5d56fbaef37bef55802"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-01-0568.pdf\"",
+          "identity": "944efc8cb08ef01388807fee6c1cb5618df76c532fe5d1c4e69d7e57a15bd294",
+          "key": "669597ceb424d36050304d9e071be488",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 2
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955690,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0005",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "8ef6a7d6514c8430b74eb8b2d31bd8c6f2a1062de6daad1736bd8377896ed7d0",
+        "refers_to": "0cd20b19fef0-0004",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 5,
+        "signed_at_ms": 1793482955690,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "08042de3827b78e612d9f65d8bd8bd1c4c0c8963a073a2fa0dbec57bdcb24f69df6951213a263e20c3655f6fefc068464415024f2cc6faceaafeff7813e7f007"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-01-0724.pdf\"",
+          "identity": "a2eab5d4b10c7fd18691ad86feb52ce4a7a608eb4f83dee3ed02889c1ae5c165",
+          "key": "6e5592d440f548e16a7a4af9e59933d0",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 3
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955691,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0006",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "3c1929831c331f49a7d6b84d14823823b3686abb80230b576824f3733a468fcf",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 6,
+        "signed_at_ms": 1793482955691,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "300069dcadc6d29447a624f1cb596213c95becefceb34be6271f1cd9ea16d8d7ed9996f3d7c29a782a95279f3243f986ae1715c98e936fe8e1c02d49a5a65e0e"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-01-0724.pdf\"",
+          "identity": "a2eab5d4b10c7fd18691ad86feb52ce4a7a608eb4f83dee3ed02889c1ae5c165",
+          "key": "6e5592d440f548e16a7a4af9e59933d0",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 3
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955693,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0007",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "d3b453d08aeec90379cf0917a0f1e4a426b6fde7e5cd26bda288e6bfe4ef5a2e",
+        "refers_to": "0cd20b19fef0-0006",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 7,
+        "signed_at_ms": 1793482955693,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "ab8ce479f361987dcf56dc62f1f1563e9a30ffd063926d5eb1065cd72c602ca6a4c7ced779cef74614a9cdf2eadedbc9b9b2c46a88ca790047c052e6b2eb0e0c"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-02-0191.pdf\"",
+          "identity": "7ab654b0b20d6c9b628daa78ce5ff6adf8f23f387825940106b3b34e8657746b",
+          "key": "92135f01353057cf7be0b334ed3cff6d",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 4
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955693,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0008",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "0b86a1c23f61ede1fa04e64eefbea0f73acbbe23a6637ffcc66a7c55835531e3",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 8,
+        "signed_at_ms": 1793482955693,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "71cfd88973f96e238380d2b77f53459feb64f5b40b94607a6327510822e5a3726baa2466f923486879a36fcf0e92703ea5877265e9d35895d97e94d48bdc0602"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-02-0191.pdf\"",
+          "identity": "7ab654b0b20d6c9b628daa78ce5ff6adf8f23f387825940106b3b34e8657746b",
+          "key": "92135f01353057cf7be0b334ed3cff6d",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 4
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955695,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0009",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "66891f2a8bc84127643e48f51b03c7b433770838793c156e2d725419fcb35076",
+        "refers_to": "0cd20b19fef0-0008",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 9,
+        "signed_at_ms": 1793482955695,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "b99ccb1cf6ed28777d8b6804f10dd6c8a670bd8816b55c4dc3a04212a391937348d39fb522b06588b21e3ce75a1b6860ba166e014b347c7ff0041eed91de8108"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-02-0347.pdf\"",
+          "identity": "25b02a177ccd0ebfda8745ac8aeb5a4d9067930b0992a40faba7ca56c50899bc",
+          "key": "3bbb330044c46cd679e730d81e4ce9ab",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 5
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955696,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0010",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "6e6fc53cdf95a95f6dfce72d2238097c95087af65035da01fe2532d0c70bee12",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 10,
+        "signed_at_ms": 1793482955696,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "be6b06e19e4599278dc49efb15ac99b44739174938681776dbfbe8d402d13e27ce54ebb41b3a9c4758d7da3a5ddfa203c93009f08082f22911fc14ba5976cc01"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-02-0347.pdf\"",
+          "identity": "25b02a177ccd0ebfda8745ac8aeb5a4d9067930b0992a40faba7ca56c50899bc",
+          "key": "3bbb330044c46cd679e730d81e4ce9ab",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 5
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955698,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0011",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "13119a4590922724f08b475821ee3846a25c0582852b04d30c627c242ea42b3f",
+        "refers_to": "0cd20b19fef0-0010",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 11,
+        "signed_at_ms": 1793482955698,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "597f2399009d439baabdebcac3c30982322478b35a3de1df9e2afc606a12b61965bbf0d54812808bff5c1325720ab06ae910411d4dc731118ea64e67525cab07"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-02-0503.pdf\"",
+          "identity": "0b6991f296b89debd3404e84677007bc3edbe0c1d2dff6f3a52cfdc8de982080",
+          "key": "5ab50252c93d9fd769cc2804813787be",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 6
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955699,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0012",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "74ff3f75f0a7fdb021ad4b901c387650d8f4f16d459babb5d0ebcb5109e903e6",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 12,
+        "signed_at_ms": 1793482955699,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "28e76da43c57fa0997f662ca39963e14648392fbc041be8b29e0e13004dd7fdbf1c25337cb840b3b69749089f133289fc4f1a3b359efd1234dba944e7b672804"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-02-0503.pdf\"",
+          "identity": "0b6991f296b89debd3404e84677007bc3edbe0c1d2dff6f3a52cfdc8de982080",
+          "key": "5ab50252c93d9fd769cc2804813787be",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 6
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955701,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0013",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "774c0d9fc94a470730173818a8e6bddb242f9d20d226bc359a3b5f31a00dad55",
+        "refers_to": "0cd20b19fef0-0012",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 13,
+        "signed_at_ms": 1793482955701,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "a566722b927be02d973e87d57f2e5ec564f6c81e8771dc70fe1e769d40fd3eee3b1f90feb0a84bf6b1d24fa700f0348c9e3966fc102c97d0248f976652403709"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-02-0659.pdf\"",
+          "identity": "290ee7d3e4382d5a9f8b16a0d63613ad9a13ae61801b695edc4edbcf33eaabfc",
+          "key": "41d645a39bd13e4a5e7d834d88ba6e6f",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 7
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955702,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0014",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "ed33cbfa3a57a0e0984e8a2e64152a204f6c1e5ac3d93f7cdfb73a783445bff6",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 14,
+        "signed_at_ms": 1793482955702,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "721283fe392b2e26ea603f5e741bbcee469da321a476441e1d4088b95fcbcd0d5106d1f7c2a2a09ad34099451e7e0ca8b07b7c055e2fe7584c9e343a3255430f"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-02-0659.pdf\"",
+          "identity": "290ee7d3e4382d5a9f8b16a0d63613ad9a13ae61801b695edc4edbcf33eaabfc",
+          "key": "41d645a39bd13e4a5e7d834d88ba6e6f",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 7
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955703,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0015",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "3b471a1bc72e405db6691807eab59faee5390f275e2f0dcbde38e2900092a713",
+        "refers_to": "0cd20b19fef0-0014",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 15,
+        "signed_at_ms": 1793482955703,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "d2e2c869daa2d84e1853c0654f454552f1102016b829e54b24b0b9db4a689bcf6fbc451110f3ed015ab034e8e5d98bdd79dd1814eea64fdd927cc30396d20b08"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-03-0126.pdf\"",
+          "identity": "80d149343ab27dee5b0613f6a057b8b8c007fa0309f80f91501a2041de173deb",
+          "key": "57ed1481e63fceeef9993785e6c4f317",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 8
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955704,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0016",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "40ce210b9721ecfbdb7365e163b9799d73dc3bca426d17650d02e2e9832f3851",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 16,
+        "signed_at_ms": 1793482955704,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "0e0c8bd67aedafd134dda6a16da0dc6f26d495e92e2a837ac273e123c605d93d42f9107d4832b50d7f032c2c0537c7bd2ddc9f4f276ec898add8c4595ba05800"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-03-0126.pdf\"",
+          "identity": "80d149343ab27dee5b0613f6a057b8b8c007fa0309f80f91501a2041de173deb",
+          "key": "57ed1481e63fceeef9993785e6c4f317",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 8
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955706,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0017",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "43994d1fb02c1e5065e4c1c1df6cd5c3fa20bb65471c18c5bd50cc38669ca457",
+        "refers_to": "0cd20b19fef0-0016",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 17,
+        "signed_at_ms": 1793482955706,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "744aa94100125597b43b14cc03b0a0009a1c3af5e2c230d7f57c721c68f0b0d662a835e3a2443029361425e8a30baf544caef9e13f3c5cf68362c76697660a02"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-03-0282.pdf\"",
+          "identity": "0f47b3b4493c3053879f0ec5c076e27df0e3576755f195a57a3af336c85817ae",
+          "key": "5e34bde8cbab9d09d1ae1f0fd90b431f",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 9
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955707,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0018",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "737422cbd706a9d33c306bdddc667b05c20fb4e3e64b7dcc22d59ea3b30d140c",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 18,
+        "signed_at_ms": 1793482955707,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "48d36b18d5181e4807150e71c26fe321666493dc291b7a7559034e66df7b706dfa323521a38306517450f625e8b82ce781a1b16f26afa68d4f6ad87f5629f70f"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-03-0282.pdf\"",
+          "identity": "0f47b3b4493c3053879f0ec5c076e27df0e3576755f195a57a3af336c85817ae",
+          "key": "5e34bde8cbab9d09d1ae1f0fd90b431f",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 9
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955709,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0019",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "4ac5e805baf3288c287827ddf69e250bf3fa24c6943188f7cb31078c49f5eba7",
+        "refers_to": "0cd20b19fef0-0018",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 19,
+        "signed_at_ms": 1793482955709,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "8fe2747d2612576c23e6c3574d46fd78786fa9aeb911c33532c171f5d3d3b7a4a8fea521d006d5642b8217183207fcc6a24b7f67532c9cfba129bc9b1e146d05"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-03-0438.pdf\"",
+          "identity": "cbe7a0736231fd13ca9aa1d0c9923fe127ad9da5a8232827c67822d4186e9330",
+          "key": "7e8279a45e5f7bb33c129190869307b3",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 10
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955710,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0020",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "ff81a324b39b942964d582a983cca6d2f79a4dfe04eb1a921bdfbb7d0b58a989",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 20,
+        "signed_at_ms": 1793482955710,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "0a9eb61e9ec887c25589bc218f4d66bddbd5b9bee187992d88195f07a6958b8ec8d2ab354660442b09664a632ee6857dc942585fef761be9bdc0faeee1639b03"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-03-0438.pdf\"",
+          "identity": "cbe7a0736231fd13ca9aa1d0c9923fe127ad9da5a8232827c67822d4186e9330",
+          "key": "7e8279a45e5f7bb33c129190869307b3",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 10
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955711,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0021",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "e706d1d66a0f49e038bf28d0bb7fcb5d9ca8ecec4747551bba84e6be0d3f36ae",
+        "refers_to": "0cd20b19fef0-0020",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 21,
+        "signed_at_ms": 1793482955711,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "6976839c568e6d95244dc2fbe71e2532c3936547410e43704c8a4d924726783f5327916b1153631388dd15d616acac6d34bd6140dcaf3022488c6111b90aec0e"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-03-0594.pdf\"",
+          "identity": "c279e09179edcbf47c35dbf0b13ff9142348b2fa36e687d392a700f8c03bd31d",
+          "key": "64a4b7ccae7d0bfb5287c993b3382442",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 11
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955712,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0022",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "d829d9f7d972a1921ea964a71fa049980eaefffcb7cbbedd50b9e9908263a240",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 22,
+        "signed_at_ms": 1793482955712,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "122e7be1d71a8fa0671bb6a978dfad59edfd6248661c8a9a0b081286abcead4192c87b4bbc3909f2f70e6c5829f1b010203e7610360796b51e41004b2c293e09"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-03-0594.pdf\"",
+          "identity": "c279e09179edcbf47c35dbf0b13ff9142348b2fa36e687d392a700f8c03bd31d",
+          "key": "64a4b7ccae7d0bfb5287c993b3382442",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 11
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955714,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0023",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "54af2b9430748b0b183688e7a114a01c2410f11a765a4d88f497ceb40c708b3b",
+        "refers_to": "0cd20b19fef0-0022",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 23,
+        "signed_at_ms": 1793482955714,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "f862c335edcd3b8081361bdd427cf7db861c1018623c570c01ff7c9eee2044ad202e47928705d4e06a7dd6c7f14f338c559662b0cdccaa6cea40fcbb724e4b09"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-03-0750.pdf\"",
+          "identity": "bd85377c0d3c8c16c40683b4ba50be32685e5005573c064209dd3cd253f62bca",
+          "key": "6bf63d12af9c62632ef2c525f6ae6153",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 12
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955715,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0024",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "2484d3f236258dd619d1446e6f03948e1e69d553ca631741793b23683317e0ff",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 24,
+        "signed_at_ms": 1793482955715,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "bcf408af2b657eaa0e5fb87a36d089315ad9281f989c6534d56f0ebc13dedc743010a8a18baf55bd1b087b837483f5e380248565c9fb63915e82ef38430f560a"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-03-0750.pdf\"",
+          "identity": "bd85377c0d3c8c16c40683b4ba50be32685e5005573c064209dd3cd253f62bca",
+          "key": "6bf63d12af9c62632ef2c525f6ae6153",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 12
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955717,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0025",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "12e1accc004dc42131ea61233840b96cb9d9725a1df1e862f221049d56a0fe56",
+        "refers_to": "0cd20b19fef0-0024",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 25,
+        "signed_at_ms": 1793482955717,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "33a4fe719407085bc3e0ed57b72121a89246a4fe63c6be56eba96ff5139e6ce9929d975f16018cda61a58da1f689b02dcc38da9609516cbfe1ae604d10f47d02"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-04-0217.pdf\"",
+          "identity": "ceeafe076d6240d89694d777d687cfe7690e0efc86b11ece03182c4e18fb4554",
+          "key": "c342002874b4c855c9fcab7b28d55093",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 13
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955718,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0026",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "265650993b14a6b814cfe8a11a92df2e88a2f25d79e5a879d0e8b2948c8b3fd0",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 26,
+        "signed_at_ms": 1793482955718,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "223f22814413eb43c4746fee596a9312faf622479b0059337555786f2067cef8bff60bdb4b2a452893adc5e7953f42ffb9e772fed6ab8806885641ebdb87a005"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-04-0217.pdf\"",
+          "identity": "ceeafe076d6240d89694d777d687cfe7690e0efc86b11ece03182c4e18fb4554",
+          "key": "c342002874b4c855c9fcab7b28d55093",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 13
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955719,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0027",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "779f5810b7adc016bc4315b64b66802d09a9c1e915952bd0e03e181b3470a152",
+        "refers_to": "0cd20b19fef0-0026",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 27,
+        "signed_at_ms": 1793482955719,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "cba3518d9e9fd648cd247ec967d0df88ff35da591422b103339a53fd100bfe99ef925dbfd94253ec18ed8025091df67c1f1d7a189e8e7ccb9ec631ef53606b00"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-04-0373.pdf\"",
+          "identity": "3373dbe4f3e415ee7169500f48d98da87b8618d2957c30148f6ae75b7f07c4b5",
+          "key": "71c16ab9bd3a614b31a4da04a53f728c",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 14
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955720,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0028",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "e33a0f54762141b546415d357329dd333671a7d2ab35bbc1368d80180bd238e6",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 28,
+        "signed_at_ms": 1793482955720,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "11e442c4b428c2d6e371b479d69ca44aab5067b5f8ce6f210c8958b53ac57003b40fe179eccf9e359a723703c1541ffed37b31d913f8166d50826d80057f8203"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-04-0373.pdf\"",
+          "identity": "3373dbe4f3e415ee7169500f48d98da87b8618d2957c30148f6ae75b7f07c4b5",
+          "key": "71c16ab9bd3a614b31a4da04a53f728c",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 14
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955722,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0029",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "76d0616d52579e8a0c189b2870dfe9da148d8488fe78ff494e88e2c3a1e3d5fd",
+        "refers_to": "0cd20b19fef0-0028",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 29,
+        "signed_at_ms": 1793482955722,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "c03a37473d047d68439bdfdcf8dc53082b0f0ea2152f1f4dcfdba281c2977a65076f38d9c7910472f7e561b2e3feb09683b47ab4c2a98fbdb85939417e810306"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-04-0529.pdf\"",
+          "identity": "d9553476d84acaad46e1b895955a4f2c39fa8623aec31b87235bbc8a35c8c68c",
+          "key": "fc9b009030d387536c047cf81d994dfd",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 15
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955723,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0030",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "004de8ea8f74e93444b38635b58afa86fb07224cebe7f42922b8a00e14248188",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 30,
+        "signed_at_ms": 1793482955723,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "223d94e22bfec0f5e2994992fe66ff040924fe77f7150ffbb8e2ecdda7388c490793f3bd47927a83af34787ecef635c62ee4dc7ae7d03aa1b2de82c8c402d408"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-04-0529.pdf\"",
+          "identity": "d9553476d84acaad46e1b895955a4f2c39fa8623aec31b87235bbc8a35c8c68c",
+          "key": "fc9b009030d387536c047cf81d994dfd",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 15
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955724,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0031",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "18d4e0078018571f4d5e642834e6d6f468350c66dec6906ba89a874d3ed8c7b7",
+        "refers_to": "0cd20b19fef0-0030",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 31,
+        "signed_at_ms": 1793482955724,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "5b5904a86a817237e0f760a63f952caeb386c794045e3e8f0322b9197d46c19e355649fc8667650ab1aac23dbbbb6eb73c222367abaca76736935ae3038c9b04"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-04-0685.pdf\"",
+          "identity": "46b5f501086355ef67bcba76291964816e2f8bf933ecb90562621ecde2888588",
+          "key": "ee075d25d1175c5282f9f3e393a3df4d",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 16
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955725,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0032",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "c09f72cf0f747dac34449cff3e89eb44712104a65f15cd7b0d0985b5908ce681",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 32,
+        "signed_at_ms": 1793482955725,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "5f26885a2c3a3879795298923ebd36116a5568fd3b2dbd97798fb35f3f3e232315f9252644c00467dd0f26a973d3c88674cf2642cdb8c040ecd5cfbcc114fa0d"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-04-0685.pdf\"",
+          "identity": "46b5f501086355ef67bcba76291964816e2f8bf933ecb90562621ecde2888588",
+          "key": "ee075d25d1175c5282f9f3e393a3df4d",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 16
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955727,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0033",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "8c1600abedcaf5bf4aa34c88a818ec2a85fab696a28cf966315bdd1e50e0397f",
+        "refers_to": "0cd20b19fef0-0032",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 33,
+        "signed_at_ms": 1793482955727,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "3de7bf60b0540fbebdb2ef7624253210e6ee1ea01833c82e9314859df8f91c1d1169535ec7ef6e3615df3300edfa6b8dd8aec2d391eec9b5aaa078812f616405"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-05-0152.pdf\"",
+          "identity": "274de784f5f065efac1cc6ca3651401bbde725b991c8fe40e3291c7703b48302",
+          "key": "c3564e3e74433c4217c0e41ce2fea0ec",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 17
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955728,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0034",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "b0fdbd1030c59d9ff705592eac7fbb423a6ddc44abca90d41ecb29b48018a443",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 34,
+        "signed_at_ms": 1793482955728,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "fcee3f19c70d708731d419fd3534a3c15708026b088115a18239d843ebcc49ec727324b999711ae37ce2cff9ddda96e2b5733a622222666b87b97b5d1c37380a"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-05-0152.pdf\"",
+          "identity": "274de784f5f065efac1cc6ca3651401bbde725b991c8fe40e3291c7703b48302",
+          "key": "c3564e3e74433c4217c0e41ce2fea0ec",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 17
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955729,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0035",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "fa6aeb914f64fbf5392b62f2fffd3a9935608f6e252ab78717c22bdca9ada03c",
+        "refers_to": "0cd20b19fef0-0034",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 35,
+        "signed_at_ms": 1793482955729,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "b72d4a63d6a47f998f9c848b3e68bde4f01b890c7885c497b65222b51d5a3b08ae9a72983ba8f7bd5e21763098b9c6e3dc741825fa9388030897be464ee12707"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-05-0308.pdf\"",
+          "identity": "435dfe08f824ef41891cb180b97859615e2afd193d5b208d448954c0b56ccf6e",
+          "key": "adb27599707ca18f440bcffb9ff750c3",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 18
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955730,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0036",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "d38118a5d6f85e49dd18913a97f1fe67b34bbab19ebb32616b710ca3cdd2507a",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 36,
+        "signed_at_ms": 1793482955730,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "bce02b81e1bb852503b793ab4fd64d7a098d1b81f5aa899ca825ca542f4e864caba5028c6246826ea53c8810a0eab5361f0b312752ca168f67dfebd4f0c60601"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-05-0308.pdf\"",
+          "identity": "435dfe08f824ef41891cb180b97859615e2afd193d5b208d448954c0b56ccf6e",
+          "key": "adb27599707ca18f440bcffb9ff750c3",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 18
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955732,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0037",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "e1415d875f7e8961241e9d58cf6a3be1ddb5fec04143d31182a157120f77e14a",
+        "refers_to": "0cd20b19fef0-0036",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 37,
+        "signed_at_ms": 1793482955732,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "d4109d11671d80c75d1ad59bd59c9b8db6e3f24360f0763b0010c93c15caf7fcb3ecf69ae399856754b6521e4b0ae321de6b35db78f9e0dbb6ad02508322f405"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-05-0464.pdf\"",
+          "identity": "6be139d8eb694591431024a4d54712166db5ab025c096aa3fb3f440413af0ac3",
+          "key": "80572a9dee99c9867c649f4742248253",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 19
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955732,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0038",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "ae586d1e6417166a8cf4c5615959caf6cec742c114c91aee3cbfb1dacee99ee4",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 38,
+        "signed_at_ms": 1793482955732,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "d34ad4194dbf4d92c1559c46329b5bd0b71567ad901eea7c6689f455c55e454a7828123d76f3fb84ebc3401a86eb43c0031950ae3225603bf254ac6304921908"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-05-0464.pdf\"",
+          "identity": "6be139d8eb694591431024a4d54712166db5ab025c096aa3fb3f440413af0ac3",
+          "key": "80572a9dee99c9867c649f4742248253",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 19
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955734,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0039",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "4fdd36ba452cd01919fa6b8b3286aed07283fb606d09220fa7fd1b1739810d25",
+        "refers_to": "0cd20b19fef0-0038",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 39,
+        "signed_at_ms": 1793482955734,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "fad8460adb382c8c9ecbb7d12402274960fe2b1fff0d777baee53dae34ef8765ed9b05a17e3d21a9242a874663552ba21e522d1a7453856d1f6c7952760ed409"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-05-0620.pdf\"",
+          "identity": "84a10576acafddda9025c2e1458d65070f81ff422a3b6f530b7c4e171a41f85e",
+          "key": "0d2c57f8f40aaff46ff8c6fc90efe0e8",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 20
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955735,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0040",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "006bb31ddd1e02391838acb3525f92f9875663abb809c1144acfec75911bba1f",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 40,
+        "signed_at_ms": 1793482955735,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "f8eb561839311caa571e9702fd4015b6645d9d2cf7fb999224eaea305f533d69c937f2483a99f4cfcb0bda72a7081be004918961fdb96a341ab5a3e4899aff05"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-05-0620.pdf\"",
+          "identity": "84a10576acafddda9025c2e1458d65070f81ff422a3b6f530b7c4e171a41f85e",
+          "key": "0d2c57f8f40aaff46ff8c6fc90efe0e8",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 20
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955737,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0041",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "b891c12ed68f916858db948386088c1f224bd6a0ff0d4ff4283e592e35f03f0d",
+        "refers_to": "0cd20b19fef0-0040",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 41,
+        "signed_at_ms": 1793482955737,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "a8fedcfbc189fec4bd711d7cfb14c89335261d356ba2a72e23f1b0c844f380fe89baf35c6bfe823262e3e8a7de1704fb1c344234e3642bf53ed81ef40d104304"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-06-0243.pdf\"",
+          "identity": "bd6898687a24223c8a2de5242b4e8e32660a9958cfe9aee9eb10d74d5705f3b3",
+          "key": "2d4cb3bee44a330fb967faff6517f1b3",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 21
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955738,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0042",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "a52202bc9a4dc5186d91fa6b43c2fcab781dd997fea86cb4d0a17949373fdbb6",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 42,
+        "signed_at_ms": 1793482955738,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "6e52b98278e66f0c316a1fbdb62b8f0601acff37e29c3790983a454c4cdb36890c0c3834659fcfbcd8c4cb965d382fcca3b552b8fe7eb7e30c7c9065cad7f80d"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-06-0243.pdf\"",
+          "identity": "bd6898687a24223c8a2de5242b4e8e32660a9958cfe9aee9eb10d74d5705f3b3",
+          "key": "2d4cb3bee44a330fb967faff6517f1b3",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 21
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955739,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0043",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "435736dea51273060ad7cee0fff8b5136b45d76b206abbf9fcddb85ab2160ac3",
+        "refers_to": "0cd20b19fef0-0042",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 43,
+        "signed_at_ms": 1793482955739,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "77da46c63b0f8a11342aac32dab4786fa250a98f56340bb29b8067eadd018bf771321480a8b54bae9a865d482e6139df4b3bcf56fc954a588901108220fd6e08"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-06-0399.pdf\"",
+          "identity": "13471efc019bc02f2b99ce2792ab4c9a157a46978c86d6d813a1a23dc8ec7431",
+          "key": "aace077a3b169ab48a5d1f0827ca944b",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 22
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955740,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0044",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "aee26ff0a2a53b916fda21712e94e65bad628d6c188e0758e779fe6b638089e5",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 44,
+        "signed_at_ms": 1793482955740,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "c51cd6594aa1e59da338d6bcf05e22a1907f0e9345da810d111d03cb6bcbbc22eff62c83d67ae7d6602c8b5b43de07d8499797091e993ee51bebd569e1d38f0c"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-06-0399.pdf\"",
+          "identity": "13471efc019bc02f2b99ce2792ab4c9a157a46978c86d6d813a1a23dc8ec7431",
+          "key": "aace077a3b169ab48a5d1f0827ca944b",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 22
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955742,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0045",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "357ef9582e0306949f88ccf76a6aec51659e489db53e3d0181028203ddd7f2af",
+        "refers_to": "0cd20b19fef0-0044",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 45,
+        "signed_at_ms": 1793482955742,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "504008e74aac9c4877a6b68fb8afb65fd146bac5663e9caebacbf54c8554a3f0e464af2ee7039948a7ad89d313fa9895bc5dd05aaa6cfbbf29c94d6f84e45e07"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-06-0555.pdf\"",
+          "identity": "1407261b64e25b75e3913a9a1902ac4ba19db6a37477ec0c56f70ac7bd9ad210",
+          "key": "6973ef03e86e32f74a038365cf4fe09c",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 23
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955742,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0046",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "803a3e16bda6885e9dc0dba2eee9c1e1ff78ac7ef5c2b05a819fe122ec8f994d",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 46,
+        "signed_at_ms": 1793482955742,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "2f5effcad932404a3bf87751c11bf9c6fdd5060ffa2faef147886994c8306d0a1f1eaf902c4e78a52315f648e3cdf6322506d6dbc19592a97ca73dec2ffa8c09"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-06-0555.pdf\"",
+          "identity": "1407261b64e25b75e3913a9a1902ac4ba19db6a37477ec0c56f70ac7bd9ad210",
+          "key": "6973ef03e86e32f74a038365cf4fe09c",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 23
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955744,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0047",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "ee9384f001433ad46b7ae5a2f2cdb1aaf7ffda46b160d33d413f2cd509b833d9",
+        "refers_to": "0cd20b19fef0-0046",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 47,
+        "signed_at_ms": 1793482955744,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "3838533e48c5e2e45328fe7217f9129a54e297ef2293b052bd730c7b79fc4509b2a94d33f77bbf51c1bcde4152aed6bf256b1822ce05cf0a6357767c72309d0a"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-06-0711.pdf\"",
+          "identity": "56a0fed051982e15c619a8c8259f21586fe260bf299fdcc16d906d45bbb104df",
+          "key": "783b5c0ee63b7eee736c68abd8e233dd",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 24
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955745,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0048",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "2bcefbab37d27d6d8a7cac962f274095e750ab85a8149c6165300803a9529730",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 48,
+        "signed_at_ms": 1793482955745,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "4062a88a3e88e2a4bc7ca401092d0105aa18f5e7ac4507d6750b9f04fd05fc01ca80540a434140fc8dd3d054750735875c627d1519b3f769f68e24d2037f0b00"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-06-0711.pdf\"",
+          "identity": "56a0fed051982e15c619a8c8259f21586fe260bf299fdcc16d906d45bbb104df",
+          "key": "783b5c0ee63b7eee736c68abd8e233dd",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 24
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955746,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0049",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "a5870edcbebf5a72ebfee14c245127e16b6857a1a9268dc1c72b23be6a5d3f31",
+        "refers_to": "0cd20b19fef0-0048",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 49,
+        "signed_at_ms": 1793482955746,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "204d6408ada960b055ba39218ceb84651b2964d8fa92ef1d6171e7dcb14c43be32cf2f40d146aa797a406b9564f5db2b8660814f4f63dd520862785602fe640b"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-07-0178.pdf\"",
+          "identity": "f9396ff520963513b234691ac5d3f8226d96becfcf7c1669c41c66dd5734f119",
+          "key": "6dbd5b85bc71591a0b1fda55fb799a55",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 25
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955747,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0050",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "91d2f4075cdc3c2ac533b547def65866eb3ab7cb27d4499c2aa24ad2cd823fbe",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 50,
+        "signed_at_ms": 1793482955747,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "c908bc98b2a8cc60574ecd58c950149982f623fe8bb0fa1c02b15214baaac2f8dc900a7d645d2979603c7349c942abc2ed529b5d04805f3be2044caf28af9b07"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-07-0178.pdf\"",
+          "identity": "f9396ff520963513b234691ac5d3f8226d96becfcf7c1669c41c66dd5734f119",
+          "key": "6dbd5b85bc71591a0b1fda55fb799a55",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 25
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955749,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0051",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "37e2f45b25c4c5b6fbb32f0e382701432dd2c6874bdc684fb02c7bf4e6670ce1",
+        "refers_to": "0cd20b19fef0-0050",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 51,
+        "signed_at_ms": 1793482955749,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "37aa7d902d3dc11851d574db1e59e7a0e80975364bf20bb2ffa5c87d135f3e16006a05b26759945bffa8edafa379cd841ac25c078d022632ba4c1b13e5626109"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-07-0334.pdf\"",
+          "identity": "7f364365319ede708466910ba5527bee8e14b26f3ee7984df4e47d0bc1af587b",
+          "key": "59584d48a2066fd41031d18869a5ea79",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 26
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955749,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0052",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "20802f0eeac59f2a3ce54ad5c7cddebe630053020e077d787ee8040b59e6baad",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 52,
+        "signed_at_ms": 1793482955749,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "5d117d3a848480cadf507d239d62f6db5bd9a78becc9597b9949dbc0da9cc04ca2b10d3da5fb2023498fc04bd4ee7ec35073e0cf6a6b2f86f4ab9b9aec9c180d"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-07-0334.pdf\"",
+          "identity": "7f364365319ede708466910ba5527bee8e14b26f3ee7984df4e47d0bc1af587b",
+          "key": "59584d48a2066fd41031d18869a5ea79",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 26
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955751,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0053",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "d9a0875622218588bd9db31afc46f8aa1060401c47e4d9b5b8e2dcc014d0abf6",
+        "refers_to": "0cd20b19fef0-0052",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 53,
+        "signed_at_ms": 1793482955751,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "a920440daa52c894e2d49c60d325f08610318b7077d7a1c9092b8d6b955efec56d3056b432734f8b2fbf2c5cbec73d1258e75f5dc7028eb8630560dd1d27e807"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-07-0490.pdf\"",
+          "identity": "1e879fafbc842ff42ba61c0c5bde7ea26a840b5bafc9b911c56c7772f7c9563f",
+          "key": "b773a68e65ead4d8ffe52a92cf1cef4b",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 27
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955752,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0054",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "051cea9637b03df6fd65eff1282703360864751aabf8bb1bcdf84d7250194c35",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 54,
+        "signed_at_ms": 1793482955752,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "6c2cfd34e82e457236629afd9747be4d3a9c9e2e8494868d0c08ca4c493bf21fdfc2ff8f3343a3f8e66937e32e1f236679a929ab61dd5b9db4edd22be897dd0c"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-07-0490.pdf\"",
+          "identity": "1e879fafbc842ff42ba61c0c5bde7ea26a840b5bafc9b911c56c7772f7c9563f",
+          "key": "b773a68e65ead4d8ffe52a92cf1cef4b",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 27
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955753,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0055",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "4261e44d990dca83fa6415332fec2b3bed1ce3a8b94544de920dfc76087d8a4e",
+        "refers_to": "0cd20b19fef0-0054",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 55,
+        "signed_at_ms": 1793482955753,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "8d199369844ffd505ac678ab393da1a102ea3d6e9d9f243fcae50eb4077766fca9d1219e49d9fb3f452414010c3ea0c07fbcc90c58ca8a1c753c7fd616e85f09"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-07-0646.pdf\"",
+          "identity": "b31c6ebb3c3103f98dc16da29f8c55f3c08f0c3cc9cd774383df728f0de66bfd",
+          "key": "8ede88c15389b339815d9638c4fda3c7",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 28
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955754,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0056",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "9f997b84636eb77fee58639953e120cff3c86e35f917681dec601dc096c3be09",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 56,
+        "signed_at_ms": 1793482955754,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "04619f6358b1ed67cd8a7a6383b370fb9c12c5b7069b9b32985d45760633e6c2e2f0a3bc041399c08648a4dba566bec208cabd1b42044495c13afaea212a260b"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-07-0646.pdf\"",
+          "identity": "b31c6ebb3c3103f98dc16da29f8c55f3c08f0c3cc9cd774383df728f0de66bfd",
+          "key": "8ede88c15389b339815d9638c4fda3c7",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 28
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955756,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0057",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "949a6176f0992128e7da53e6ab7b981cc39ddc7e185b03661e2333a9c7515fa1",
+        "refers_to": "0cd20b19fef0-0056",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 57,
+        "signed_at_ms": 1793482955756,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "df69bc0c289727ecc563e27d19241099cac5cff18dac96a3822d6aead752c915e51799a48ddb36f3a8d76f429c2439509fd355d33e96b211c48ca2607fddbe03"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-08-0113.pdf\"",
+          "identity": "78698c72fad5d9a2cbd4fa9802364c5efe8d1611a4ad31b30ac644b5f263926e",
+          "key": "17240a0d771be65520d0cbf75af896c3",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 29
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955756,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0058",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "8869e851e2d8321388ca4473c8d46b67c5d734b3f2477a0229534939c21dada1",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 58,
+        "signed_at_ms": 1793482955756,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "be012257861fabf1f57a6afd4609f8f15a4dbed1679e0140d1e7a748704507827d522ab5bdb2c725f2817d8ef591a7d7dce2171534a079c4b72ff2cfd7b1c506"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-08-0113.pdf\"",
+          "identity": "78698c72fad5d9a2cbd4fa9802364c5efe8d1611a4ad31b30ac644b5f263926e",
+          "key": "17240a0d771be65520d0cbf75af896c3",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 29
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955758,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0059",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "2c99259b27a61689b7d1a585386551c07cfeed4fc96875ddea2bb0dc4488008a",
+        "refers_to": "0cd20b19fef0-0058",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 59,
+        "signed_at_ms": 1793482955758,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "bfe4fb574e1d73bc3735f143da911e3619065cb3755dcadcad0ddbd81b75e477837d1d786c98da8559edbdd5d4785176506118ec69de3077b7e47121a219ee01"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-08-0269.pdf\"",
+          "identity": "47d3c8aae23a8bd5aa6222c658e02856410819fb2cbf42281fb0087927faf8ec",
+          "key": "786f96831b911edcf3e14f13afd8d898",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 30
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955759,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0060",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "32279ca03e65ea84dc91fa5bc2e47bcf2c4976d0b8d8338b3bacd6e76c39660a",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 60,
+        "signed_at_ms": 1793482955759,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "2c81c04e7787428388e117931f22980952da87d33cca20c512d399f3044044496f4537652849d90c770587b934cd41e785b5667e38d4d044ac1ea0eb973ddf02"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-08-0269.pdf\"",
+          "identity": "47d3c8aae23a8bd5aa6222c658e02856410819fb2cbf42281fb0087927faf8ec",
+          "key": "786f96831b911edcf3e14f13afd8d898",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 30
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955760,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0061",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "4d47c381dc1cc6fdc696f2789534181ff60a06781bd8c857905ad177fadcee26",
+        "refers_to": "0cd20b19fef0-0060",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 61,
+        "signed_at_ms": 1793482955760,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "e2c0d926150fafade639c250bd91436f11dc85c449f1541bc57ed539fe2a1fda205a86ca72fc59bdcbca919fda272e2fa2c14e06d1d969a52ca1dbbd4497cd01"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-08-0425.pdf\"",
+          "identity": "0c644f86729cbd282b96b6be890d225a6998743aa223a5076d0273c466ff8800",
+          "key": "aaf221e5327ee0e3bc259d7eec3b814c",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 31
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955761,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0062",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "8fbac6e32142fd2c6c1e43d25d3f4cfdf25fa702e54c8efb6af934c0bbe49984",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 62,
+        "signed_at_ms": 1793482955761,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "3bb8390f2bb628b6aac4c18b2965edd6f43608b67a82d381a5b501e6c83a9ca99ad18975f9eb94a37c5bd7725948689e1b2255247d51e3b08bae8e83b82cb60b"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-08-0425.pdf\"",
+          "identity": "0c644f86729cbd282b96b6be890d225a6998743aa223a5076d0273c466ff8800",
+          "key": "aaf221e5327ee0e3bc259d7eec3b814c",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 31
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955763,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0063",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "780f41132b19900323c33351facadbc0a9b4f56c1c5573f626b02129032fd8ee",
+        "refers_to": "0cd20b19fef0-0062",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 63,
+        "signed_at_ms": 1793482955763,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "44e5611e5df0dd6991aaf7960584e4f74a2978cbd749cb8e2c8ece7d80bb6c4e076410bdf46bde56e55fcc0f3be4a39b81b198d8460745cf08f180bfa0ba3804"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-08-0581.pdf\"",
+          "identity": "b2946f8730125ceab8ff41a5933c580cb21efbcd622c5a60ab4c0cfaf8c6654e",
+          "key": "0902f4a8cca7edadcb6683fdc7bce256",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 32
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955764,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0064",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "6707cdfabe287cafb53c4e2fed5879b977d076d0b479e2f7c6a3f3450b01a8b0",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 64,
+        "signed_at_ms": 1793482955764,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "660316dca7435eb984d15561004cb095e3c2cecbd4c8a3ce08d6fe13e60c762dc133d7690f9e7576d722e1e510e9733616acbe4065a5e28fd1fc3c9dd25fbb0c"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-08-0581.pdf\"",
+          "identity": "b2946f8730125ceab8ff41a5933c580cb21efbcd622c5a60ab4c0cfaf8c6654e",
+          "key": "0902f4a8cca7edadcb6683fdc7bce256",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 32
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955765,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0065",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "75199485aa9b2442057bb315b0f8d11ad0af44a4e50e788691adc2a46f1c8a78",
+        "refers_to": "0cd20b19fef0-0064",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 65,
+        "signed_at_ms": 1793482955765,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "9c867e73a8245e8f69a36385379f948997aee87e7cce6e795c59f1ed2385606d4845c93c0387689adbda1a122eb1113161520ca8e570fcf783b4cf75d3170505"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-08-0737.pdf\"",
+          "identity": "bf4d9ec0b91ca50caef3054d73ba523f394a1035ff4b34cee8633e9aa01188cb",
+          "key": "6819d03dd6e80bc1f8e6a2e0c955e403",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 33
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955766,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0066",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "9f8e840acf55bd239c6a57c93f9bac229bb619e056989425c33f2541ed1533e3",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 66,
+        "signed_at_ms": 1793482955766,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "4a1caa18df09b0784e418d093cac4ad54417272489d009178a9235eda26ab09d27a54e343030fe36e779605b65578061b35c5018ea296d247a743cf285f4f100"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-08-0737.pdf\"",
+          "identity": "bf4d9ec0b91ca50caef3054d73ba523f394a1035ff4b34cee8633e9aa01188cb",
+          "key": "6819d03dd6e80bc1f8e6a2e0c955e403",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 33
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955768,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0067",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "7c82e87412c61d30458fbc89f8b461c22189531931acd0a15c69c58266271d46",
+        "refers_to": "0cd20b19fef0-0066",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 67,
+        "signed_at_ms": 1793482955768,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "2f847aec9c8173d6709bacc6d5e7c1b0de0e9e8b338dd6de6e72fd5199caee9e4367f61e44acc7821a6a976f0c7d732c026e41dfd85841f014c0bb8b3ae7730a"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-09-0204.pdf\"",
+          "identity": "f8fec83a506cee918c530bc5b276ff5285c932473a4f8d3c2974ef09ed7889d5",
+          "key": "f018a4cf3a3004be694ee2b80fbf498d",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 34
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955769,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0068",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "bc0e7a4cd11896b64f3f41d15454580ecc68d8dea525076b0667aaa97a628324",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 68,
+        "signed_at_ms": 1793482955769,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "1ba0a5abcd2b5b8e1b7588334d5d63ecfb2e4bfb9f7a65c10d129d0dc3255e6861ac5e3161ce42d7e50c82a693a8dced08b1963928fa0658ab45d29588cae504"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-09-0204.pdf\"",
+          "identity": "f8fec83a506cee918c530bc5b276ff5285c932473a4f8d3c2974ef09ed7889d5",
+          "key": "f018a4cf3a3004be694ee2b80fbf498d",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 34
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955770,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0069",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "ff32f68a57b3fae20c158793f6e5ff69601a21d3507b949f0d1613f7c92cb0d8",
+        "refers_to": "0cd20b19fef0-0068",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 69,
+        "signed_at_ms": 1793482955770,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "2cd5792e217dabcbd2999e954e9660078ef4291ea24b068dfd552a42580b00d0377c1954f1515dc0554654f6f9081897d14df83d1edb9b9f9e5f4c103db62d0f"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-09-0360.pdf\"",
+          "identity": "2b57b9443bf9f01686e74d3f233838b61ca5518b73c3f8bb5182178c94b818c8",
+          "key": "7331f340e4b0f9af2855afa080112383",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 35
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955771,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0070",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "baef393a67724c1ee12c4bcb66807972cbcc44ce07639bcc8f605844aa63055a",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 70,
+        "signed_at_ms": 1793482955771,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "4d03a51c378a8aa4b891f172948e6c9b0072729141f865992f09fcd653f739c2847b2f238de0f29e0ef80facc494c02d6e14847ee979b26b3c135f5c7dc7d903"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-09-0360.pdf\"",
+          "identity": "2b57b9443bf9f01686e74d3f233838b61ca5518b73c3f8bb5182178c94b818c8",
+          "key": "7331f340e4b0f9af2855afa080112383",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 35
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955773,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0071",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "ea8092f71cc1ac3862a07805bfbf50d6ece050968e062acfbae5cbe37626bb11",
+        "refers_to": "0cd20b19fef0-0070",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 71,
+        "signed_at_ms": 1793482955773,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "3bd47bd332e269784819acebbea39065fe0f2d44f98a7073a654031f4e76931827ef23053e6e08b149f59196eb6483dc91a6bdab18376918eb1269e8f7f62b0f"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-09-0516.pdf\"",
+          "identity": "221a0247d96eb49c8a1de87e6f9632d614d80c823d0cbfbe4a7feacf1e7c5738",
+          "key": "a63690dfd5c93cee4713b3eea34c0459",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 36
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955773,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0072",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "1f4128a789ab9a22f41190d9ed5ac44c00962db64b14b4384a5f346833e38ae1",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 72,
+        "signed_at_ms": 1793482955773,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "6e4465e8be10deecae088f08019085356f6840ea7a8e2a604cff9ef18f14b36bbd5b91abd9df313db3c9d0652f5a33e6c152111087cfd5bb2d5beca3a6b33f00"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-09-0516.pdf\"",
+          "identity": "221a0247d96eb49c8a1de87e6f9632d614d80c823d0cbfbe4a7feacf1e7c5738",
+          "key": "a63690dfd5c93cee4713b3eea34c0459",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 36
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955775,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0073",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "77e7379438d6efb40a24e1eebd18d893b898e39d40b39b1dd42245e0252138cc",
+        "refers_to": "0cd20b19fef0-0072",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 73,
+        "signed_at_ms": 1793482955775,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "da32e816854fbe39fa26a16b515f2df046071d28e8e43d46afe41877c3f7b3f307c36f3cce6c6772326b840cb19f8dc5e4f21135e50902f1252946f6962b8f08"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-09-0672.pdf\"",
+          "identity": "439311532ff24cd67329349f9e38229637f823c36d821ae5e9341a03301487cd",
+          "key": "e70c44c0c8799e96cc421dc0804defa5",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 37
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955775,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0074",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "b92eaccfa163a952587ba9560b6b70d867dc41303ea869f38e7cecfb1b9ebac3",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 74,
+        "signed_at_ms": 1793482955775,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "1547930aac0ddea3ff9e8d2dea6ca2c049e4fdec5fa842429bf72724196e58227ca24d0431c6e1f00c97c6c69676a3b1b6d515be1c4d72e459c5d387f3356a00"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-09-0672.pdf\"",
+          "identity": "439311532ff24cd67329349f9e38229637f823c36d821ae5e9341a03301487cd",
+          "key": "e70c44c0c8799e96cc421dc0804defa5",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 37
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955777,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0075",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "1442cbbce89e53ce3d1a431cdb369bbd598731600d63215fd7254b0c88805eae",
+        "refers_to": "0cd20b19fef0-0074",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 75,
+        "signed_at_ms": 1793482955777,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "36fcda4afc9dc98491ad21aa8dd8b788e96e3abe2c121d0cf6a576d4ef617255770f9d4291930745460586e9cfdc326d8885b8e16cd08667b6eb35c646586d06"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-10-0139.pdf\"",
+          "identity": "ab059203bf0d36ec44178a269c6b4106c37d9b650cdb3191490a30eb67624401",
+          "key": "507119e36b07329cfc7545b4f2fc4266",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 38
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955778,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0076",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "ee1c1c801e7528e2a5a7dcf0aa1da25935a1d038be5c475111803c1456039cc6",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 76,
+        "signed_at_ms": 1793482955778,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "e1c695da0ae4c30060c30601978ed244e7935a7ffd9685bcbb303922d0cca02bc1c273c210655acb1d9aa41b97c4262a9678de9358d1d047693c80a86dae000e"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-10-0139.pdf\"",
+          "identity": "ab059203bf0d36ec44178a269c6b4106c37d9b650cdb3191490a30eb67624401",
+          "key": "507119e36b07329cfc7545b4f2fc4266",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 38
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955779,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0077",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "08ea05748759188d1e5514d93573fbe6263f52afd56cf24de45a3ed5beb0628e",
+        "refers_to": "0cd20b19fef0-0076",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 77,
+        "signed_at_ms": 1793482955779,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "278395da25921b72da9c7fde0c65eea187962fd24ed451603bd8b82271e53487486988e4353dd7f42199a7e0d546e7d3d6ecf9b3520a1224b2a8742cc484f703"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-10-0295.pdf\"",
+          "identity": "569827b7f1bb50e4c949b189b39f9d1057739f4e24c31413e1021aed4f6a6d91",
+          "key": "ae2a513c8301b7b9cbb0f76470e94e16",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 39
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955780,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0078",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "13b467f43aaa61d3b3f2d95445760aff26495bb8e0e65dc15dbb64789ecd4554",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 78,
+        "signed_at_ms": 1793482955780,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "e5ea4253717a2fbacee76f087e4fba960d230fa250caa7015048793163d728cfa8628dbcb869b16131e4582e25d8566408e7c01cb657cbb0546474ad1827a807"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-10-0295.pdf\"",
+          "identity": "569827b7f1bb50e4c949b189b39f9d1057739f4e24c31413e1021aed4f6a6d91",
+          "key": "ae2a513c8301b7b9cbb0f76470e94e16",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 39
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955782,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0079",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "b21aa212d965c661b11b136853bc7de670b7eb558ef773d6bab4230a6b051bc8",
+        "refers_to": "0cd20b19fef0-0078",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 79,
+        "signed_at_ms": 1793482955782,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "09e92889db884c27ebffa5c750858ba94f5bca2b602db70ede83b25d33070a4809062e91a6806184566ef510fb2a9077853df44cfda8bbd1f56eef7b226b6a05"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-10-0451.pdf\"",
+          "identity": "574af41625c1a46a549d7eb4db7b1309de936d081eed375ca328441bcd583422",
+          "key": "a42f8d0f7aff3def9ffde317c3c9763e",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 40
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955782,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0080",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "171da783a095e813fac909a9beb3d5472e16de887d66a04f3a6894125ed847da",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 80,
+        "signed_at_ms": 1793482955782,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "b58d5cb6b068792203d5cec27e2cb8c755dea9a9ae555e1adbff901eabcb27b0c6e1b6e5c12f8ab47b95a43b553397b42e21dbce627abd4c4be3c142ffbcb106"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-10-0451.pdf\"",
+          "identity": "574af41625c1a46a549d7eb4db7b1309de936d081eed375ca328441bcd583422",
+          "key": "a42f8d0f7aff3def9ffde317c3c9763e",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 40
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955784,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0081",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "c5bd611d6d27816712a3330f478e8d81da49cc9ae6997dcb6f5db8b4fccc76c3",
+        "refers_to": "0cd20b19fef0-0080",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 81,
+        "signed_at_ms": 1793482955784,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "223873c2a2ad315728a3ae18e8c0fcd0ef62298a29ba75b9078ac0ce70b8aa91faee5c62e3dd31728053aee3d95633be3b76c459dee1638316e37a5d94197002"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-10-0607.pdf\"",
+          "identity": "a72f7dde95eeec7594ace3e33213177d50c815de674b2a1049593556b915c32d",
+          "key": "0ca549e44cec9137f8071e2bf33f2e41",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 41
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955785,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0082",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "ec614e29074568f1fc3118a8cf4bd4e3beb89f867af11c7f3b0a1f466ad13228",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 82,
+        "signed_at_ms": 1793482955785,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "d11d6d24a13384986bce94abc97be5d0f6fa1f00d8199ec98031da0acb30cf5c2607e085c7560422ba0da5e736c011a7027a750fefeaa5457fda63af35e2e80b"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-10-0607.pdf\"",
+          "identity": "a72f7dde95eeec7594ace3e33213177d50c815de674b2a1049593556b915c32d",
+          "key": "0ca549e44cec9137f8071e2bf33f2e41",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 41
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955786,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0083",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "2eebb587924659a887c53c4223aa00d73f5fe9e351743785b4215547597cf1e9",
+        "refers_to": "0cd20b19fef0-0082",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 83,
+        "signed_at_ms": 1793482955786,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "01fae69ad2836f7b2dd0d3e30c627f6d78ba8235b3a5ada379f732574c5386604ebec73e9ea224ff6edf38619c4d259f378506d53db8ce8c63731ed4e8117202"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-11-0230.pdf\"",
+          "identity": "981c8e3fd0f7bc4a8a45f77da1ef55e83041d7a92c793a98ba92b0d4f6d78cd8",
+          "key": "467e324383bc55341ad6b0eb458db3b0",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 42
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955787,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0084",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "23d6533764c104d784a6666de0a5170338d0cef00e802eb1a32c3261599ac089",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 84,
+        "signed_at_ms": 1793482955787,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "5340df2147652267ba2139d6d19ba9ecdef628d85309ff9d0af538253c07d6a8d0839ed9d624e2a75ebda607753336f3fd463a35f6d8b08d9344898aa4d4b500"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-11-0230.pdf\"",
+          "identity": "981c8e3fd0f7bc4a8a45f77da1ef55e83041d7a92c793a98ba92b0d4f6d78cd8",
+          "key": "467e324383bc55341ad6b0eb458db3b0",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 42
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955789,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0085",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "e1fc0f0831cc5f2802f870176dc2b41464f6005bbf5e2fbf3675ae0744efdb8a",
+        "refers_to": "0cd20b19fef0-0084",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 85,
+        "signed_at_ms": 1793482955789,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "8e34e1e826515b7226437ddd598cfe08e4b7efbb4b72f37eaf2873c2e0825b58d231e6f87e28362471a7c1e10ffc95840153c005fecaf6e0476db1279deeda06"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-11-0386.pdf\"",
+          "identity": "7cb79f66e570a9aa2bf1774a7550192bfa68702c2462d7ff7a5f3c33804c584c",
+          "key": "c367261e3f7a5418a74e730d9f98c27d",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 43
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955789,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0086",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "f22f3d5e73b97f48b99e5c534e66ccdd2e25ba7ecfc5d0c011bf07ea3db98068",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 86,
+        "signed_at_ms": 1793482955789,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "f46af5072304e7b030a9853cc712e8b0ba66aaef02522b7f843f8e66c82559274db1c8844c3121b0f007e5b260f2cb36e68f3eeeee218f7de758521b7e324201"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-11-0386.pdf\"",
+          "identity": "7cb79f66e570a9aa2bf1774a7550192bfa68702c2462d7ff7a5f3c33804c584c",
+          "key": "c367261e3f7a5418a74e730d9f98c27d",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 43
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955791,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0087",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "1e950c47a48bbd4e73a1340bc3d31661faf44b7c7576c22a0bb372b3cb788645",
+        "refers_to": "0cd20b19fef0-0086",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 87,
+        "signed_at_ms": 1793482955791,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "f3354e3f4cf0aa1a38160b8db495b733f9ff9ea422a0e4d5664c9c928ded82b8b220fbb5a2da0539ec728805623681c2fcbb58085840a09bec79e86780635405"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-11-0542.pdf\"",
+          "identity": "96b2414c2ea716f8007444a0f330b3cb4a5bb46c5c92f8a73825bc99915c6c40",
+          "key": "5bf17d7720c1db974b4840e02450a2b3",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 44
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955791,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0088",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "28c683a9e5e1d77107e081d3d1657cdb5f7aad066059d6c5135a10712b89f20d",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 88,
+        "signed_at_ms": 1793482955791,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "8263ec7866f618a91b7af0dd84c7e6336207896bb105e0c1e039fba988212b3d78b7e7e44f5967d432282726d1b472ac0d31b326be9f902df21d1c41c2462705"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-11-0542.pdf\"",
+          "identity": "96b2414c2ea716f8007444a0f330b3cb4a5bb46c5c92f8a73825bc99915c6c40",
+          "key": "5bf17d7720c1db974b4840e02450a2b3",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 44
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955793,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0089",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "8fb805d34100f7b9ff2b45fb77605965eb9af049879c5c7868650c26bc804c4f",
+        "refers_to": "0cd20b19fef0-0088",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 89,
+        "signed_at_ms": 1793482955793,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "ec015bb42b8ae8bb0757aace8dace51e20804da428a96ee84e0314fb1986e843850c93bf020cf94be7a870d4013a676c42527681aa39a97cfba0586a8679eb0b"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-11-0698.pdf\"",
+          "identity": "fb4edf45eedbc2bb31f7eff2d81d9a2d1ffa290b66ee7246bb69814baf28ca30",
+          "key": "1b789946343568c6bcd0ea668bb0a723",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 45
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955794,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0090",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "5d0d5cbf68aaf8f056d06602d347790fafa82aae8ed8b9a13367c9bf1f932b4d",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 90,
+        "signed_at_ms": 1793482955794,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "6c612bf4c5002f4f2b38efd17e9da9020b6f839d46814db8a2ccd7d66cf217b73709ccb6ac768802f5ba9768013dc790366f27e0993f465dcff5125ceeb00400"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-11-0698.pdf\"",
+          "identity": "fb4edf45eedbc2bb31f7eff2d81d9a2d1ffa290b66ee7246bb69814baf28ca30",
+          "key": "1b789946343568c6bcd0ea668bb0a723",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 45
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955796,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0091",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "c3e58a9822706921930dab93d634ca3d48d038200849cd58274687db55f126a4",
+        "refers_to": "0cd20b19fef0-0090",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 91,
+        "signed_at_ms": 1793482955796,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "a20c8de34c8583395f5feb63a7efe34e3020bcdba0d767496d47d453b26a458273df9d8b641228644ff33bffe2a0816069cc07fcb920a008abb964e5689b2d0c"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-12-0165.pdf\"",
+          "identity": "68b43c26bbb7d6739513fe391a85b8089e5900f9c1625f6c495071e4e3d656a3",
+          "key": "42b1f60478e48b02f7b698c05c39bba4",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 46
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955796,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0092",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "19810f861c907186a44679de4da2aee91c69f2de701bb944b1a6aebcaa422455",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 92,
+        "signed_at_ms": 1793482955796,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "ad8a132104e6314a47a50a4ba22d4cb12f74fb2b6c45668b619974a2479fb14dda98acb6675ce699550285cd56181270dcce83cabb253b98e6485214d2190308"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-12-0165.pdf\"",
+          "identity": "68b43c26bbb7d6739513fe391a85b8089e5900f9c1625f6c495071e4e3d656a3",
+          "key": "42b1f60478e48b02f7b698c05c39bba4",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 46
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955798,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0093",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "ce35d2df0f0f42602665802d9756efa6eb06aa87ab4241ffe863435fb935c895",
+        "refers_to": "0cd20b19fef0-0092",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 93,
+        "signed_at_ms": 1793482955798,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "635d56d4c3742e999d8a1af650dbd8c142acdcdecc771feed30298f4f9ab08bef38c18e0de6841a141751ca37ee796c21f9f2a22d7012dd2ce2b1a358a87150f"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-12-0321.pdf\"",
+          "identity": "8e68ee50439f18201b9c5a7c5da7ce8db9df69668ccfc5caec1745cf116b200e",
+          "key": "58a22dff8bfb02841d1a1fc12e6ef9af",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 47
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955799,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0094",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "15722c13b94e106a0158032fa7c1619a94dae8db1bc9a2d35316ac4e0950beef",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 94,
+        "signed_at_ms": 1793482955799,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "c45fd107ede1910575d3c9a876b1f7b8b6aad929070b1719a647ae8987e454f1b81fa61c804c93caf31b587adfe2133bf6640562bceaa75ed5e0bc5edfe90b03"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-12-0321.pdf\"",
+          "identity": "8e68ee50439f18201b9c5a7c5da7ce8db9df69668ccfc5caec1745cf116b200e",
+          "key": "58a22dff8bfb02841d1a1fc12e6ef9af",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 47
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955800,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0095",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "358be97c5d2665938a9d61cf77434c4935a9312ed650ef806ac79566c16550bc",
+        "refers_to": "0cd20b19fef0-0094",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 95,
+        "signed_at_ms": 1793482955800,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "061e35c9dd79f049515465599261e8b57c84c7aaed42dac264d93fc72f809288019a30e6e27604acc6a260232e0389e53b15e47d90af6a250e35a3213bbbd109"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-12-0477.pdf\"",
+          "identity": "93fb80c68ab1d83c9ac37efda7ef8085d0683230711fb5034d8e0a3a57ce1031",
+          "key": "552f12f76125b2781a9927f3abd61e0e",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 48
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955801,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0096",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "ac9cfc0aae92e3b1f9e53e5b4644394ae7fa5605979a48dd43990177f04c5acd",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 96,
+        "signed_at_ms": 1793482955801,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "9259ba4ed5dc4589042ec9de4f49a314561ff0bf1b19e6abd43c9a40561e24638668767946bdff3a97ba00e3c244a937c5dbeedf2046780ca1f5f4b332dde00f"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-12-0477.pdf\"",
+          "identity": "93fb80c68ab1d83c9ac37efda7ef8085d0683230711fb5034d8e0a3a57ce1031",
+          "key": "552f12f76125b2781a9927f3abd61e0e",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 48
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955803,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0097",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "058edf5d843e016ef2b6a600e0159deebc08b2c4c75d8169ad9aedfd0b499bf1",
+        "refers_to": "0cd20b19fef0-0096",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 97,
+        "signed_at_ms": 1793482955803,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "e18b4896e2ca67d36b926b7e9bd5003d6e8e60afa454332be652a354a7670f410baea41fbadc2a22d41cdf1975e4f083f09148aad109ef8774931e32f98a7309"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-12-0633.pdf\"",
+          "identity": "84face7a91f2af6eb25c86fb7fcf955217eddb53f454210cf73a1824b5fbd8a7",
+          "key": "7e02316fe8129af70ba01ac1564ba05b",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 49
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955803,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0098",
+        "kind": "decision",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "3be739e6cd15624c4e7823f1dacf8036d0f6f4da842639b97b0e697ee77be20d",
+        "refers_to": null,
+        "result_hash": null,
+        "result_note": null,
+        "seq": 98,
+        "signed_at_ms": 1793482955803,
+        "spec": "mint.receipt/0.1",
+        "status": ""
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "942ea8e093cf2d59e04b0117a6779c1b6ab790e14a01576ca816debf90588eedb6cd226a19f25388dfef48379d2b9c8136edbbcb34b20b81585fe59ef3287e06"
+      }
+    },
+    {
+      "body": {
+        "action": {
+          "element": "command \"invoice-2026-12-0633.pdf\"",
+          "identity": "84face7a91f2af6eb25c86fb7fcf955217eddb53f454210cf73a1824b5fbd8a7",
+          "key": "7e02316fe8129af70ba01ac1564ba05b",
+          "observed": {
+            "action": "click",
+            "approval": false,
+            "has_href": false,
+            "role": "button",
+            "tag": "command"
+          },
+          "side_effect": "write",
+          "step": 49
+        },
+        "agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "claim": "A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.",
+        "decided_at_ms": 1793482955805,
+        "decision": {
+          "decided_by": "policy",
+          "reason": "",
+          "verdict": "allow"
+        },
+        "host": "dir:/tmp/mint-dir-demo/skill",
+        "id": "0cd20b19fef0-0099",
+        "kind": "outcome",
+        "policy_hash": "296de98fc8ed3ffc1c702a2bdab828712689eec14f8e36dc15dbf153fda01909",
+        "prev_hash": "05d796e367b16694c83edd714e7fe3c23f06c9e8ff8325d0568f9bcd3a7f4c4e",
+        "refers_to": "0cd20b19fef0-0098",
+        "result_hash": "392deb1b855033e3e5bc2e03735ea10b7304bf0bcbe73985cf0f2efc362d39e2",
+        "result_note": "the directory changed",
+        "seq": 99,
+        "signed_at_ms": 1793482955805,
+        "spec": "mint.receipt/0.1",
+        "status": "completed"
+      },
+      "sig": {
+        "alg": "ed25519",
+        "kid": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+        "value": "1352c3f4f4ab22ac8907a526d1816a178dc8621526e97705f641c2aafe15911e7c3eb09876c3964bc207c3147f59cabd5ffa8c2495aba3e18696e0149a192603"
+      }
+    }
+  ],
+  "spec": "mint.receipt/0.1"
+}

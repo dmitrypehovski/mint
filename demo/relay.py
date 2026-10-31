@@ -14,6 +14,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import threading
 import time
 from collections import defaultdict, deque
@@ -35,6 +36,8 @@ LOCK = threading.Lock()
 # called, and each case is a read of a file that already exists. A request that is not one of these
 # cases is refused rather than guessed at.
 MINT = "/root/mint/target/release/mint"
+# The checkout itself: the fixture script lives there, and a relative skill path is relative to it.
+REPO = "/root/mint"
 # The verifier runs from the demo directory with relative paths, so that the output it prints names the
 # same files the page says it ran on. Rewriting its output to look tidier would make the one thing the
 # page claims — that this is what the program actually said — untrue.
@@ -510,6 +513,8 @@ DEMO_PAGES = {
     "state": "state.html",
     "live": "live.html",
     "compare": "compare.html",
+    "directory": "directory.html",
+    "examples": "examples.html",
 }
 
 # What may be served as a file, and nothing else. The demo page shows real screenshots and a real
@@ -527,6 +532,37 @@ STATE = {
         "slow": {
             "title": "Ordinary agent",
             "subtitle": "the model decides every step",
+            "steps": [],
+            "model_calls": 0,
+            "decision_us": 0,
+            "total_ms": 0,
+            "frame": "",
+            "url": "",
+            "page_title": "",
+            "verdict": "",
+            "opinion": "",
+            "finished": False,
+        },
+        # The directory surface: the same two halves as the comparison, on a filesystem instead of a
+        # page. Fifty invoices into twelve month folders is the whole task — tedious for a person, and
+        # fifty decisions for an agent that asks a model about every one.
+        "dir_model": {
+            "title": "Ordinary agent",
+            "subtitle": "a model decides every command",
+            "steps": [],
+            "model_calls": 0,
+            "decision_us": 0,
+            "total_ms": 0,
+            "frame": "",
+            "url": "",
+            "page_title": "",
+            "verdict": "",
+            "opinion": "",
+            "finished": False,
+        },
+        "dir_skill": {
+            "title": "mint",
+            "subtitle": "the same task, compiled",
             "steps": [],
             "model_calls": 0,
             "decision_us": 0,
@@ -619,6 +655,132 @@ def push(payload: dict) -> None:
             s["decision_us"] += int(step.get("decision_us", 0))
     _persist(force=bool(payload.get("finished")))
 
+
+
+# ─────────────────────────────────────────────────────────────────────────────────────────────────
+# The directory surface
+#
+# The task is a pile of files and a rule that says where each one goes. It runs on a machine's
+# filesystem rather than in a browser, which is the point: nothing in the runtime's middle knows what
+# a browser is, and this is the surface that shows it. Both halves start from a fresh copy of the same
+# directory, because a task that moves files cannot be run twice in the same place.
+DIR_TASKS = [
+    {
+        "n": 1,
+        "skill": "invoices.skill.json",
+        "goal": "Move every invoice into the folder named after the month in its name: an invoice "
+                "named invoice-2026-03-....pdf belongs in the folder 2026-03, and every invoice must "
+                "end up in its month folder. The number of files in the folders may differ.",
+        "what": "Fifty invoices sorted into twelve month folders by the rule in their names",
+        "policy": "demo/learn-policy.json",
+        "max_steps": 70,
+    },
+]
+
+DIR = {"running": False, "task": None, "took_ms": 0, "error": ""}
+DIR_LOCK = threading.Lock()
+DIR_TEMPLATE = "/tmp/invoices-template"
+
+
+def dir_start(n):
+    """Sort the pile twice: once with a model deciding every command, once with the compiled skill."""
+    with DIR_LOCK:
+        if DIR["running"] or COMPARE["running"] or LIVE["running"]:
+            return None, "a run is already going — one at a time, try again in a moment"
+        if n < 0 or n >= len(DIR_TASKS):
+            return None, "no such task"
+        task = DIR_TASKS[n]
+        DIR.update(running=True, task=n, took_ms=0, error="")
+    with LOCK:
+        STATE["goal"] = task["goal"]
+        for name in ("dir_model", "dir_skill"):
+            STATE["sides"][name].update(
+                steps=[], model_calls=0, decision_us=0, total_ms=0, frame="", url="",
+                page_title="", verdict="", opinion="", finished=False, receipts=None)
+
+    def worker():
+        out_dir = f"{DEMO_DIR}/dir"
+        os.makedirs(out_dir, exist_ok=True)
+        log_path = f"{out_dir}/last.json"
+        started = time.time()
+        code, out, err = None, "", ""
+        try:
+            # The fixture is built here rather than committed: fifty files belong in a script, not in a
+            # repository, and a task whose starting state can be rebuilt is a task anybody can check.
+            made = subprocess.run([sys.executable, f"{REPO}/tools/make_invoice_dir.py", DIR_TEMPLATE],
+                                  cwd=REPO, capture_output=True, text=True, timeout=60)
+            if made.returncode != 0:
+                raise RuntimeError(made.stderr.strip() or "the fixture could not be built")
+            cmd = [MINT, "dir-demo", "--skill", task["skill"], "--dir", DIR_TEMPLATE,
+                   "--push", "http://127.0.0.1:8840", "--receipts", log_path,
+                   "--max-steps", str(task.get("max_steps", 70))]
+            if task.get("policy"):
+                cmd += ["--policy", task["policy"]]
+            done = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True, timeout=300)
+            code, out, err = done.returncode, done.stdout or "", done.stderr or ""
+        except subprocess.TimeoutExpired:
+            code, err = -1, "the run did not finish in five minutes"
+        except Exception as exc:  # a demonstration that dies silently looks like a demonstration
+            code, err = -1, f"the run failed on this machine: {exc}"
+        with DIR_LOCK:
+            DIR.update(running=False, took_ms=int((time.time() - started) * 1000),
+                       error="" if code == 0 else (err or f"exit {code}"))
+        with LOCK:
+            for name in ("dir_model", "dir_skill"):
+                if not STATE["sides"][name].get("finished"):
+                    STATE["sides"][name]["finished"] = True
+            if not STATE["sides"]["dir_model"].get("verdict"):
+                STATE["sides"]["dir_model"]["verdict"] = (err or "the run did not finish")[:300]
+            if not STATE["sides"]["dir_skill"].get("verdict"):
+                STATE["sides"]["dir_skill"]["verdict"] = (err or "the run did not finish")[:300]
+        _persist(force=True)
+
+    threading.Thread(target=worker, daemon=True).start()
+    return {"ok": True, "task": task["n"], "what": task["what"], "goal": task["goal"]}, None
+
+
+def dir_result():
+    """Both halves of the directory run, and what each of them leaves behind."""
+    with LOCK:
+        model = dict(STATE["sides"]["dir_model"])
+        skill = dict(STATE["sides"]["dir_skill"])
+    with DIR_LOCK:
+        running, took, err = DIR["running"], DIR["took_ms"], DIR["error"]
+    idx = DIR["task"]
+    shown = DIR_TASKS[idx]["n"] if isinstance(idx, int) and 0 <= idx < len(DIR_TASKS) else None
+    log = f"{DEMO_DIR}/dir/last.json"
+    return {
+        "ok": True,
+        "task": shown,
+        "running": running,
+        "took_ms": took,
+        "error": err,
+        "goal": model.get("goal") or skill.get("goal") or "",
+        "slow": {"steps": model.get("steps", []), "total_ms": model.get("total_ms", 0),
+                 "verdict": model.get("verdict", ""), "reached": model.get("reached", False),
+                 "listing": model.get("listing", "")},
+        "fast": {"steps": skill.get("steps", []), "model_calls": skill.get("model_calls", 0),
+                 "total_ms": skill.get("total_ms", 0), "verdict": skill.get("verdict", ""),
+                 "reached": skill.get("reached", False), "listing": skill.get("listing", ""),
+                 "receipts": skill.get("receipts") or _receipts_from(log)},
+    }, None
+
+
+
+def _receipts_from(path):
+    """The signed log a run left behind, if it left one. Missing is not an error: a run that was
+    stopped by the gate writes nothing, and that is a fact worth showing rather than a failure."""
+    try:
+        with open(path, "rb") as fh:
+            doc = json.load(fh)
+    except Exception:
+        return None
+    if not isinstance(doc, dict):
+        return None
+    # No claim about verification here: this is a file being read, not a chain being checked. The
+    # runtime verifies the chain in its own output, and the page shows what the run reported.
+    return {"count": len(doc.get("receipts") or []), "verified": None,
+            "path": "/dir/last.json"}
 
 LAST_RUN_PATH = "/root/mint/demo/last-run.json"
 _persisted_at = [0.0]
@@ -1037,6 +1199,11 @@ class Handler(BaseHTTPRequestHandler):
                 body, why = compare_start(int(query.get("task", ["0"])[0]) - 1)
             elif wanted == "compare/result":
                 body, why = compare_result()
+            elif wanted == "dir/start":
+                task_n = int(query.get("task", ["0"])[0])
+                body, why = dir_start(task_n)
+            elif wanted == "dir/result":
+                body, why = dir_result()
             elif wanted == "compare/verify":
                 body, why = compare_verify()
             else:

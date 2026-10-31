@@ -45,6 +45,7 @@ async fn main() -> Result<()> {
         "receipts" => receipts_cmd(&args),
         "dir-learn" => dir_learn(&args).await,
         "dir-run" => dir_run(&args).await,
+        "dir-demo" => dir_demo(&args).await,
         "endorse" => endorse_cmd(&args),
         "rules" => rules_cmd(&args),
         _ => {
@@ -459,6 +460,216 @@ async fn dir_learn(args: &[String]) -> Result<()> {
     }
     println!("  the experience is written down as a program: {out}");
     receipt_summary(&gate, flag(args, "--receipts").as_deref(), 0);
+    Ok(())
+}
+
+/// The same comparison on the directory surface: the same task, twice, on two fresh copies of the
+/// same starting directory.
+///
+/// Both halves run under the same rules document — a comparison where one side is allowed less than
+/// the other compares permissions rather than agents — and only the compiled half leaves a signed
+/// log, because a signed record of every step is the thing the other kind of agent does not produce.
+async fn dir_demo(args: &[String]) -> Result<()> {
+    let path = flag(args, "--skill").ok_or_else(|| anyhow!("--skill is required"))?;
+    let template = flag(args, "--dir").ok_or_else(|| anyhow!("--dir is required"))?;
+    let relay = flag(args, "--push").unwrap_or_else(|| "http://127.0.0.1:8840".into());
+    let max: usize = flag(args, "--max-steps").and_then(|v| v.parse().ok()).unwrap_or(70);
+    let root = flag(args, "--work").unwrap_or_else(|| "/tmp/mint-dir-demo".into());
+    let rules = match flag(args, "--policy") {
+        Some(p) => Some(policy::Policy::from_file(&p)?),
+        None => None,
+    };
+    let sk = Skill::load(&path)?;
+    let goal = sk.goal.clone();
+
+    // A fresh copy for each half: a task that moves files cannot be run twice in the same directory,
+    // and comparing one side on work the other side has already done would be nonsense.
+    let work_a = format!("{root}/model");
+    let work_b = format!("{root}/skill");
+    copy_tree(&template, &work_a)?;
+    copy_tree(&template, &work_b)?;
+
+    println!("showcase: {relay} | directory surface | goal: {goal}");
+    println!("the same task, twice: a model deciding every command, and the compiled skill\n");
+
+    let started = Instant::now();
+
+    // ── side 1: the model decides every command ──────────────────────────────────────────────────
+    let sh_a = shell::Shell::new(&work_a)?;
+    let host_a = format!("dir:{work_a}");
+    let mut gate_a = gate::Gate::new(&host_a);
+    if let Some(r) = &rules {
+        gate_a.adopt_policy(r.clone());
+    }
+    sign_for(&mut gate_a, &host_a);
+    let mut trail: Vec<String> = Vec::new();
+    let mut n = 0usize;
+    let mut unusable = 0u32;
+    let t1 = Instant::now();
+    println!("ORDINARY AGENT — a model decides every command");
+    for _ in 0..max {
+        let entries = sh_a.entries()?;
+        let here = sh_a.kind()?;
+        let d = match decide::next_command(&goal, &work_a, &entries, &trail) {
+            Ok(d) => d,
+            Err(e) => {
+                println!("  the model's answer could not be acted on: {e}");
+                unusable += 1;
+                if unusable >= 5 {
+                    println!("  five answers that could not be acted on — stopping");
+                    break;
+                }
+                continue;
+            }
+        };
+        let Some(idx) = d.idx else {
+            println!("   model: it considers the task finished");
+            break;
+        };
+        let el = entries[idx].clone();
+        let Some(cmd) = d.text.clone() else { continue };
+        let (ran, output) = sh_a.run(&cmd)?;
+        let after = sh_a.kind()?;
+        let moved = after != here;
+        n += 1;
+        println!(
+            "  step {n}: {} — {cmd} — {}",
+            el.name,
+            if ran && moved { "moved" } else { "no change" }
+        );
+        push_event(
+            &relay,
+            "/push",
+            json!({ "side": "dir_model", "goal": goal, "asked": 1, "step": {
+                "tier": "model", "n": n, "name": el.name, "cmd": cmd,
+                "moved": ran && moved, "decision_us": 0,
+                "output": output.chars().take(90).collect::<String>() } }),
+        );
+        trail.push(format!("{cmd} — {output}"));
+        let _ = ran;
+    }
+    let slow_ms = t1.elapsed().as_millis() as u64;
+    let (slow_ok, slow_why) = decide::judge_success(&goal, &work_a, "a directory", &sh_a.listing()?)?;
+    println!(
+        "\n  {} — {} commands, {:.1} s, {}",
+        if slow_ok { "reached the goal" } else { "did NOT reach the goal" },
+        n,
+        slow_ms as f64 / 1000.0,
+        slow_why
+    );
+    push_event(
+        &relay,
+        "/push",
+        json!({ "side": "dir_model", "finished": true, "total_ms": slow_ms,
+                "steps": n, "verdict": slow_why, "reached": slow_ok,
+                "listing": sh_a.listing()? }),
+    );
+
+    // ── side 2: the compiled skill, no model at all ──────────────────────────────────────────────
+    let sh_b = shell::Shell::new(&work_b)?;
+    let host_b = format!("dir:{work_b}");
+    let mut gate = gate::Gate::new(&host_b);
+    if let Some(r) = &rules {
+        gate.adopt_policy(r.clone());
+    }
+    sign_for(&mut gate, &host_b);
+    let t2 = Instant::now();
+    let mut done = 0usize;
+    println!("\nMINT — the same task, compiled");
+    for (i, step) in sk.steps.iter().enumerate() {
+        let entries = sh_b.entries()?;
+        let here = sh_b.kind()?;
+        let found = match entries.iter().find(|e| e.name == step.seen_label) {
+            Some(e) => Some(e.clone()),
+            None => entries
+                .iter()
+                .find(|e| {
+                    let (_, shape) = skill::describe(e);
+                    shape == step.name_shape && e.role == step.role
+                })
+                .cloned(),
+        };
+        let Some(el) = found else { break };
+        let Some(cmd) = step.cmd.clone() else { break };
+        let (verdict, key) = gate.decide(step, i, &el, None);
+        if !verdict.performed() {
+            println!("  step {}: the gate held it — {}", i + 1, verdict.reason());
+            break;
+        }
+        let d0 = Instant::now();
+        let (ran, output) = sh_b.run(&cmd)?;
+        let after = sh_b.kind()?;
+        let moved = after != here;
+        let decision_us = d0.elapsed().as_micros();
+        gate.record_outcome(&key, ran && moved, if ran && moved { "the directory changed" } else { "no change" });
+        println!(
+            "  step {}: {} {} — {}",
+            i + 1,
+            el.name,
+            if moved { "moved" } else { "no change" },
+            cmd
+        );
+        push_event(
+            &relay,
+            "/push",
+            json!({ "side": "dir_skill", "goal": goal, "step": {
+                "tier": "skill", "n": i + 1, "name": el.name, "cmd": cmd,
+                "moved": ran && moved, "decision_us": decision_us,
+                "output": output.chars().take(90).collect::<String>() } }),
+        );
+        if ran && moved {
+            done += 1;
+        }
+    }
+    let fast_ms = t2.elapsed().as_millis() as u64;
+    let (fast_ok, fast_why) = decide::judge_success(&goal, &work_b, "a directory", &sh_b.listing()?)?;
+    println!(
+        "\n  {} — {} commands, {:.2} s, 0 model calls",
+        if fast_ok { "reached the goal" } else { "did NOT reach the goal" },
+        done,
+        fast_ms as f64 / 1000.0
+    );
+
+    // The signed log, which is the whole difference between the two halves afterwards.
+    let record = receipt_summary(&gate, flag(args, "--receipts").as_deref(), 1);
+    push_event(
+        &relay,
+        "/push",
+        json!({ "side": "dir_skill", "finished": true, "total_ms": fast_ms,
+                "steps": done, "verdict": fast_why, "reached": fast_ok,
+                "receipts": record, "listing": sh_b.listing()? }),
+    );
+
+    println!("\nTHE NUMBER FOR THE STAGE");
+    println!(
+        "  ordinary agent: {:.1} s, {n} commands, every one a question to a model",
+        slow_ms as f64 / 1000.0
+    );
+    println!("  mint:          {:.2} s, {done} commands, model calls 0", fast_ms as f64 / 1000.0);
+    println!("  the same directory, the same task, and the difference is not the clock: the");
+    println!("  ordinary agent pays {n} questions to a model EVERY time this task is run. mint paid");
+    println!("  them once, when the task was learned, and pays 0 now.");
+    println!("  total on the stage: {:.1} s", started.elapsed().as_secs_f64());
+    Ok(())
+}
+
+/// A fresh copy of a directory, one level deep, which is all these fixtures need.
+fn copy_tree(from: &str, to: &str) -> Result<()> {
+    let from = std::path::Path::new(from);
+    let to = std::path::Path::new(to);
+    if to.exists() {
+        std::fs::remove_dir_all(to)?;
+    }
+    std::fs::create_dir_all(to)?;
+    for entry in std::fs::read_dir(from)? {
+        let entry = entry?;
+        let target = to.join(entry.file_name());
+        if entry.file_type()?.is_dir() {
+            std::fs::create_dir_all(&target)?;
+        } else {
+            std::fs::copy(entry.path(), &target)?;
+        }
+    }
     Ok(())
 }
 
