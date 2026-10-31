@@ -174,12 +174,16 @@ async function cmpFinish() {
   try { r = await api('compare/result'); }
   catch (e) { box.innerHTML = '<p class="why">' + esc(e.message) + '</p>'; return; }
   const sl = r.slow, fa = r.fast, rec = fa.receipts || {};
-  // Not always in mint's favour, and saying so is the point: on a task where a step was not
-  // recognised, mint asks about it and pays for it, and the honest number is the slower one.
+  // Not always in mint's favour, and saying so is the point. Three cases, and the clock only means
+  // something in one of them: if the halves ended in different places, one of them did not do the
+  // task, and comparing seconds would flatter whoever gave up first.
   const ratio = (sl.total_ms && fa.total_ms) ? sl.total_ms / fa.total_ms : null;
+  const slowHit = !/does NOT match/.test(sl.verdict || '');
+  const fastHit = !/does NOT match/.test(fa.verdict || '');
   const clock = ratio === null ? ''
+      : (slowHit !== fastHit ? ' · the clock is not the comparison here: one half did not finish the task'
       : (ratio >= 1 ? ' · ' + ratio.toFixed(1) + '× faster'
-                    : ' · slower on this run: it asked about a step');
+                    : ' · slower on this run: it asked about a step'));
   box.innerHTML =
     '<div class="bignums">' +
       '<div class="side"><div class="who">ordinary agent</div>' + n(sl.model_calls) +
