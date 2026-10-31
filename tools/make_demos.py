@@ -997,11 +997,12 @@ first, alone, and is given every advantage; mint's half follows on the same page
 </div>
 
 <p class="cmdtxt"><b>the command behind this page:</b> mint demo --skill SKILL.json --start URL --receipts compare/last.json</p>
-{honest("It does not show that mint is better at the task. Both halves reached the same page here, and on a page "
-        "with no stable structure the ordinary agent is the one that copes and mint is the one that stops — that "
-        "limitation is on every page of this site. It also does not compare against the best possible ordinary "
-        "agent: the left-hand half is a straightforward model-in-the-loop driver, built from the same runtime so "
-        "that both halves are measurably the same except for how the steps are decided.")}
+{honest("It does not show that mint is better. On the second task the ordinary agent sometimes lands on the commit "
+        "list instead of the commit, and mint sometimes lands on the commit — and when a step is not recognised "
+        "mint asks about it, pays for that question and can be the slower of the two. Both outcomes are worth "
+        "watching for rather than reading past: press the buttons more than once. Nor does it compare against the "
+        "best possible ordinary agent — the left-hand half is a straightforward model-in-the-loop driver, built "
+        "from the same runtime so that the two halves differ only in how a step is decided.")}
 """
 
 page("compare.html", "mint — the same task, both kinds of agent",
@@ -1048,7 +1049,12 @@ async function cmpFinish() {
   try { r = await api('compare/result'); }
   catch (e) { box.innerHTML = '<p class="why">' + esc(e.message) + '</p>'; return; }
   const sl = r.slow, fa = r.fast, rec = fa.receipts || {};
-  const ratio = (sl.total_ms && fa.total_ms) ? (sl.total_ms / fa.total_ms).toFixed(1) : null;
+  // Not always in mint's favour, and saying so is the point: on a task where a step was not
+  // recognised, mint asks about it and pays for it, and the honest number is the slower one.
+  const ratio = (sl.total_ms && fa.total_ms) ? sl.total_ms / fa.total_ms : null;
+  const clock = ratio === null ? ''
+      : (ratio >= 1 ? ' · ' + ratio.toFixed(1) + '× faster'
+                    : ' · slower on this run: it asked about a step');
   box.innerHTML =
     '<div class="bignums">' +
       '<div class="side"><div class="who">ordinary agent</div>' + n(sl.model_calls) +
@@ -1056,7 +1062,7 @@ async function cmpFinish() {
       '<div class="vs">vs</div>' +
       '<div class="side"><div class="who">mint</div>' + n(fa.model_calls) +
         '<div class="what">questions to a model<br>' + (fa.total_ms / 1000).toFixed(2) + ' s' +
-        (ratio ? ' · ' + ratio + '× faster' : '') + '</div></div>' +
+        clock + '</div></div>' +
     '</div>' +
     '<div class="rct">' +
       '<div class="k b">did they reach the same place</div><div class="v b">' +
