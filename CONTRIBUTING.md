@@ -63,3 +63,13 @@ Match the surrounding prose in the docs: plain statements, no marketing
 adjectives, no exclamation marks. The code comments explain *why* a decision was
 made; keep that habit. An honest note about what a thing does not do is worth
 more than a confident claim about what it does.
+
+## Moving or copying a checkout
+
+`env!("CARGO_MANIFEST_DIR")` is baked into a test binary when it is compiled, so if this directory is
+moved or renamed, rebuild before running the tests:
+
+    touch tests/*.rs tests/common/mod.rs && cargo test --release
+
+Without that, a stale test binary keeps looking for the fixtures at the path the repository used to be
+at, and fails with a "no such file" that has nothing to do with the change being made.

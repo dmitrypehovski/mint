@@ -23,16 +23,25 @@ fn model_name() -> String {
 /// Read the key from the environment files without ever putting it in a log or an
 /// argument list.
 fn api_key() -> Result<String> {
-    if let Ok(k) = std::env::var("MINT_API_KEY") {
-        if !k.trim().is_empty() {
-            return Ok(k);
+    // The environment first, under every name a model key is normally given, so that a checkout on
+    // another machine works by setting one variable and nothing else.
+    for name in ["MINT_API_KEY", "OPENROUTER_API_KEY", "ANTHROPIC_API_KEY"] {
+        if let Ok(k) = std::env::var(name) {
+            if !k.trim().is_empty() {
+                return Ok(k);
+            }
         }
     }
-    for p in [
-        "/root/.hermes/profiles/work2/.env",
-        "/root/.hermes/.env",
-    ] {
-        if let Ok(text) = std::fs::read_to_string(p) {
+    // Then files, nearest first: beside where mint is run, then the user's own directory, and last
+    // the paths this machine happens to keep keys in.
+    let mut candidates = vec![".env".to_string()];
+    if let Ok(home) = std::env::var("HOME") {
+        candidates.push(format!("{home}/.mint/env"));
+    }
+    candidates.push("/root/.hermes/profiles/work2/.env".to_string());
+    candidates.push("/root/.hermes/.env".to_string());
+    for p in candidates {
+        if let Ok(text) = std::fs::read_to_string(&p) {
             for line in text.lines() {
                 for name in ["OPENROUTER_API_KEY=", "MINT_API_KEY=", "ANTHROPIC_API_KEY="] {
                     if let Some(rest) = line.strip_prefix(name) {
@@ -45,7 +54,10 @@ fn api_key() -> Result<String> {
             }
         }
     }
-    Err(anyhow!("no model key found"))
+    Err(anyhow!(
+        "no model key found. Set MINT_API_KEY in the environment, or put \
+         OPENROUTER_API_KEY=... in a file called .env next to where mint is run"
+    ))
 }
 
 /// Which request shape the configured endpoint speaks.
