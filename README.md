@@ -1,4 +1,4 @@
-# levOS
+# mint
 
 A small agent runtime that solves a task in a browser once with a model in the
 loop, compiles that run into a program, and then repeats the task without a
@@ -55,20 +55,20 @@ stranger can verify all three locally with one command, below.
 Build (the first build is slow; later ones take seconds):
 
 ```
-git clone https://github.com/dmitrypehovski/levos && cd levos
+git clone https://github.com/dmitrypehovski/mint && cd mint
 cargo build --release
-export PATH="$PWD/target/release:$PATH"   # so `levos` resolves to the binary
+export PATH="$PWD/target/release:$PATH"   # so `mint` resolves to the binary
 ```
 
 Verify the live published artifacts. Fetch the three files and check them:
 
 ```
-mkdir levos-verify && cd levos-verify
+mkdir mint-verify && cd mint-verify
 curl -sO https://mint.arliwork.com/receipts.json
 curl -sO https://mint.arliwork.com/policy.json
 curl -sO https://mint.arliwork.com/endorsement.json
 
-levos receipts \
+mint receipts \
     --in receipts.json \
     --policy policy.json \
     --endorsement endorsement.json
@@ -104,7 +104,7 @@ which check fires for each. See `docs/VERIFY.md` for the output.
 To run the rules engine by itself, with no browser, model or network:
 
 ```
-./target/release/levos rules \
+./target/release/mint rules \
     --policy demo/gate-policy.json \
     --observations demo/gate-observations.json
 ```
@@ -120,7 +120,7 @@ someone else's log.
 The smallest example is the rules engine on its own:
 
 ```rust
-use levos::policy::{ruling, Observed, Policy};
+use mint::policy::{ruling, Observed, Policy};
 
 let rules = Policy::shipped();
 let observed = Observed {

@@ -118,7 +118,7 @@ checkout never ships one — but that is hygiene, not a security boundary.
 
 Read together with the receipts layer, the accurate summary is: the *receipts*
 are signed and hash-chained (that is `src/receipt.rs`, and it is what
-`levos receipts` verifies); the *approvals* remain unsigned strings, and the
+`mint receipts` verifies); the *approvals* remain unsigned strings, and the
 decision log inside the gate is a working buffer that becomes signed receipts
 when signing is switched on. A reader who needs approvals to be signed documents
 should not yet rely on this runtime for that; the recommendation is stated here

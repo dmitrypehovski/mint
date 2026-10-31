@@ -1,45 +1,45 @@
-levOS — an agent runtime that does not pay twice for the same decision.
+mint — an agent runtime that does not pay twice for the same decision.
 
-  levos probe --url URL
+  mint probe --url URL
       look at a page and report what its perception costs
 
-  levos learn --goal G --start URL --skill FILE [--max-steps N] [--category C]
+  mint learn --goal G --start URL --skill FILE [--max-steps N] [--category C]
       solve a task with a model in the loop and write the experience down as a program
 
-  levos race --skill FILE --start URL
+  mint race --skill FILE --start URL
       the same task twice: the old path against the compiled one
 
-  levos eval --jobs FILE --out FILE.json [--labels FILE] [--category C]
+  mint eval --jobs FILE --out FILE.json [--labels FILE] [--category C]
       run the compiled skills and give a verdict for every task
 
-  levos chain --jobs FILE [--push URL] [--max-steps N]
+  mint chain --jobs FILE [--push URL] [--max-steps N]
       many tasks in a row, streamed to the showcase page
 
-  levos discover --urls FILE --skill FILE --out FILE.json [--discovery URL --seed URL]
+  mint discover --urls FILE --skill FILE --out FILE.json [--discovery URL --seed URL]
       cover a class of targets with one compiled skill and give a verdict for each
 
-  levos traces --eval FILE --out FILE.jsonl
+  mint traces --eval FILE --out FILE.jsonl
       write every verified run as documents a reactive store could hold
 
-  levos arli-payload --skill FILE --out FILE.json [--price N --category C --subcategory S]
+  mint arli-payload --skill FILE --out FILE.json [--price N --category C --subcategory S]
       shape a compiled skill as a marketplace listing (entries of terms and answers)
 
-  levos endorse --policy FILE.json --scope TEXT [--note TEXT] [--days N] [--out FILE.json]
+  mint endorse --policy FILE.json --scope TEXT [--note TEXT] [--days N] [--out FILE.json]
     put a counterparty's signature on a policy: these rules, for this runtime, in this scope.
     Runs under a separate key — the runtime must never mint its own endorsement
 
-  levos receipts --in FILE.json [--policy FILE.json] [--endorsement FILE.json] [--tamper DIR]
+  mint receipts --in FILE.json [--policy FILE.json] [--endorsement FILE.json] [--tamper DIR]
     check a signed log: every signature, every link, and — with --policy — that the published rules
     reproduce every recorded verdict. With --endorsement, also check that somebody other than the
     runtime signed those rules, and report the endorsement if it does not hold. With --tamper, also
     check copies that lie
 
-  levos live --skill FILE.json --start URL [--push URL] [--receipts FILE.json]
+  mint live --skill FILE.json --start URL [--push URL] [--receipts FILE.json]
     run one already-learned task on a live page, in front of whoever is watching, and sign what it
     does. No model is called unless a step cannot be recognised at all. Drives a real browser, so it
     is meant to run one at a time
 
-  levos gate-demo [--url URL] [--out FILE.json]
+  mint gate-demo [--url URL] [--out FILE.json]
       put four kinds of element to the write gate and show what it decided, and why
 
-variables: LEVOS_MODEL, LEVOS_MODEL_URL, LEVOS_MODEL_API, LEVOS_API_KEY
+variables: MINT_MODEL, MINT_MODEL_URL, MINT_MODEL_API, MINT_API_KEY

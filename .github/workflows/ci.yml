@@ -30,6 +30,6 @@ jobs:
           curl -fsSL https://mint.arliwork.com/receipts.json     -o receipts.json
           curl -fsSL https://mint.arliwork.com/policy.json       -o policy.json
           curl -fsSL https://mint.arliwork.com/endorsement.json  -o endorsement.json
-          ./target/release/levos receipts \
+          ./target/release/mint receipts \
             --in receipts.json --policy policy.json --endorsement endorsement.json | tee out.txt
           grep -q "OK" out.txt

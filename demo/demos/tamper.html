@@ -67,7 +67,7 @@ that wrote the original. The output is the verifier's own, unedited.</p>
   and that pointer no longer describes the file it is in. Without the chain, an audit could only count
   receipts — never place them in an order.</p></div>
 </div>
-<p class="cmdtxt"><b>the command:</b> levos receipts --in receipts.json --policy policy.json <span
+<p class="cmdtxt"><b>the command:</b> mint receipts --in receipts.json --policy policy.json <span
 style="color:var(--dim2)">(add --tamper DIR and the binary writes all five forged copies itself, then
 checks them)</span></p>
 <div class="honest"><h5>what this does not show</h5><p>It does not show that the verifier is infallible. It shows which specific ways of lying it catches, and the list is finite and stated. A lie not on this list is not caught by this check — and the honest answer to “what about a lie you did not think of” is that the log records observations precisely so somebody else can catch the ones we missed.</p></div>

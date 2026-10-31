@@ -3,7 +3,7 @@
 One command checks a signed log:
 
 ```
-levos receipts --in receipts.json --policy policy.json --endorsement endorsement.json
+mint receipts --in receipts.json --policy policy.json --endorsement endorsement.json
 ```
 
 - `--in` is required: the log document.
@@ -93,7 +93,7 @@ anything. The five cases, with the real output from a run against the live
 artifacts:
 
 ```
-$ levos receipts --in receipts.json --policy policy.json --endorsement endorsement.json --tamper tamper
+$ mint receipts --in receipts.json --policy policy.json --endorsement endorsement.json --tamper tamper
 
   a line edited, signature left alone
       → caught at receipt 0

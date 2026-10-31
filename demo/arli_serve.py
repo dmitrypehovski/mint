@@ -36,10 +36,10 @@ def run_skill(url):
     json.dump([job], open(tmp, "w"))
     started = time.time()
     proc = subprocess.run(
-        ["/root/levos/target/release/levos", "eval", "--jobs", tmp,
+        ["/root/mint/target/release/mint", "eval", "--jobs", tmp,
          "--out", "/root/.hermes/profiles/work2/cache/scratch/arli-call-out.json",
          "--category", "marketplace call"],
-        capture_output=True, text=True, timeout=240, cwd="/root/levos")
+        capture_output=True, text=True, timeout=240, cwd="/root/mint")
     wall_ms = int((time.time() - started) * 1000)
     try:
         out = json.load(open("/root/.hermes/profiles/work2/cache/scratch/arli-call-out.json"))

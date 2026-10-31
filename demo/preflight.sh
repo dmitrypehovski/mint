@@ -2,7 +2,7 @@
 # Pre-flight check of the showcase. Run it before going on stage.
 # Checks every part on its own and says plainly what is wrong.
 set -uo pipefail
-cd /root/levos
+cd /root/mint
 
 ok()   { printf "  \033[32m✓\033[0m %s\n" "$1"; }
 bad()  { printf "  \033[31m✗\033[0m %s\n" "$1"; }
@@ -15,7 +15,7 @@ else
   bad "Chromium does not answer on 8830 — raise it:"
   echo "     /root/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome \\"
   echo "       --headless=new --no-sandbox --disable-gpu --remote-debugging-port=8830 \\"
-  echo "       --user-data-dir=/root/.hermes/profiles/work2/cache/scratch/levos-profile about:blank"
+  echo "       --user-data-dir=/root/.hermes/profiles/work2/cache/scratch/mint-profile about:blank"
 fi
 
 echo "== 2. the showcase =="
@@ -53,7 +53,7 @@ print(f'  tasks: {len(j)}' + (' - every file is present' if not missing else f' 
 "
 
 echo "== 6. a dry run (one task, ~20 s) =="
-if timeout 200 ./target/release/levos demo --skill gh-commit.skill.json \
+if timeout 200 ./target/release/mint demo --skill gh-commit.skill.json \
      --start "https://github.com/rust-lang/rust" \
      --push http://127.0.0.1:8840 --max-steps 2 2>&1 | grep -q "THE NUMBER FOR THE STAGE"; then
   ok "the run went through"

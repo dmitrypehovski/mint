@@ -33,10 +33,10 @@ M2 = {
 }
 
 R2 = {
-    "<title>levOS — гонка</title>": "<title>levOS — the race</title>",
+    "<title>mint — гонка</title>": "<title>mint — the race</title>",
     "m[1]+' задач подряд. Two panes. Watch the decision counters.';": "m[1]+' tasks in a row. Two panes. Watch the decision counters.';",
-    '"Витрина levOS: принимает кадры и числа от рантайма, отдаёт их странице."':
-        '"levOS showcase: takes frames and numbers from the runtime and serves them to the page."',
+    '"Витрина mint: принимает кадры и числа от рантайма, отдаёт их странице."':
+        '"mint showcase: takes frames and numbers from the runtime and serves them to the page."',
     "Почему опрос, а не websocket: картинка меняется только на шагах агента, то есть":
         "Why polling and not a websocket: the picture changes only on agent steps, that is",
     "примерно раз в секунду. Опрос раз в 300 мс отдаёт то же самое, но проходит через":
@@ -50,24 +50,24 @@ R2 = {
     "# тишина в логах: сюда сыплется опрос раз в 300 мс": "# quiet logs: a poll lands here every 300 ms",
 }
 
-H = """levOS — an agent runtime that does not pay twice for the same decision.
+H = """mint — an agent runtime that does not pay twice for the same decision.
 
-  levos probe --url URL
+  mint probe --url URL
       look at a page and report what its perception costs
 
-  levos learn --goal G --start URL --skill FILE [--max-steps N] [--category C]
+  mint learn --goal G --start URL --skill FILE [--max-steps N] [--category C]
       solve a task with a model in the loop and write the experience down as a program
 
-  levos race --skill FILE --start URL
+  mint race --skill FILE --start URL
       the same task twice: the old path against the compiled one
 
-  levos eval --jobs FILE --out FILE.json [--labels FILE] [--category C]
+  mint eval --jobs FILE --out FILE.json [--labels FILE] [--category C]
       run the compiled skills and give a verdict for every task
 
-  levos chain --jobs FILE [--push URL] [--max-steps N]
+  mint chain --jobs FILE [--push URL] [--max-steps N]
       many tasks in a row, streamed to the showcase page
 
-variables: LEVOS_MODEL, LEVOS_MODEL_URL, LEVOS_MODEL_API, LEVOS_API_KEY
+variables: MINT_MODEL, MINT_MODEL_URL, MINT_MODEL_API, MINT_API_KEY
 """
 
 for path, mapping in (("src/main.rs", M2), ("demo/relay.py", R2)):

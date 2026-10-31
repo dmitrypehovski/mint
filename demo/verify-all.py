@@ -20,8 +20,8 @@ import subprocess
 import time
 from collections import Counter
 
-ROOT = "/root/levos"
-BIN = f"{ROOT}/target/release/levos"
+ROOT = "/root/mint"
+BIN = f"{ROOT}/target/release/mint"
 SCRATCH = "/root/.hermes/profiles/work2/cache/scratch"
 SKILLS = ["gh-commit.skill.json", "gh-issues.skill.json", "gh-prs.skill.json"]
 
@@ -139,8 +139,8 @@ def main():
     # ── T5: offline ────────────────────────────────────────────────────────
     print("T5 offline: the same class with the model unreachable")
     d5, t5 = run_eval(f"{SCRATCH}/sweep-jobs.json", f"{SCRATCH}/sweep-offline.json", "offline",
-                      env={"LEVOS_MODEL_URL": "http://127.0.0.1:9/v1/chat/completions",
-                           "LEVOS_API_KEY": "unreachable"})
+                      env={"MINT_MODEL_URL": "http://127.0.0.1:9/v1/chat/completions",
+                           "MINT_API_KEY": "unreachable"})
     s5 = summarise(d5)
     if s5 and s1:
         report["tests"]["offline"] = {

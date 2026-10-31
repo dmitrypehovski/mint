@@ -30,7 +30,7 @@ pub struct Element {
 }
 
 const EXTRACT: &str = r#"(() => {
-  document.querySelectorAll('[data-levos-id]').forEach(e => e.removeAttribute('data-levos-id'));
+  document.querySelectorAll('[data-mint-id]').forEach(e => e.removeAttribute('data-mint-id'));
   const ACT = 'a,button,input,textarea,select,[role="button"],[role="link"],[role="tab"],[role="menuitem"],[role="searchbox"],[role="combobox"],[role="checkbox"]';
   const roleOf = (el) => {
     const r = el.getAttribute('role');
@@ -82,7 +82,7 @@ const EXTRACT: &str = r#"(() => {
     if (seen.has(key)) continue;
     seen.add(key);
     const id = 'j' + out.length;
-    el.setAttribute('data-levos-id', id);
+    el.setAttribute('data-mint-id', id);
     out.push({ handle: id, tag: el.tagName.toLowerCase(), role: role,
                name: name.slice(0, 140), href: href.slice(0, 300) });
     if (out.length >= 250) break;
@@ -262,7 +262,7 @@ impl Cdp {
     /// are no coordinates to compute and nothing to mis-aim.
     pub async fn click_handle(&mut self, handle: &str) -> Result<bool> {
         let js = format!(
-            "(() => {{ const el = document.querySelector('[data-levos-id=\"{handle}\"]'); \
+            "(() => {{ const el = document.querySelector('[data-mint-id=\"{handle}\"]'); \
              if (!el) return 'gone'; el.scrollIntoView({{block:'center'}}); el.click(); return 'ok'; }})()"
         );
         Ok(self.eval(&js).await?.as_str() == Some("ok"))
@@ -272,7 +272,7 @@ impl Cdp {
     /// controlled inputs see a real keystroke.
     pub async fn type_handle(&mut self, handle: &str, text: &str) -> Result<bool> {
         let js = format!(
-            "(() => {{ const el = document.querySelector('[data-levos-id=\"{handle}\"]'); \
+            "(() => {{ const el = document.querySelector('[data-mint-id=\"{handle}\"]'); \
              if (!el) return 'gone'; el.focus(); \
              const proto = el.tagName === 'TEXTAREA' ? HTMLTextAreaElement : HTMLInputElement; \
              const desc = Object.getOwnPropertyDescriptor(proto.prototype, 'value'); \

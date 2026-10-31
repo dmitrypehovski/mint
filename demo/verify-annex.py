@@ -10,7 +10,7 @@ import json
 from collections import Counter
 
 S = "/root/.hermes/profiles/work2/cache/scratch"
-rep = json.load(open("/root/levos/demo/applications-verified.json"))
+rep = json.load(open("/root/mint/demo/applications-verified.json"))
 on = json.load(open(f"{S}/sweep-online.json"))
 off = json.load(open(f"{S}/sweep-offline.json"))
 
@@ -85,7 +85,7 @@ rep["summary"] = {
     "unbacked": sum(1 for a in rep["applications"] if not a["property_pass"]),
     "failed_targets": len(failures),
 }
-json.dump(rep, open("/root/levos/demo/applications-verified.json", "w"), indent=1)
+json.dump(rep, open("/root/mint/demo/applications-verified.json", "w"), indent=1)
 
 print("провалов названо:", len(failures))
 for x in failures:

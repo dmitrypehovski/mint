@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>levOS — an agent runtime that does not pay twice for the same decision</title>
+<title>mint — an agent runtime that does not pay twice for the same decision</title>
 <style>
   :root{
     --bg:#080a0f; --panel:#0f1219; --panel2:#131722; --line:#1f2432;
@@ -68,7 +68,7 @@
 <body>
 
 <header><div class="wrap"><nav>
-  <b>levOS</b>
+  <b>mint</b>
   <a href="#split">What is new</a>
   <a href="#how">How it works</a>
   <a href="#surfaces">Surfaces</a>
@@ -329,7 +329,7 @@
 </div></section>
 
 <footer><div class="wrap">
-  <div class="big" style="margin-bottom:12px">levOS</div>
+  <div class="big" style="margin-bottom:12px">mint</div>
   <div style="margin-bottom:14px">
     <span class="pill">Rust</span><span class="pill">Chrome DevTools Protocol, no wrapper</span>
     <span class="pill">tokio</span><span class="pill">Gemini 2.5 Flash via OpenRouter</span>
@@ -344,7 +344,7 @@
 </div></footer>
 
 <script>
-// На одно решение, из прогона цепочки: 18 задач у обычного агента, 9 у levOS.
+// На одно решение, из прогона цепочки: 18 задач у обычного агента, 9 у mint.
 // Цели задавались по-русски, потому что так обучались навыки; на сайте — английские
 // формулировки того же самого, чтобы страница читалась целиком.
 const goalEN = {
@@ -387,7 +387,7 @@ function showRatio(a,b){ return Math.round(a/b).toLocaleString('en-US'); }
   const perSlow = chain.slow.per_dec_us;
   const perFast = chain.fast.per_dec_us;
   document.getElementById('chain-table').innerHTML = `<table><thead><tr>
-    <th></th><th>Ordinary agent</th><th>levOS</th><th>Ratio</th></tr></thead><tbody>
+    <th></th><th>Ordinary agent</th><th>mint</th><th>Ratio</th></tr></thead><tbody>
     <tr><td>Decisions for the same work</td><td class="n">${chain.slow.steps}</td>
       <td class="n ok">${chain.fast.steps}</td><td class="n">the compiled skill found the short path</td></tr>
     <tr><td>Model calls</td><td class="n">${chain.slow.calls}</td>

@@ -1,4 +1,4 @@
-# levOS in the ARLI ecosystem
+# mint in the ARLI ecosystem
 
 ARLI is an ecosystem with several lines. This project is one of them. This
 document places it relative to the others and describes three concrete ways the
@@ -23,11 +23,11 @@ mint records a done. They are complementary records, not competing ones.
 
 ## Route 1: a skill sold in commons returns a mint receipt
 
-A compiled skill can be listed and sold — `levos arli-payload` already shapes a
+A compiled skill can be listed and sold — `mint arli-payload` already shapes a
 skill into a marketplace listing of entries, each a set of terms and an answer:
 
 ```
-$ levos arli-payload --skill gh-commit.skill.json --out payload.json
+$ mint arli-payload --skill gh-commit.skill.json --out payload.json
 listing written to payload.json: 2 entries, $0.20 per call
 ```
 
@@ -60,7 +60,7 @@ document.
 document — the hash makes any change visible); runtimes that adopt it as their
 `--policy`; and verifiers willing to check members' logs against the ecosystem
 policy rather than against the copy embedded in each log. The mechanism is built
-(`levos rules`, `levos receipts --policy`); the shared document and the agreement
+(`mint rules`, `mint receipts --policy`); the shared document and the agreement
 to use it are not.
 
 ## Route 3: a second party holds the endorser key
@@ -77,7 +77,7 @@ In an ecosystem, this is the natural division of labour: mint is the runtime, an
 some *other* ARLI party — a governance body, a counterparty, a member acting as
 auditor — holds the endorser key and signs the policy each runtime is allowed to
 run under. The runtime is structurally unable to sign its own endorsement
-(`levos endorse` refuses to run under the runtime's own key), so the endorsement
+(`mint endorse` refuses to run under the runtime's own key), so the endorsement
 is meaningful only when the key lives elsewhere.
 
 **What this would need.** An actual second party that holds a key and signs, and

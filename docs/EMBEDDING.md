@@ -1,9 +1,9 @@
 # Embedding
 
-The library (`levos` crate, `src/lib.rs`) is four pieces that stand alone under a
-browser, model or network: the write gate (`levos::gate`), the receipts
-(`levos::receipt`), the rules document (`levos::policy`), and the
-counter-signature checks (`levos::endorse`). Any of them can be taken into
+The library (`mint` crate, `src/lib.rs`) is four pieces that stand alone under a
+browser, model or network: the write gate (`mint::gate`), the receipts
+(`mint::receipt`), the rules document (`mint::policy`), and the
+counter-signature checks (`mint::endorse`). Any of them can be taken into
 another Rust agent and the rest left behind.
 
 The one design rule that makes this more than a library call: **the gate is an
@@ -43,7 +43,7 @@ The smallest useful piece. No browser, no key, no network — and it is the same
 code path the runtime uses, so a verifier and the runtime agree by construction:
 
 ```rust
-use levos::policy::{ruling, Observed, Policy};
+use mint::policy::{ruling, Observed, Policy};
 
 let rules = Policy::shipped();
 let observed = Observed {
@@ -67,15 +67,15 @@ if you also emit receipts, a verifier can replay the same call.
 ## 2. Put the gate in the path of an action
 
 The gate adds the decision log, the single-use release set, and — when signing
-is switched on — the receipts. It decides from a `step` (a `levos::skill::Step`)
-and an `element` (a `levos::cdp::Element`). If your agent already has its own
+is switched on — the receipts. It decides from a `step` (a `mint::skill::Step`)
+and an `element` (a `mint::cdp::Element`). If your agent already has its own
 action and element types, you have two options:
 
 - Build the `Step` and `Element` the gate expects from your own data. `Element`
   is `{ handle, tag, role, name, href }` and `Step` describes the action, the
   element's role, and where it points. The gate reads only `action`, `tag`,
   `role`, `href`, `learned_page`, and a few identity fields.
-- Or call `levos::policy::ruling` with an `Observed` you build yourself, exactly
+- Or call `mint::policy::ruling` with an `Observed` you build yourself, exactly
   as in case 1, and use `Gate::with_policy` only if you want the release-set
   behaviour. `Observed` is the vocabulary the rules match on; the gate builds it
   in `gate::observe(action, element, approval)`.
@@ -84,8 +84,8 @@ A gate decides by a specific document. The shipped rules are the default; to
 decide by your own:
 
 ```rust
-use levos::gate::Gate;
-use levos::policy::Policy;
+use mint::gate::Gate;
+use mint::policy::Policy;
 
 let rules = Policy::from_file("your-policy.json")?;
 let mut gate = Gate::with_policy("example.com", rules);
@@ -105,9 +105,9 @@ Signing turns the gate's decisions into the objects a stranger can check. Load o
 create the signing key, start a log, and hand it to the gate:
 
 ```rust
-use levos::gate::Gate;
-use levos::policy::Policy;
-use levos::receipt::{ReceiptLog, Sealer};
+use mint::gate::Gate;
+use mint::policy::Policy;
+use mint::receipt::{ReceiptLog, Sealer};
 
 let rules = Policy::shipped();
 let sealer = Sealer::load_or_create("/path/to/agent.key")?;   // 0600 hex seed file
@@ -145,8 +145,8 @@ is valid and the chain is intact but the verdicts are laxer than the rules.
 Two public functions do the whole check:
 
 ```rust
-use levos::policy::Policy;
-use levos::receipt::verify;
+use mint::policy::Policy;
+use mint::receipt::verify;
 
 let document: serde_json::Value = serde_json::from_str(&std::fs::read_to_string("receipts.json")?)?;
 let rules = Policy::from_file("policy.json")?;        // the independent check
@@ -174,10 +174,10 @@ applies to the endorsement: check it against the rules and the runtime you have
 in hand, not against the copy embedded in the log:
 
 ```rust
-use levos::endorse;
+use mint::endorse;
 
 let runtime = document.get("agent").and_then(|a| a.as_str()).unwrap_or("");
-let e: levos::endorse::Endorsement = serde_json::from_value(
+let e: mint::endorse::Endorsement = serde_json::from_value(
     document.get("endorsement").cloned().unwrap_or(serde_json::Value::Null)
 )?;
 match endorse::check(&serde_json::to_value(&e)?, &rules, runtime, endorse::now_ms()) {
@@ -203,6 +203,6 @@ The minimum credential an embedded runtime should carry:
 5. If trust is wanted, a second key held by somebody else that signs the policy
    hash (`endorse::sign`); the runtime must never sign its own.
 
-Nothing above needs the browser driver (`levos::cdp`), the skill compiler
-(`levos::skill`), or the model adapter (`levos::decide`). Those are the parts of
+Nothing above needs the browser driver (`mint::cdp`), the skill compiler
+(`mint::skill`), or the model adapter (`mint::decide`). Those are the parts of
 *this* agent; the four pieces are what you take.

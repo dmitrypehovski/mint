@@ -13,7 +13,7 @@ import json
 import os
 import re
 
-ROOT = "/root/levos"
+ROOT = "/root/mint"
 DEMO = os.path.join(ROOT, "demo")
 OUT = os.path.join(DEMO, "demos")
 
@@ -361,7 +361,7 @@ can be silent about what it tried, and silence is exactly what an audit is looki
   <div class="k">decided by</div><div class="v">{refusal["body"]["decision"]["decided_by"]}</div>
   <div class="k">rules it was decided under</div><div class="v">{refusal["body"]["policy_hash"][:32]}…</div>
 </div>
-<p class="cmdtxt"><b>the command:</b> levos receipts --in receipts.json --policy policy.json</p>
+<p class="cmdtxt"><b>the command:</b> mint receipts --in receipts.json --policy policy.json</p>
 <p class="why"><a href="/gate-lab">The page it was looking at</a> — four elements, one of which is
 deliberately undescribable. The runtime was pointed at it and told to file something.</p>
 {honest("It does not show that refusing is always right. A runtime that refuses too much is useless, and this "
@@ -416,7 +416,7 @@ that wrote the original. The output is the verifier's own, unedited.</p>
   and that pointer no longer describes the file it is in. Without the chain, an audit could only count
   receipts — never place them in an order.</p></div>
 </div>
-<p class="cmdtxt"><b>the command:</b> levos receipts --in receipts.json --policy policy.json <span
+<p class="cmdtxt"><b>the command:</b> mint receipts --in receipts.json --policy policy.json <span
 style="color:var(--dim2)">(add --tamper DIR and the binary writes all five forged copies itself, then
 checks them)</span></p>
 {honest("It does not show that the verifier is infallible. It shows which specific ways of lying it catches, and "
@@ -483,7 +483,7 @@ ebody = head(
 </div>
 <h2 class="dh">The four forgeries</h2>
 {chr(10).join(ecase_html)}
-<p class="cmdtxt"><b>the command:</b> levos receipts --in receipts.json --policy policy.json
+<p class="cmdtxt"><b>the command:</b> mint receipts --in receipts.json --policy policy.json
 --endorsement endorsement.json</p>
 {honest("It does not show that a real counterparty exists. Nobody outside this machine has signed anything here, "
         "and no code can supply that. The endorser's key is generated on this machine by a command that says "
@@ -919,7 +919,7 @@ four print what a run produced. Either way, the point is that none of it needs o
 <pre class="runout">curl -O https://mint.arliwork.com/receipts.json
 curl -O https://mint.arliwork.com/policy.json
 curl -O https://mint.arliwork.com/endorsement.json
-levos receipts --in receipts.json --policy policy.json --endorsement endorsement.json</pre>
+mint receipts --in receipts.json --policy policy.json --endorsement endorsement.json</pre>
 <p class="why">That verifies every signature, walks the hash chain, re-applies the published rules to
 every recorded decision, checks the counter-signature, and prints the receipt where anything first
 disagrees. The log and the rules are the whole input; nothing is fetched from us at check time, and

@@ -68,7 +68,7 @@
 <body>
 
 <header><div class="wrap"><nav>
-  <b>levOS</b>
+  <b>mint</b>
   <a href="#proof">Proof</a>
   <a href="#not">Why not an agent</a>
   <a href="#surfaces">Surfaces</a>
@@ -85,7 +85,7 @@
   <div class="eyebrow">mint · the supply side of the skill market</div>
   <h1>An agent that does a task once with a model, and then never again.</h1>
   <p class="lede">
-    The first run solves the task the ordinary way: a model picks every step. levOS writes down
+    The first run solves the task the ordinary way: a model picks every step. mint writes down
     not the actions but the <b>shape</b> of them, and that compiles into a small program. Every
     later run executes that program against <b>data it has never seen</b>, calls <b>no model at
     all</b>, and <b>checks whether each step did what it promised</b>.
@@ -238,7 +238,7 @@
       that does not get more expensive the more it is used. A unit whose production cost is known and
       whose result is provable is also exactly what a market needs in order to price one.</p>
       <p class="note2">The line is called <b>mint</b>. The runtime that does the striking is
-      <b>levOS</b>, and every number on this page came out of it.</p></div>
+      <b>mint</b>, and every number on this page came out of it.</p></div>
 
     <div class="card brk"><span class="tag">economics</span>
       <h4>The same price, a different business</h4>
@@ -464,7 +464,7 @@
 </div></section>
 
 <footer><div class="wrap">
-  <div style="font:700 16px/1 var(--sans);margin-bottom:12px">levOS</div>
+  <div style="font:700 16px/1 var(--sans);margin-bottom:12px">mint</div>
   <div style="margin-bottom:14px">
     <span class="pill">Rust</span><span class="pill">Chrome DevTools Protocol, no wrapper</span>
     <span class="pill">tokio</span><span class="pill">Python relay</span>

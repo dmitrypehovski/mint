@@ -94,7 +94,7 @@ four print what a run produced. Either way, the point is that none of it needs o
 <pre class="runout">curl -O https://mint.arliwork.com/receipts.json
 curl -O https://mint.arliwork.com/policy.json
 curl -O https://mint.arliwork.com/endorsement.json
-levos receipts --in receipts.json --policy policy.json --endorsement endorsement.json</pre>
+mint receipts --in receipts.json --policy policy.json --endorsement endorsement.json</pre>
 <p class="why">That verifies every signature, walks the hash chain, re-applies the published rules to
 every recorded decision, checks the counter-signature, and prints the receipt where anything first
 disagrees. The log and the rules are the whole input; nothing is fetched from us at check time, and

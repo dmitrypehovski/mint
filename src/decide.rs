@@ -12,18 +12,18 @@ use std::time::Instant;
 /// Where the model is reached. Overridable so the same runtime can be pointed at
 /// Anthropic credits, a local model, or anything else that speaks this shape.
 fn endpoint() -> String {
-    std::env::var("LEVOS_MODEL_URL")
+    std::env::var("MINT_MODEL_URL")
         .unwrap_or_else(|_| "https://openrouter.ai/api/v1/chat/completions".to_string())
 }
 
 fn model_name() -> String {
-    std::env::var("LEVOS_MODEL").unwrap_or_else(|_| "google/gemini-2.5-flash".to_string())
+    std::env::var("MINT_MODEL").unwrap_or_else(|_| "google/gemini-2.5-flash".to_string())
 }
 
 /// Read the key from the environment files without ever putting it in a log or an
 /// argument list.
 fn api_key() -> Result<String> {
-    if let Ok(k) = std::env::var("LEVOS_API_KEY") {
+    if let Ok(k) = std::env::var("MINT_API_KEY") {
         if !k.trim().is_empty() {
             return Ok(k);
         }
@@ -34,7 +34,7 @@ fn api_key() -> Result<String> {
     ] {
         if let Ok(text) = std::fs::read_to_string(p) {
             for line in text.lines() {
-                for name in ["OPENROUTER_API_KEY=", "LEVOS_API_KEY=", "ANTHROPIC_API_KEY="] {
+                for name in ["OPENROUTER_API_KEY=", "MINT_API_KEY=", "ANTHROPIC_API_KEY="] {
                     if let Some(rest) = line.strip_prefix(name) {
                         let v = rest.trim().trim_matches('"').trim_matches('\'');
                         if !v.is_empty() {
@@ -61,7 +61,7 @@ enum Api {
 }
 
 fn api_kind() -> Api {
-    if let Ok(v) = std::env::var("LEVOS_MODEL_API") {
+    if let Ok(v) = std::env::var("MINT_MODEL_API") {
         if v.eq_ignore_ascii_case("anthropic") {
             return Api::Anthropic;
         }

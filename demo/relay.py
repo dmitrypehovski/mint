@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""levOS showcase: takes frames and numbers from the runtime and serves them to the page.
+"""mint showcase: takes frames and numbers from the runtime and serves them to the page.
 
 Why polling and not a websocket: the picture changes only on agent steps, that is
 about once a second. Polling every 300 ms delivers the same, but goes through any
@@ -21,7 +21,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 PORT = 8840
-DEMO_DIR = "/root/levos/demo"
+DEMO_DIR = "/root/mint/demo"
 LOCK = threading.Lock()
 
 # ── the demonstrations ────────────────────────────────────────────────────────────────────────────
@@ -34,7 +34,7 @@ LOCK = threading.Lock()
 # never a path, never an argument, never a URL. Nothing is written, no browser is started, no model is
 # called, and each case is a read of a file that already exists. A request that is not one of these
 # cases is refused rather than guessed at.
-LEVOS = "/root/levos/target/release/levos"
+MINT = "/root/mint/target/release/mint"
 # The verifier runs from the demo directory with relative paths, so that the output it prints names the
 # same files the page says it ran on. Rewriting its output to look tidier would make the one thing the
 # page claims — that this is what the program actually said — untrue.
@@ -181,11 +181,11 @@ def live_start(n):
         out_dir = f"{DEMO_DIR}/live"
         os.makedirs(out_dir, exist_ok=True)
         log_path = f"{out_dir}/last.json"
-        cmd = [LEVOS, "live", "--skill", task["skill"], "--start", task["start"],
+        cmd = [MINT, "live", "--skill", task["skill"], "--start", task["start"],
                "--push", "http://127.0.0.1:8840", "--receipts", log_path]
         code, out, err = None, "", ""
         try:
-            done = subprocess.run(cmd, cwd="/root/levos", capture_output=True, text=True,
+            done = subprocess.run(cmd, cwd="/root/mint", capture_output=True, text=True,
                                   timeout=240)
             code, out, err = done.returncode, done.stdout or "", done.stderr or ""
         except subprocess.TimeoutExpired:
@@ -245,20 +245,20 @@ def api_live_verify():
     if not os.path.exists(log):
         return None, "that run did not write a log"
     args = ["receipts", "--in", "live/last.json", "--policy", "live/last.json.policy.json"]
-    code, text = run_levos(args)
+    code, text = run_mint(args)
     if code != 0 and not text:
         return None, "the verifier produced nothing"
     return {"ok": True, "output": text,
-            "command": "levos receipts --in live/last.json --policy live/last.json.policy.json"}, None
+            "command": "mint receipts --in live/last.json --policy live/last.json.policy.json"}, None
 
 
-def run_levos(args, stdin_text=None, timeout=25):
+def run_mint(args, stdin_text=None, timeout=25):
     """Run the real binary with fixed arguments and hand back exactly what it printed."""
     if not API_SLOTS.acquire(timeout=10):
         return -1, "the machine is busy running another demonstration; try again in a moment"
     try:
         done = subprocess.run(
-            [LEVOS] + args, cwd=ROOT, input=stdin_text,
+            [MINT] + args, cwd=ROOT, input=stdin_text,
             capture_output=True, text=True, timeout=timeout,
         )
     except subprocess.TimeoutExpired:
@@ -286,10 +286,10 @@ def api_verdict(query):
     obs[n] = dict(obs[n], approval=approved)
 
     plain = ["rules", "--policy", API_POLICY, "--observations", "-"]
-    code, text = run_levos(plain, stdin_text=json.dumps({"observations": obs}))
+    code, text = run_mint(plain, stdin_text=json.dumps({"observations": obs}))
     if code != 0:
         return None, text
-    asked = json.loads(run_levos(plain + ["--json"], stdin_text=json.dumps({"observations": obs}))[1])
+    asked = json.loads(run_mint(plain + ["--json"], stdin_text=json.dumps({"observations": obs}))[1])
     said = asked["results"][n]
     return {
         "ok": True,
@@ -299,7 +299,7 @@ def api_verdict(query):
         "policy_hash": asked["policy_hash"],
         "spec": asked["spec"],
         "output": text,
-        "command": ("levos rules --policy policy.json --observations observations.json"
+        "command": ("mint rules --policy policy.json --observations observations.json"
                     "   # element %d, approval presented: %s" % (n, "yes" if approved else "no")),
     }, None
 
@@ -309,13 +309,13 @@ def api_tamper(slug):
         return None, "no such case"
     log, rules = API_TAMPER[slug]
     args = ["receipts", "--in", log, "--policy", rules]
-    code, text = run_levos(args)
+    code, text = run_mint(args)
     if code != 0 and not text:
         return None, "the verifier produced nothing"
     return {
         "ok": True,
         "output": text,
-        "command": "levos receipts --in %s --policy %s" % (
+        "command": "mint receipts --in %s --policy %s" % (
             os.path.basename(log), os.path.basename(rules)),
     }, None
 
@@ -325,13 +325,13 @@ def api_endorse(case):
         return None, "no such case"
     args = ["receipts", "--in", API_LOG, "--policy", API_POLICY,
             "--endorsement", API_ENDORSE[case]]
-    code, text = run_levos(args)
+    code, text = run_mint(args)
     if code != 0 and not text:
         return None, "the verifier produced nothing"
     return {
         "ok": True,
         "output": text,
-        "command": "levos receipts --in receipts.json --policy policy.json --endorsement %s" % (
+        "command": "mint receipts --in receipts.json --policy policy.json --endorsement %s" % (
             os.path.basename(API_ENDORSE[case])),
     }, None
 
@@ -339,13 +339,13 @@ def api_endorse(case):
 def api_verify():
     args = ["receipts", "--in", API_LOG, "--policy", API_POLICY,
             "--endorsement", API_ENDORSEMENT, "--tamper", API_TAMPER_DIR]
-    code, text = run_levos(args, timeout=60)
+    code, text = run_mint(args, timeout=60)
     if code != 0 and not text:
         return None, "the verifier produced nothing"
     return {
         "ok": True,
         "output": text,
-        "command": "levos receipts --in receipts.json --policy policy.json "
+        "command": "mint receipts --in receipts.json --policy policy.json "
                    "--endorsement endorsement.json --tamper .",
     }, None
 
@@ -410,7 +410,7 @@ STATE = {
             "skill": "",
         },
         "fast": {
-            "title": "levOS",
+            "title": "mint",
             "subtitle": "running the remembered skill",
             "steps": [],
             "model_calls": 0,
@@ -472,7 +472,7 @@ def push(payload: dict) -> None:
     _persist(force=bool(payload.get("finished")))
 
 
-LAST_RUN_PATH = "/root/levos/demo/last-run.json"
+LAST_RUN_PATH = "/root/mint/demo/last-run.json"
 _persisted_at = [0.0]
 
 
@@ -515,14 +515,14 @@ def _restore() -> None:
     print(f"restored the last run: {fast} fast steps, {slow} slow steps", flush=True)
 
 
-SITE_PATH = "/root/levos/demo/site.html"
-MEASURE_PATH = "/root/levos/demo/measurements.json"
-EVAL_PATH = "/root/levos/demo/evaluation.json"
-VERIFIED_PATH = "/root/levos/demo/applications-verified.json"
+SITE_PATH = "/root/mint/demo/site.html"
+MEASURE_PATH = "/root/mint/demo/measurements.json"
+EVAL_PATH = "/root/mint/demo/evaluation.json"
+VERIFIED_PATH = "/root/mint/demo/applications-verified.json"
 
 PAGE = r"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<title>levOS — the race</title>
+<title>mint — the race</title>
 <style>
   :root { --bg:#0b0d12; --panel:#12151d; --line:#232838; --ink:#e8ecf5; --dim:#8b93a7;
           --slow:#ff6b6b; --fast:#4ade80; --accent:#7c5ce7; }
@@ -605,7 +605,7 @@ function render(s){
     const fmtUs=(u)=> u>=1000 ? Math.round(u).toLocaleString('en-US') : (u>=10 ? u.toFixed(0) : u.toFixed(3));
     const ratio=perSlow/perFast;
     document.getElementById('verdict').innerHTML=
-      `<b>Result.</b> Decisions made: ${slow.steps.length} by the ordinary agent, ${fast.steps.length} by levOS `
+      `<b>Result.</b> Decisions made: ${slow.steps.length} by the ordinary agent, ${fast.steps.length} by mint `
       +`(and that is for the same work). `
       +`Per decision: <b>${fmtUs(perSlow)} µs</b> against <b>${fmtUs(perFast)} µs</b> — <b>${Math.round(ratio).toLocaleString('en-US')}x</b> faster. `
       +`Model calls: <b>${slow.model_calls}</b> against <b>${fast.model_calls}</b>. `

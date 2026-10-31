@@ -26,12 +26,12 @@ pub fn temp_key_path(tag: &str) -> String {
         .unwrap()
         .as_nanos();
     std::env::temp_dir()
-        .join(format!("levos-it-{tag}-{}-{nanos}.key", std::process::id()))
+        .join(format!("mint-it-{tag}-{}-{nanos}.key", std::process::id()))
         .to_string_lossy()
         .into_owned()
 }
 
-pub fn sealer(tag: &str) -> levos::receipt::Sealer {
+pub fn sealer(tag: &str) -> mint::receipt::Sealer {
     let path = temp_key_path(tag);
-    levos::receipt::Sealer::load_or_create(&path).expect("a temp sealing key")
+    mint::receipt::Sealer::load_or_create(&path).expect("a temp sealing key")
 }

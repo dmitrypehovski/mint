@@ -17,7 +17,7 @@ VIEW_PORT = 8850
 # Recording happens on this same machine, so the local showcase address is used: no tunnel
 # is needed, and a tunnel address is short-lived — one already went dead and the recording
 URL = "http://127.0.0.1:8840/"
-OUT = "/root/levos/demo/frames"
+OUT = "/root/mint/demo/frames"
 FPS = 2.0
 SECONDS = 78          # kept for compatibility
 MAX_SECONDS = 180     # safety stop: shoot while the run lasts, but no longer
@@ -51,10 +51,10 @@ async def main():
 
     # start the run itself
     demo = subprocess.Popen(
-        ["/root/levos/target/release/levos", "chain",
-         "--jobs", "/root/levos/demo/jobs.json",
+        ["/root/mint/target/release/mint", "chain",
+         "--jobs", "/root/mint/demo/jobs.json",
          "--push", "http://127.0.0.1:8840", "--max-steps", "3"],
-        cwd="/root/levos", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        cwd="/root/mint", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print("run started, shooting the showcase...", flush=True)
 
     started = time.time()
@@ -87,7 +87,7 @@ async def main():
         demo.kill()
     await ws.close()
 
-    out = "/root/levos/demo/race.mp4"
+    out = "/root/mint/demo/race.mp4"
     subprocess.run([
         "ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
         "-i", f"{OUT}/f%05d.jpg", "-c:v", "libx264", "-pix_fmt", "yuv420p",

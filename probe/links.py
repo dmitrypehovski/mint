@@ -1,7 +1,7 @@
 
 import asyncio, json, urllib.request
 import websockets
-EXTRACT = open("/root/levos/src/cdp.rs", encoding="utf-8").read().split('const EXTRACT: &str = r#"')[1].split('"#;')[0]
+EXTRACT = open("/root/mint/src/cdp.rs", encoding="utf-8").read().split('const EXTRACT: &str = r#"')[1].split('"#;')[0]
 async def main():
     t = json.load(urllib.request.urlopen("http://127.0.0.1:8830/json"))
     page = next(x for x in t if x["type"]=="page")

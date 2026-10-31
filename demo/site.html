@@ -126,7 +126,7 @@
   <div class="eyebrow">mint · the supply side of the skill market</div>
   <h1>An agent that does a task once with a model, and then never again.</h1>
   <p class="lede">
-    The first run solves the task the ordinary way: a model picks every step. levOS writes down
+    The first run solves the task the ordinary way: a model picks every step. mint writes down
     not the actions but the <b>shape</b> of them, and that compiles into a small program. Every
     later run executes that program against <b>data it has never seen</b>, calls <b>no model at
     all</b>, and <b>checks whether each step did what it promised</b>.
@@ -368,8 +368,8 @@
       everywhere else: striking costs almost nothing per coin, so it is the only layer in this chain
       that does not get more expensive the more it is used. A unit whose production cost is known and
       whose result is provable is also exactly what a market needs in order to price one.</p>
-      <p class="note2">The line is called <b>mint</b>. The runtime that does the striking is
-      <b>levOS</b>, and every number on this page came out of it.</p></div>
+      <p class="note2">The line is called <b>mint</b>, and so is the runtime that does the striking:
+      one name for the one thing, and every number on this page came out of it.</p></div>
 
     <div class="card brk"><span class="tag">economics</span>
       <h4>The same price, a different business</h4>
@@ -507,7 +507,7 @@
   <a href="/receipts.json">here</a>, the rules it was decided under are
   <a href="/policy.json">here</a>, and the counterparty&#39;s signature on those rules is
   <a href="/endorsement.json">here</a>. Checking them needs nothing from us:
-  <code>levos receipts --in receipts.json --policy policy.json --endorsement endorsement.json</code>
+  <code>mint receipts --in receipts.json --policy policy.json --endorsement endorsement.json</code>
   verifies every signature and every link, replays the published rules against every recorded
   decision, checks that somebody other than the runtime accepted those rules, and reports the
   receipt where anything first disagrees.</p>
@@ -523,7 +523,7 @@
   <span class="kicker">Take it, or take it apart</span>
   <h2>Nothing here needs our permission, and most of it does not need our code.</h2>
   <p class="sub">The runtime, the gate, the receipts and the rules engine are one repository under
-  Apache-2.0: <a href="https://github.com/dmitrypehovski/levos">github.com/dmitrypehovski/levos</a>. There are three ways in, and they
+  Apache-2.0: <a href="https://github.com/dmitrypehovski/mint">github.com/dmitrypehovski/mint</a>. There are three ways in, and they
   cost different amounts of trust in us — the third costs none.</p>
 
   <div class="grid g3">
@@ -543,7 +543,7 @@
       can touch a page, so leaving it out is a compile error rather than a line somebody forgot.
       When this was written, that arrangement found five places in this codebase where steps were
       going around the gate that we believed were already closed.</p>
-      <p class="note2">The rules engine also stands alone: <code>levos rules --policy p.json
+      <p class="note2">The rules engine also stands alone: <code>mint rules --policy p.json
       --observations o.json</code> applies a rules document to observations and prints the verdicts,
       with no browser, no model and no agent involved. That is the command the first demonstration
       calls when you flip its switch.</p></div>
@@ -765,7 +765,7 @@
 </div></section>
 
 <footer><div class="wrap">
-  <div style="font:700 16px/1 var(--sans);margin-bottom:12px">levOS</div>
+  <div style="font:700 16px/1 var(--sans);margin-bottom:12px">mint</div>
   <div style="margin-bottom:14px">
     <span class="pill">Rust</span><span class="pill">Chrome DevTools Protocol, no wrapper</span>
     <span class="pill">tokio</span><span class="pill">Python relay</span>

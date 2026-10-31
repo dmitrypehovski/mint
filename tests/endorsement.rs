@@ -7,8 +7,8 @@
 mod common;
 
 use common::*;
-use levos::endorse;
-use levos::policy::Policy;
+use mint::endorse;
+use mint::policy::Policy;
 
 /// 8. One valid endorsement and four that must be rejected, each for its own reason.
 #[test]

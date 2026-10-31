@@ -16,7 +16,7 @@ PAGES = [
     "https://github.com/rust-lang/rust",
     "https://github.com/facebook/react",
 ]
-EXTRACT = open("/root/levos/src/cdp.rs", encoding="utf-8").read().split('const EXTRACT: &str = r#"')[1].split('"#;')[0]
+EXTRACT = open("/root/mint/src/cdp.rs", encoding="utf-8").read().split('const EXTRACT: &str = r#"')[1].split('"#;')[0]
 
 
 def openrouter_key():
@@ -103,7 +103,7 @@ async def measure():
             try:
                 req = urllib.request.Request(
                     "https://openrouter.ai/api/v1/chat/completions",
-                    data=json.dumps({"model": os.environ.get("LEVOS_MODEL", "google/gemini-2.5-flash"),
+                    data=json.dumps({"model": os.environ.get("MINT_MODEL", "google/gemini-2.5-flash"),
                                      "messages": [{"role": "user", "content": prompt}],
                                      "max_tokens": 40, "temperature": 0}).encode(),
                     headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
@@ -114,7 +114,7 @@ async def measure():
                 out["notes"].append(f"model: {str(e)[:80]}")
         if lat:
             out["model"] = {
-                "name": os.environ.get("LEVOS_MODEL", "google/gemini-2.5-flash") + " via the configured endpoint",
+                "name": os.environ.get("MINT_MODEL", "google/gemini-2.5-flash") + " via the configured endpoint",
                 "samples": len(lat),
                 "ms_median": round(statistics.median(lat)),
                 "ms_min": round(min(lat)),
@@ -131,7 +131,7 @@ async def main():
     # skill file sizes are a measurement too
     import os
     for name in ("gh-commit", "gh-issues", "gh-prs"):
-        p = f"/root/levos/{name}.skill.json"
+        p = f"/root/mint/{name}.skill.json"
         if os.path.exists(p):
             sk = json.load(open(p, encoding="utf-8"))
             data["skills"][name] = {
@@ -143,7 +143,7 @@ async def main():
                 "learn_ms": sk["learn_ms"],
             }
     data["collected_at"] = time.strftime("%Y-%m-%d %H:%M %Z")
-    json.dump(data, open("/root/levos/demo/measurements.json", "w"),
+    json.dump(data, open("/root/mint/demo/measurements.json", "w"),
               ensure_ascii=False, indent=1)
 
     print("=== MEASUREMENTS ===")

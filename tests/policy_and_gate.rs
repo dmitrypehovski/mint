@@ -2,10 +2,10 @@
 
 mod common;
 
-use levos::cdp::Element;
-use levos::gate::{self, Gate};
-use levos::policy::{self, Observed, Policy};
-use levos::skill::{Action, Step};
+use mint::cdp::Element;
+use mint::gate::{self, Gate};
+use mint::policy::{self, Observed, Policy};
+use mint::skill::{Action, Step};
 
 fn observed(action: &str, tag: &str, role: &str, href: bool, approval: bool) -> Observed {
     Observed {

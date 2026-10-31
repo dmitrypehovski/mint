@@ -1,4 +1,4 @@
-//! levOS as a library.
+//! mint as a library.
 //!
 //! The runtime is one program built out of four pieces that are separable on purpose. Anybody who
 //! wants the write gate, the receipts, the rules document or the hash chain inside their own agent
@@ -22,7 +22,7 @@
 //! The three pieces worth embedding stand alone:
 //!
 //! ```no_run
-//! use levos::policy::{ruling, Observed, Policy};
+//! use mint::policy::{ruling, Observed, Policy};
 //!
 //! let rules = Policy::shipped();
 //! let observed = Observed {

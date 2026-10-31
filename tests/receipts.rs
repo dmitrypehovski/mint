@@ -8,8 +8,8 @@
 mod common;
 
 use common::*;
-use levos::policy::{Observed, Policy};
-use levos::receipt::{self, Receipt, ReceiptLog, Sealer};
+use mint::policy::{Observed, Policy};
+use mint::receipt::{self, Receipt, ReceiptLog, Sealer};
 
 fn demo_log() -> serde_json::Value {
     read_json(&demo_path("gate-receipts.json"))
@@ -259,7 +259,7 @@ fn the_shipped_rules_reproduce_every_recorded_verdict() {
         let b = &r["body"];
         let observed: Observed =
             serde_json::from_value(b["action"]["observed"].clone()).unwrap();
-        let said = levos::policy::ruling(&observed, &rules);
+        let said = mint::policy::ruling(&observed, &rules);
         assert_eq!(
             said.class,
             b["action"]["side_effect"].as_str().unwrap(),

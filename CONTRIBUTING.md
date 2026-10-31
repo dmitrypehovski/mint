@@ -19,7 +19,7 @@ be reproducible by a command that is also in the document. Do not describe a
 feature the code does not have; where the code and a nicer story disagree, follow
 the code and change the story.
 
-When you add or change a command-line command, update `src/help.txt` (the `levos
+When you add or change a command-line command, update `src/help.txt` (the `mint
 help` output is that file) and any doc that references it. When you change the
 receipt, policy or endorsement format, update the matching `docs/*-FORMAT.md` and
 the field tables in it.
@@ -39,7 +39,7 @@ published receipts are checked against the rules that produced them. So:
   verifying. `src/policy.rs` has a test for this intent
   (`the_rules_are_the_thing_that_decides`); add to it rather than around it.
 - **Sign nothing you cannot replay.** If you change `ruling` or `classify`, make
-  sure `levos receipts --policy` still reproduces recorded verdicts, or the
+  sure `mint receipts --policy` still reproduces recorded verdicts, or the
   forged-log case in `docs/VERIFY.md` loses its meaning.
 
 ## Keys
@@ -47,7 +47,7 @@ published receipts are checked against the rules that produced them. So:
 Never commit a key. Signing keys live outside the repository
 (`/root/.secrets/` on this machine, read-only to the owner) and `.gitignore`
 excludes `*.key`. The endorser key must be a different key from the runtime's;
-`levos endorse` refuses to sign with the runtime's own key, and that refusal is
+`mint endorse` refuses to sign with the runtime's own key, and that refusal is
 deliberate — do not add a flag to bypass it.
 
 ## Receipts and private data

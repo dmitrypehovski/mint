@@ -1,4 +1,4 @@
-//! levOS — an agent runtime that does not pay twice for the same decision, and does not
+//! mint — an agent runtime that does not pay twice for the same decision, and does not
 //! pretend a step worked when it did not.
 //!
 //! First run: a model is asked what to do at every step, and the run is slow. It leaves
@@ -9,11 +9,11 @@
 //! the runtime asks for that one step, checks itself again, and writes the correction back
 //! into the skill: one mistake costs one question, never a broken run.
 
-use levos::{decide, endorse, gate, policy, receipt, skill, state};
+use mint::{decide, endorse, gate, policy, receipt, skill, state};
 
 use anyhow::{anyhow, Result};
-use levos::cdp::{Cdp, Element};
-use levos::skill::{Action, Found, Skill, Step};
+use mint::cdp::{Cdp, Element};
+use mint::skill::{Action, Found, Skill, Step};
 use serde_json::json;
 use std::time::Instant;
 
@@ -109,14 +109,14 @@ async fn perform(
 /// for a path that only exists on ours. The defaults are where this machine keeps them: outside the
 /// repository, so that no clone ever contains a key.
 fn receipt_key() -> String {
-    std::env::var("LEVOS_RECEIPT_KEY")
+    std::env::var("MINT_RECEIPT_KEY")
         .unwrap_or_else(|_| "/root/.secrets/mint-receipt.key".into())
 }
 
 /// The counterparty's key. Separate from the runtime's on purpose: an endorsement the runtime can
 /// produce by itself is not a counter-signature, and this variable exists so that it cannot be one.
 fn endorser_key() -> String {
-    std::env::var("LEVOS_ENDORSER_KEY")
+    std::env::var("MINT_ENDORSER_KEY")
         .unwrap_or_else(|_| "/root/.secrets/mint-endorser.key".into())
 }
 
@@ -967,7 +967,7 @@ async fn race(args: &[String]) -> Result<()> {
     let mut fast = Cdp::connect(PORT).await?;
     fast.navigate(&target).await?;
     fast.settle(4000).await?;
-    println!("\nLEVOS — running the remembered program:");
+    println!("\nMINT — running the remembered program:");
     let r = run_skill(&mut fast, &mut sk, &category).await?;
     for n in &r.notes {
         println!("{n}");
@@ -986,7 +986,7 @@ async fn race(args: &[String]) -> Result<()> {
 
     println!("\nSUMMARY");
     println!("  the old path: {:.1} s, {} model calls → {slow_url}", slow_run.ms as f64 / 1000.0, slow_run.calls);
-    println!("  levOS:       {:.2} s, {} model calls, {} self-repairs → {fast_url}", r.ms as f64 / 1000.0, r.escalated, r.mismatched);
+    println!("  mint:       {:.2} s, {} model calls, {} self-repairs → {fast_url}", r.ms as f64 / 1000.0, r.escalated, r.mismatched);
     println!("  faster by {:.1}x", slow_run.ms as f64 / (r.ms as f64).max(1.0));
     Ok(())
 }
@@ -1307,7 +1307,7 @@ async fn demo(args: &[String]) -> Result<()> {
         "url": slow_url, "page_title": slow_title, "verdict": slow_verdict, "opinion": slow_opinion }));
 
     // ── side 2: the remembered skill runs, in a second tab ─────────────
-    println!("\nLEVOS");
+    println!("\nMINT");
     let ws = Cdp::open_tab(PORT, "about:blank").await?;
     let mut fast = Cdp::connect_ws(&ws).await?;
     fast.navigate(&target).await?;
@@ -1374,7 +1374,7 @@ async fn demo(args: &[String]) -> Result<()> {
 
     println!("\nTHE NUMBER FOR THE STAGE");
     println!("  ordinary agent: {:.1} s, {n} steps, every one a model call", slow_ms as f64 / 1000.0);
-    println!("  levOS:         {:.2} s, {done} steps, model calls {escalated}", fast_ms as f64 / 1000.0);
+    println!("  mint:         {:.2} s, {done} steps, model calls {escalated}", fast_ms as f64 / 1000.0);
     Ok(())
 }
 
@@ -1586,7 +1586,7 @@ async fn chain(args: &[String]) -> Result<()> {
         "url": slow_url, "verdict": slow_verdict }));
 
     // ── THE COMPILED PATH ──────────────────────────────────────────────────
-    println!("LEVOS — from memory, on the same pages with different data");
+    println!("MINT — from memory, on the same pages with different data");
     let ws = Cdp::open_tab(PORT, "about:blank").await?;
     let mut fast = Cdp::connect_ws(&ws).await?;
     let fast_started = Instant::now();
@@ -1654,7 +1654,7 @@ async fn chain(args: &[String]) -> Result<()> {
 
     println!("THE NUMBER FOR THE STAGE");
     println!("  ordinary agent: {:>7.1} s, {slow_steps} decisions", slow_ms as f64 / 1000.0);
-    println!("  levOS:         {:>7.2} s, {fast_steps} decisions, the model was asked {escalated} times", fast_ms as f64 / 1000.0);
+    println!("  mint:         {:>7.2} s, {fast_steps} decisions, the model was asked {escalated} times", fast_ms as f64 / 1000.0);
     println!("  per decision: {:.0} ms against {:.3} ms — {:.0}x faster",
         slow_dec_us as f64 / slow_steps.max(1) as f64 / 1000.0,
         fast_dec_us as f64 / fast_steps.max(1) as f64 / 1000.0,
@@ -2099,7 +2099,7 @@ async fn arli_payload(args: &[String]) -> Result<()> {
         "rights_declared": true,
         "entries": entries,
         "content": format!(
-            "# {}\n\nCompiled by levOS from one demonstration on {}.\n\n{} step(s), {size} bytes of \
+            "# {}\n\nCompiled by mint from one demonstration on {}.\n\n{} step(s), {size} bytes of \
              readable JSON. Each step states the shape it recognises and the page it must produce; \
              a run verifies both and reports the tier that answered: shape, words or model. \
              Marginal cost of an execution is zero model calls.\n",
@@ -2108,14 +2108,14 @@ async fn arli_payload(args: &[String]) -> Result<()> {
             sk.steps.len()
         ),
         "harness": {
-            "runtime": "levOS",
+            "runtime": "mint",
             "skill_file": std::path::Path::new(&skill_path)
                 .file_name().and_then(|s| s.to_str()).unwrap_or(&skill_path),
             "steps": sk.steps.len(),
             "bytes": size,
             "verified_goal": sk.learn_declared_done,
             "model_calls_to_learn": sk.learn_model_calls,
-            "run": "levos arli-serve --skill <file> --slug <slug> --port <port>",
+            "run": "mint arli-serve --skill <file> --slug <slug> --port <port>",
         },
     });
     std::fs::write(&out_path, serde_json::to_string_pretty(&payload)?)?;

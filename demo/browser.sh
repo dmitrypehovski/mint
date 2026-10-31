@@ -7,7 +7,7 @@
 set -uo pipefail
 
 CHROME=/root/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome
-PROFILE=/root/.cache/levos-profile
+PROFILE=/root/.cache/mint-profile
 PORT=8830
 
 mkdir -p "$PROFILE"

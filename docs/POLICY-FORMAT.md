@@ -195,7 +195,7 @@ document refuses (`on_unclassifiable: "refuse"`).
 Applying it to the real observations in `demo/gate-observations.json`:
 
 ```
-$ ./target/release/levos rules --policy demo/gate-policy.json --observations demo/gate-observations.json
+$ ./target/release/mint rules --policy demo/gate-policy.json --observations demo/gate-observations.json
   0. read    allow  — safe to perform
   1. read    allow  — safe to perform
   2. write   hold   — this step commits something and no approval bound to it was presented
