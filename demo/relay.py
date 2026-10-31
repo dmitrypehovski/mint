@@ -828,6 +828,10 @@ def _restore() -> None:
     print(f"restored the last run: {fast} fast steps, {slow} slow steps", flush=True)
 
 
+# The front door: one page that says who this is for, what it does and how it works, in that
+# order. The long version is still served, but it is no longer the thing a visitor lands on — a
+# wall of fourteen sections is not an explanation, it is a filing cabinet.
+GUIDE_PATH = "/root/mint/demo/guide.html"
 SITE_PATH = "/root/mint/demo/site.html"
 MEASURE_PATH = "/root/mint/demo/measurements.json"
 EVAL_PATH = "/root/mint/demo/evaluation.json"
@@ -1071,9 +1075,17 @@ class Handler(BaseHTTPRequestHandler):
         self._send_file(os.path.join(DEMO_DIR, rel), ctype)
 
     def do_GET(self):
-        if self.path in ("/", "/index.html", "/live"):
+        # "/" is the explanation. The dark side-by-side view is still here at /race, and the long
+        # version of the pitch at /site-full; neither is the front door any more.
+        if self.path.startswith("/race") or self.path == "/live":
             self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
-        elif self.path.startswith("/site"):
+        elif self.path in ("/", "/index.html", "/site", "/site/"):
+            try:
+                body = open(GUIDE_PATH, "rb").read()
+                self._send(200, body, "text/html; charset=utf-8")
+            except FileNotFoundError:
+                self._send(404, b"no front page", "text/plain")
+        elif self.path.startswith("/site-full"):
             try:
                 body = open(SITE_PATH, "rb").read()
                 self._send(200, body, "text/html; charset=utf-8")

@@ -211,12 +211,132 @@ function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' +
 """
 
 
+
+# ── the path a reader walks ──────────────────────────────────────────────────────────────────────
+#
+# Every page says three short things at the top: what it is, who it is for, and what to look at. A
+# person who arrives on one page from a search engine should be able to tell within one screen
+# whether it is for them — that is what was missing when this was a pile of demonstrations full of
+# numbers and no way in.
+#
+# The order is a suggestion, not a requirement: the pages can be read in any order, and the two live
+# ones are the only ones worth reading first.
+PATHS = {
+    "directory": (
+        "See the work",
+        "Fifty invoices into twelve month folders, on a filesystem rather than a page.",
+        "Anyone deciding whether this is only a browser trick.",
+        "The counters: fifty decisions on the left, none on the right, and the receipt count.",
+    ),
+    "compare": (
+        "See the work",
+        "One task in a browser, run twice in a row: a model deciding every step, and the compiled skill.",
+        "Anyone who wants the comparison before the words.",
+        "That both halves are allowed the same things, and the awkward results are left in.",
+    ),
+    "live": (
+        "See the work",
+        "Pick a task and the runtime opens a real browser and does it while you watch.",
+        "Anyone who wants to see it work on something not chosen by us.",
+        "One of the five tasks is stopped by the gate partway through. That is the interesting one.",
+    ),
+    "gate": (
+        "The gate",
+        "The rules engine deciding, live: reading passes, writing waits, the undescribable is refused.",
+        "The person who has to approve what an agent does.",
+        "That an approval is bound to one specific action, not to 'the agent'.",
+    ),
+    "refuse": (
+        "The gate",
+        "The run where the runtime met an element it could not describe, and did nothing.",
+        "Anyone who has wondered what happens when it does not understand.",
+        "That the missing receipt is the evidence: nothing took place.",
+    ),
+    "receipt": (
+        "The record",
+        "The whole receipt format, from the published log, field by field.",
+        "Whoever has to check the work later.",
+        "The sentence at the bottom that refuses to assert what the receipt cannot prove.",
+    ),
+    "tamper": (
+        "The record",
+        "Five ways to lie to the log, each run against the real verifier.",
+        "Anyone who has to trust a log somebody else produced.",
+        "That re-signing a forged chain with the real key still fails, and the check says where.",
+    ),
+    "endorse": (
+        "The record",
+        "Four ways to lie about who agreed, starting with the runtime signing its own rules.",
+        "Whoever is on the other side of the approval.",
+        "That the runtime carries a counter-signature and never mints one.",
+    ),
+    "learn": (
+        "What it costs",
+        "Four real skills and what each cost to learn and to run.",
+        "Anyone deciding whether this fits their task.",
+        "That the saving is exactly the learning cost, paid once instead of every time.",
+    ),
+    "tasks": (
+        "What it costs",
+        "Every run against six repositories, with its own numbers and no averages.",
+        "Anyone who does not believe a headline number.",
+        "Which runs needed the model and which did not.",
+    ),
+    "state": (
+        "What it costs",
+        "What the runtime hands to a model, against the page it came from.",
+        "Anyone paying for tokens.",
+        "The ratio, and that it is measured rather than estimated.",
+    ),
+    "examples": (
+        "Start here",
+        "Every example on this site, one by one: the task, what each agent pays, what the receipt gives.",
+        "Anyone who wants the whole picture before the details.",
+        "The last block: the three things that did not work.",
+    ),
+}
+
+# The order the pages are offered in, and the group each belongs to.
+ORDER = ["examples", "directory", "compare", "live", "gate", "refuse",
+         "receipt", "tamper", "endorse", "learn", "tasks", "state"]
+
+
+def strip_for(name):
+    """Three lines at the top of every demonstration, and the way onward.
+
+    Written inline rather than as a stylesheet class so that it cannot be lost by a page that does not
+    load the stylesheet, and so that adding a page cannot leave it unstyled."""
+    slug = name.replace(".html", "")
+    if slug not in PATHS:
+        return ""
+    group, what, who, look = PATHS[slug]
+    i = ORDER.index(slug)
+    prev_slug = ORDER[i - 1] if i > 0 else None
+    next_slug = ORDER[i + 1] if i < len(ORDER) - 1 else None
+    step = f"{i + 1} of {len(ORDER)}"
+    links = []
+    if prev_slug:
+        links.append(f'<a href="/demos/{prev_slug}" style="color:#7c5ce7;text-decoration:none">← {prev_slug}</a>')
+    links.append('<a href="/demos" style="color:#7c5ce7;text-decoration:none">the path</a>')
+    if next_slug:
+        links.append(f'<a href="/demos/{next_slug}" style="color:#7c5ce7;text-decoration:none">{next_slug} →</a>')
+    return f"""<div style="max-width:760px;margin:18px auto 6px;background:#fff;border:1px solid #e6e6ef;
+  border-radius:12px;padding:14px 18px;font-size:14.5px;line-height:1.55">
+  <div style="font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:#7c5ce7;font-weight:700">
+    {group} · {step}</div>
+  <p style="margin:7px 0 4px"><b>What this is:</b> {what}</p>
+  <p style="margin:4px 0"><b>Who it is for:</b> {who}</p>
+  <p style="margin:4px 0"><b>What to look at:</b> {look}</p>
+  <p style="margin:9px 0 0;font-size:13.5px">{' · '.join(links)}</p>
+</div>"""
+
+
 def page(name, title, desc, num, h1, lede, body, js=""):
     html = (HEAD.replace("<!--TITLE-->", title)
                 .replace("<!--DESC-->", desc)
                 .replace("<!--FONTS-->", FONTS)
                 .replace("<!--NAV-->", NAV)
-                .replace("<!--BODY-->", body)
+                .replace("<!--BODY-->", strip_for(name) + body)
                 .replace("<!--JS-->", js))
     path = os.path.join(OUT, name)
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -1136,8 +1256,10 @@ hub = [
 cards = []
 for href, n, title, desc, tagx, live in hub:
     badge = f'<span class="tagx{" live" if live else ""}">{"live" if live else "real run, printed"} </span>'
-    cards.append(f"""<a class="demo" href="/demos/{href.replace(".html", "")}">
-  <div class="n">demonstration {n}</div>
+    slug = href.replace(".html", "")
+    group = PATHS.get(slug, ("",))[0]
+    cards.append(f"""<a class="demo" href="/demos/{slug}">
+  <div class="n">{group + " · " if group else ""}demonstration {n}</div>
   <h3>{title}</h3>
   <p>{desc}</p>
   {badge}
@@ -1145,12 +1267,19 @@ for href, n, title, desc, tagx, live in hub:
 
 body = head(
     0,
-    "Eight ways to try to catch it lying.",
+    "Twelve pages, in the order that makes sense.",
     "Every demonstration here runs the real program. Nothing is a mock-up, a screenshot or a video: when "
     "you press a button, the runtime's own verifier runs and its output is printed below, unedited. All "
-    "eight can be reproduced from a shell with the command each page prints.",
+    "page can be reproduced from a shell with the command it prints.",
 ) + f"""
-<div class="demos">
+<div class="why" style="background:#f4f1ff;border-left:3px solid #7c5ce7;padding:14px 18px;border-radius:0 10px 10px 0;margin:0 0 22px">
+  <b>If you have five minutes:</b> read <a href="/demos/examples" style="color:#7c5ce7;font-weight:600">what
+  every example is for</a>, press one button on
+  <a href="/demos/directory" style="color:#7c5ce7;font-weight:600">fifty files, sorted both ways</a>,
+  and read <a href="/demos/tamper" style="color:#7c5ce7;font-weight:600">what happens when somebody edits
+  the log</a>. Those three answer who it is for, whether it works, and what you get afterwards. Everything
+  below is detail behind them.</div>
+  <div class="demos">
 {chr(10).join(cards)}
 </div>
 <h2 class="dh">Run all of it yourself, without us</h2>
@@ -1177,6 +1306,15 @@ is behind it. Nor do they show that the work done was the work wanted — only t
 truthfully describes what was done, signably and checkably. Those two gaps are the ones worth arguing
 about, and they are stated here rather than left for a reader to find.</p></div>
 """
-page("index.html", "mint — demonstrations", "Eight demonstrations, four of them live, all from real runs.", 0, "", "", body)
+page("index.html", "mint — demonstrations", "Twelve demonstrations in a path: what it is, see it work, the gate, the record, what it costs.", 0, "", "", body)
 
 print(f"\n  {len(hub)} pages + hub written to {OUT}")
+# A page that is described but not linked is a page nobody can reach: say so instead of
+# reporting success, which is how the missing compare page was discovered the hard way.
+linked = [h[0].replace(".html", "") for h in hub]
+missing = [p for p in PATHS if p not in linked]
+if missing:
+    print(f"  WARNING: described but not linked in the hub: {missing}")
+unbuilt = [p for p in linked if not os.path.exists(os.path.join(OUT, p + ".html"))]
+if unbuilt:
+    print(f"  WARNING: linked in the hub but not written: {unbuilt}")
