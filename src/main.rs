@@ -1162,6 +1162,12 @@ fn receipts_cmd(args: &[String]) -> Result<()> {
 
         println!("\n  and the original, checked against its own published rules, still verifies");
     }
+    // A verifier that prints a break and returns success is useless in a script: the exit code is the
+    // only part a script reads. The relay that shows these demonstrations tolerates a non-zero code as
+    // long as there is output to show, and a shell is not so forgiving.
+    if !real.ok {
+        anyhow::bail!("the log does not hold");
+    }
     Ok(())
 }
 

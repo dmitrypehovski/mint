@@ -284,3 +284,57 @@ The first confirms the canonical form is `serde_json::to_string` of the body
 struct; the second confirms `link_hash` hashes those canonical bytes; the third
 confirms `prev_hash` is taken from the previous receipt's `link_hash` (not its
 signature).
+
+## Fields added for the shape the standard names
+
+The receipt grew three optional fields, and they are **optional on purpose**: the bytes a receipt was
+signed over are the serialization of its body, so a field that is absent must not appear in the JSON.
+Fields are appended to the struct rather than inserted, and they serialize as absent when they are not
+recorded. The consequence is worth stating plainly, because it is the reason the published log still
+verifies: **a receipt signed before these fields existed verifies exactly as it did before.**
+
+- `principal` — who the run answers to: the organisation or person on whose behalf it acts, in the
+  shape the identity work in this field uses. A different question from `agent`, which is the key that
+  signed: who did it, not who answers for it. Recorded only when the runtime is told, because a runtime
+  that invents its own principal is asserting something nobody agreed to.
+- `principal_class` — `HUMAN`, `SERVICE`, `POLICY` or `SANDBOX_SIM`. A class marker, not an identity:
+  it says whether a person stood behind the action, a service, a written rule, or nothing at all
+  because the run was a simulation. Anything outside those four is refused rather than stored.
+- `approval` — `{by, at_ms}` when a held action went ahead on an approval. A boolean would let a log
+  claim that somebody approved this without recording anybody; a name and a time is the least that
+  makes the claim checkable by the person named in it. Absent when no approval was used, and absent
+  when the runtime was not told who gave it.
+
+Where the values come from: `MINT_PRINCIPAL`, `MINT_PRINCIPAL_CLASS` and `MINT_APPROVER`, read from
+the environment for the same reason the keys are — they belong to the run, not to one command.
+
+## The algorithm in the signature is checked, not skipped
+
+`sig.alg` was a field the verifier ignored. A receipt naming an algorithm this verifier does not know
+is now a refusal: skipping the name means a receipt signed some other way is verified as though it had
+been signed this way, and nothing in the report would say so.
+
+## A verifier that fails must say so in its exit code
+
+`mint receipts` printed `log BROKEN` and returned success. The exit code is the only part a script
+reads, so a check that cannot fail a build is not a check. It now returns non-zero when the log does
+not hold — and the relay that shows these demonstrations tolerates that, because it displays the output
+rather than the status.
+
+## What this format deliberately does not carry
+
+Named here rather than discovered later, and each one is a wire change rather than a bug fix:
+
+- **No domain tag before the signed bytes.** The standard prefixes a tag to the digest so a signature
+  over a receipt cannot be replayed as a signature over something else of the same shape. Adding it
+  changes the canonical bytes of every receipt, so it belongs in `mint.receipt/0.2`.
+- **No JCS canonicalization.** Member order is declaration order, which is stable across runs and
+  machines and is what this codebase signs. JCS sorts members by UTF-16 code unit; switching would
+  invalidate every stored receipt for no gain in what the signature actually covers.
+- **No COSE_Sign1 envelope, no transparency-service registration.** A checkpoint and a witness's
+  countersignature answer the question a self-signed chain cannot (see `src/checkpoint.rs`), without
+  the envelope machinery. The standard's own draft reports no executed interop for registration yet.
+- **No `params_hash`.** The action's parameters are not in the receipt at all — a form field's text,
+  including a password typed into it, never lands in a log that gets published — and binding the receipt
+  to a hash of those parameters needs the parameter values plumbed into `ActionRef` first. Worth doing,
+  not done.

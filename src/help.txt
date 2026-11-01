@@ -43,3 +43,10 @@ mint — an agent runtime that does not pay twice for the same decision.
       put four kinds of element to the write gate and show what it decided, and why
 
 variables: MINT_MODEL, MINT_MODEL_URL, MINT_MODEL_API, MINT_API_KEY
+
+Environment for the run's identity, read the same way the keys are:
+  MINT_PRINCIPAL         who this run answers to (an organisation or person), recorded in each receipt
+  MINT_PRINCIPAL_CLASS   HUMAN | SERVICE | POLICY | SANDBOX_SIM — anything else is refused
+  MINT_APPROVER          who approved held actions, recorded only when an approval was actually used
+
+Verification returns a non-zero exit code when a log does not hold, so a script can act on it.

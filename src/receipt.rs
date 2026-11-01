@@ -52,6 +52,20 @@ pub struct DecisionRef {
     pub decided_by: String,
 }
 
+/// Who approved a held action, and when.
+///
+/// A boolean would let a log claim that somebody approved this without recording anybody. A name and a
+/// time is the least that makes the claim checkable by the person named in it.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Approval {
+    pub by: String,
+    pub at_ms: u128,
+}
+
+/// The principal classes the standard names. A free-text field would let a log claim a class nobody
+/// defined, so anything outside this list is refused rather than stored.
+pub const PRINCIPAL_CLASSES: [&str; 4] = ["HUMAN", "SERVICE", "POLICY", "SANDBOX_SIM"];
+
 /// Everything a receipt asserts. Signed as a whole; the signature lives outside this struct so the
 /// bytes that were signed can be reconstructed exactly from what is stored.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -76,6 +90,25 @@ pub struct ReceiptBody {
     pub policy_hash: String,
     pub prev_hash: Option<String>,
     pub claim: String,
+    // Everything below is optional, omitted from the JSON when it is not recorded, and appended to the
+    // struct rather than inserted into it. That is not tidiness: the bytes a receipt was signed over
+    // are the serialization of this struct, so a field added in the middle, or one that serializes as
+    // null, would change the canonical form of receipts already signed and published. Optional fields
+    // at the end leave every existing receipt verifying exactly as before.
+    /// Who this run answers to: the organisation or person on whose behalf it acts. Different question
+    /// from `agent`, which is the key that signed — who did it, not who is accountable for it. Recorded
+    /// only when the runtime is told, because a runtime that invents its own principal is asserting
+    /// something nobody agreed to.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub principal: Option<String>,
+    /// What kind of principal that is: HUMAN, SERVICE, POLICY or SANDBOX_SIM. A class marker, not an
+    /// identity — it says whether a person stood behind the action, a service, a written rule, or
+    /// nothing at all because the run was a simulation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub principal_class: Option<String>,
+    /// Who approved a held action, when an approval was actually used and the runtime knows the name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approval: Option<Approval>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -190,6 +223,11 @@ pub struct ReceiptLog {
     /// verifier checks its signature regardless of where it found it, so embedding it adds nothing
     /// that has to be trusted.
     pub endorsement: Option<serde_json::Value>,
+    /// Who this log answers to, and who approves its held actions. Read from the environment by `new`,
+    /// like the keys, because they belong to the run rather than to one command.
+    pub principal: Option<String>,
+    pub principal_class: Option<String>,
+    pub approver: Option<String>,
     sealer: Sealer,
     receipts: Vec<Receipt>,
 }
@@ -199,12 +237,24 @@ impl ReceiptLog {
         // The hash of the document that was applied. It used to be a hash of the host, which was a
         // field called policy_hash that had nothing to do with any policy.
         let policy_hash = rules.hash();
+        // Who a run acts for, and who approves its held actions, are read from the environment for the
+        // same reason the keys are: they belong to the run, not to one command. An unknown class is
+        // dropped here rather than stored; `acting_for` refuses it outright for callers that can
+        // report an error.
+        let principal = std::env::var("MINT_PRINCIPAL").ok().filter(|p| !p.trim().is_empty());
+        let class = std::env::var("MINT_PRINCIPAL_CLASS")
+            .ok()
+            .filter(|c| PRINCIPAL_CLASSES.contains(&c.trim().to_uppercase().as_str()));
+        let approver = std::env::var("MINT_APPROVER").ok().filter(|n| !n.trim().is_empty());
         ReceiptLog {
             host: host.to_string(),
             agent: sealer.agent.clone(),
             policy_hash,
             rules: rules.clone(),
             endorsement: None,
+            principal,
+            principal_class: class,
+            approver,
             sealer,
             receipts: Vec::new(),
         }
@@ -237,6 +287,30 @@ impl ReceiptLog {
     /// Attach the counterparty's signature to this log.
     pub fn accept_endorsement(&mut self, e: &crate::endorse::Endorsement) {
         self.endorsement = serde_json::to_value(e).ok();
+    }
+
+    /// Record who this run answers to. The class must be one of the four that are defined: an
+    /// unknown class is a claim nobody can interpret, so it is refused here rather than stored.
+    pub fn acting_for(mut self, principal: Option<String>, class: Option<String>) -> anyhow::Result<Self> {
+        if let Some(c) = &class {
+            if !PRINCIPAL_CLASSES.contains(&c.trim().to_uppercase().as_str()) {
+                anyhow::bail!(
+                    "«{c}» is not a principal class. The ones that exist are {}",
+                    PRINCIPAL_CLASSES.join(", ")
+                );
+            }
+        }
+        self.principal = principal.filter(|p| !p.trim().is_empty());
+        self.principal_class = class
+            .filter(|c| !c.trim().is_empty())
+            .map(|c| c.trim().to_uppercase());
+        Ok(self)
+    }
+
+    /// The name to put on a decision that used an approval, when the runtime knows one.
+    pub fn approved_by(mut self, name: Option<String>) -> Self {
+        self.approver = name.filter(|n| !n.trim().is_empty());
+        self
     }
 
     pub fn receipts(&self) -> &[Receipt] {
@@ -279,6 +353,19 @@ impl ReceiptLog {
     ) -> Receipt {
         let seq = self.next_seq();
         let id = format!("{}-{:04}", &self.agent[..12.min(self.agent.len())], seq);
+        // A held action that went ahead because somebody approved it. The name goes in only when an
+        // approval was actually observed and the runtime was told who gave it: an anonymous tick is
+        // exactly what this replaces. The principal is who the run answers to, which is a different
+        // question from the key that signs.
+        let approval = if action.observed.approval {
+            self.approver
+                .clone()
+                .map(|by| Approval { by, at_ms: decided_at_ms })
+        } else {
+            None
+        };
+        let principal = self.principal.clone();
+        let principal_class = self.principal_class.clone();
         let body = ReceiptBody {
             spec: SPEC.to_string(),
             seq,
@@ -297,6 +384,9 @@ impl ReceiptLog {
             policy_hash: self.policy_hash.clone(),
             prev_hash: self.prev_hash(),
             claim: CLAIM.to_string(),
+            principal,
+            principal_class,
+            approval,
         };
         self.dispatch(body)
     }
@@ -330,6 +420,11 @@ impl ReceiptLog {
             policy_hash: self.policy_hash.clone(),
             prev_hash: self.prev_hash(),
             claim: CLAIM.to_string(),
+            // The pair's other half: the same principal, and no approval of its own — an approval
+            // belongs to the decision it allowed, not to what happened afterwards.
+            principal: self.principal.clone(),
+            principal_class: self.principal_class.clone(),
+            approval: None,
         };
         self.dispatch(body)
     }
@@ -464,6 +559,15 @@ pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy
             repeated_effects: Vec::new(),
             policy_break: None,
         };
+        // The algorithm is named in the receipt, and a name this verifier does not know is a refusal
+        // rather than a field to skip: skipping it means a receipt signed some other way is verified
+        // as though it had been signed this way, and nothing in the report says so.
+        if r.sig.alg != "ed25519" {
+            return fail(format!(
+                "the signature names the algorithm «{}», which this verifier does not know",
+                r.sig.alg
+            ));
+        }
         let sig_bytes = match decode_hex(&r.sig.value) {
             Ok(b) => b,
             Err(e) => return fail(format!("the signature is not hex: {e}")),
@@ -633,4 +737,100 @@ fn now_ms() -> u128 {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis())
         .unwrap_or(0)
+}
+
+#[cfg(test)]
+mod principal_tests {
+    use super::*;
+    use crate::policy::{Observed, Policy};
+
+    // One key file per test: they run in parallel, and a shared path means one test deleting the key
+    // another is loading.
+    fn log(tag: &str) -> ReceiptLog {
+        let path = &format!("/tmp/mint-receipt-principal-key-{tag}");
+        let _ = std::fs::remove_file(path);
+        let sealer = Sealer::load_or_create(path).expect("a key");
+        ReceiptLog::new("example.com", &Policy::shipped(), sealer)
+    }
+
+    fn action(with_approval: bool) -> ActionRef {
+        ActionRef {
+            identity: "click:button:Submit".into(),
+            key: "k".into(),
+            side_effect: "write".into(),
+            element: "button «Submit»".into(),
+            step: 1,
+            observed: Observed {
+                action: "click".into(),
+                tag: "button".into(),
+                role: "button".into(),
+                has_href: false,
+                approval: with_approval,
+            },
+        }
+    }
+
+    fn decision() -> DecisionRef {
+        DecisionRef {
+            verdict: "allow".into(),
+            reason: "safe to perform".into(),
+            decided_by: "policy".into(),
+        }
+    }
+
+    #[test]
+    fn a_principal_class_that_does_not_exist_is_refused() {
+        assert!(log("class")
+            .acting_for(Some("acme.example".into()), Some("ROBOT".into()))
+            .is_err());
+        assert!(log("class-ok")
+            .acting_for(Some("acme.example".into()), Some("human".into()))
+            .is_ok());
+    }
+
+    #[test]
+    fn the_principal_is_recorded_and_the_class_is_normalised() {
+        let mut log = log("principal")
+            .acting_for(Some("did:web:acme.example".into()), Some("human".into()))
+            .expect("a known class");
+        let r = log.append_decision(action(false), decision(), 1);
+        assert_eq!(r.body.principal.as_deref(), Some("did:web:acme.example"));
+        assert_eq!(r.body.principal_class.as_deref(), Some("HUMAN"));
+        assert!(r.body.approval.is_none());
+    }
+
+    #[test]
+    fn an_approval_is_recorded_only_when_one_was_used_and_a_name_is_known() {
+        // An approval was used, but the runtime was not told who gave it: nothing is claimed.
+        let mut unnamed = log("unnamed").acting_for(None, None).expect("no class");
+        let r = unnamed.append_decision(action(true), decision(), 7);
+        assert!(r.body.approval.is_none());
+
+        // A name is known and an approval was used: both go in, with the time.
+        let mut named = log("named").approved_by(Some("dmitry".into()));
+        let r = named.append_decision(action(true), decision(), 7);
+        let a = r.body.approval.expect("an approval");
+        assert_eq!(a.by, "dmitry");
+        assert_eq!(a.at_ms, 7);
+
+        // A name is known and no approval was used: an approval is not an announcement of who is
+        // around, so nothing is recorded.
+        let mut unused = log("unused").approved_by(Some("dmitry".into()));
+        let r = unused.append_decision(action(false), decision(), 7);
+        assert!(r.body.approval.is_none());
+    }
+
+    #[test]
+    fn a_receipt_signed_before_these_fields_existed_serializes_identically() {
+        // The property the whole design rests on: the bytes a receipt was signed over are the
+        // serialization of the struct, so a field that is absent must not appear in the JSON. This is
+        // what lets the published log keep verifying after the format grows.
+        let old = r#"{"spec":"mint.receipt/0.1","seq":1,"id":"a-0001","kind":"decision","refers_to":null,"decided_at_ms":1,"signed_at_ms":2,"agent":"ab","host":"h","action":{"identity":"i","key":"k","side_effect":"s","element":"e","step":0,"observed":{"action":"a","tag":"t","role":"r","has_href":false,"approval":false}},"decision":{"verdict":"allow","reason":"r","decided_by":"policy"},"status":"","result_hash":null,"result_note":null,"policy_hash":"p","prev_hash":null,"claim":"c"}"#;
+        let body: ReceiptBody = serde_json::from_str(old).expect("an old receipt still parses");
+        assert_eq!(
+            serde_json::to_string(&body).expect("and reserializes"),
+            old,
+            "an optional field that is absent must not appear"
+        );
+    }
 }
