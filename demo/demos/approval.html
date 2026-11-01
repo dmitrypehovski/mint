@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Five approvals, and what each one proves</title>
+<style>
+  :root { --ink:#16161d; --dim:#5b5b6b; --line:#e3e3ec; --bg:#f8f8fb; --accent:#7c5ce7; --bad:#b3261e; --ok:#137a4a; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px 20px 64px; background:var(--bg); color:var(--ink);
+         font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap { max-width:900px; margin:0 auto; }
+  h1 { font-size:30px; line-height:1.25; margin:0 0 6px; letter-spacing:-.02em; }
+  .lede { color:var(--dim); margin:0 0 26px; }
+  .where { font-size:13px; color:var(--dim); border-left:3px solid var(--accent); padding-left:12px; margin:0 0 28px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .card h2 { font-size:17px; margin:0 0 4px; }
+  .card p { margin:0 0 12px; color:var(--dim); font-size:14.5px; }
+  button { font:inherit; font-size:14px; padding:9px 16px; border-radius:9px; border:1px solid var(--line);
+           background:#fff; color:var(--ink); cursor:pointer; }
+  button:hover { border-color:var(--accent); color:var(--accent); }
+  .badge { display:inline-block; font-size:12px; font-weight:600; padding:3px 9px; border-radius:999px;
+           margin-left:8px; vertical-align:1px; }
+  .badge.ok { background:#e7f5ee; color:var(--ok); }
+  .badge.bad { background:#fdeceb; color:var(--bad); }
+  pre { background:#0f0f14; color:#e8e8ef; border-radius:10px; padding:14px 16px; overflow:auto;
+        font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; margin:12px 0 0; }
+  .cmd { font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:var(--dim); }
+  footer { color:var(--dim); font-size:13.5px; margin-top:30px; border-top:1px solid var(--line); padding-top:16px; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>An approval is only as good as its answer to “who said yes”.</h1>
+  <p class="lede">
+    A gate can hold every write correctly and still authorise it with nothing. Ours did: the approval was
+    the string <span class="cmd">approve:&lt;action&gt;</span>, compared literally — so anybody who could
+    type that string approved anything, and the receipt had nobody to name.
+  </p>
+  <p class="where">
+    <strong>approval</strong> — five signed approvals, put through the checks a run applies.
+    <br>← <a href="/demos/witness">the witness</a> · <a href="/demos/gate">the gate</a> · <a href="/demos">all pages</a> ·
+    <a href="/demos/directory">the directory</a> →
+  </p>
+
+  <div class="card">
+    <h2>The one that holds <span id="b-good" class="badge"></span></h2>
+    <p>Right issuer, right action, right runtime, still inside its time bounds — signed by the approver
+       this runtime was told to trust, for the action that is waiting.</p>
+    <button data-case="good">check it</button>
+    <pre id="o-good">not run yet</pre>
+  </div>
+
+  <div class="card">
+    <h2>Signed by a key nobody was told to trust <span id="b-unpinned" class="badge"></span></h2>
+    <p>A perfectly valid signature from a stranger. This is the check that is applied <em>before</em> the
+       signature, because a valid signature from nobody in particular is exactly what pinning exists to refuse.</p>
+    <button data-case="unpinned">check it</button>
+    <pre id="o-unpinned">not run yet</pre>
+  </div>
+
+  <div class="card">
+    <h2>The right issuer, the wrong thing <span id="b-other-action" class="badge"></span></h2>
+    <p>An approval that names another action entirely. Being allowed to do something is not being allowed
+       to do this.</p>
+    <button data-case="other-action">check it</button>
+    <pre id="o-other-action">not run yet</pre>
+  </div>
+
+  <div class="card">
+    <h2>Issued to another runtime <span id="b-other-runtime" class="badge"></span></h2>
+    <p>Real, unexpired, for the right action — and meant for somebody else, so useless here. An approval
+       is not transferable between agents.</p>
+    <button data-case="other-runtime">check it</button>
+    <pre id="o-other-runtime">not run yet</pre>
+  </div>
+
+  <div class="card">
+    <h2>Valid yesterday <span id="b-expired" class="badge"></span></h2>
+    <p>Every other part of it holds. The time bounds are what make it possible for an approval to stop
+       being one.</p>
+    <button data-case="expired">check it</button>
+    <pre id="o-expired">not run yet</pre>
+  </div>
+
+  <footer>
+    Each button runs <span class="cmd">mint approve-check</span> — the same function the gate calls, with the
+    same words in the refusal. The behaviours of a run are not simulated here; only the approvals are
+    prepared in advance, and each one is signed by a real key.
+    The fifth check, single use, is not shown on this page: it needs a run to have happened, and the gate
+    demonstrates it by refusing the second attempt at the same action.
+  </footer>
+</div>
+
+<script>
+async function check(name) {
+  const out = document.getElementById('o-' + name);
+  const badge = document.getElementById('b-' + name);
+  out.textContent = 'running…';
+  badge.className = 'badge';
+  badge.textContent = '';
+  try {
+    const r = await fetch('/api/approval/check?case=' + encodeURIComponent(name));
+    const d = await r.json();
+    if (!d.ok) { out.textContent = 'the check did not run: ' + (d.error || 'unknown'); return; }
+    out.textContent = d.output.trimEnd() + '\n\n$ ' + d.command;
+    badge.className = 'badge ' + (d.accepted ? 'ok' : 'bad');
+    badge.textContent = d.accepted ? 'accepted' : 'refused';
+  } catch (e) {
+    out.textContent = 'the check could not be reached: ' + e;
+  }
+}
+document.querySelectorAll('button[data-case]').forEach(function (b) {
+  b.addEventListener('click', function () { check(b.dataset.case); });
+});
+</script>
+</body>
+</html>

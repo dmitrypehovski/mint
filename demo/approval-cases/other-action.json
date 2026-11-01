@@ -1,0 +1,15 @@
+{
+  "body": {
+    "action": "click:button:Cancel",
+    "for_agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+    "issued_at_ms": 1793492018562,
+    "not_after_ms": 1794096818562,
+    "note": "the right issuer, the wrong thing",
+    "spec": "mint.approval/0.1"
+  },
+  "sig": {
+    "alg": "ed25519",
+    "kid": "11b16d62878bde4ad2b2994447993d62952532b60dc1271e7cefed1dcfb3f5e3",
+    "value": "44d5b378748e3571ce7e69ba8b8fe67e39fd55e4ab2780739c3a25860d3b70b6594a955fa5bb380d2e85cfad613d39bd1f52db9e316138fbba28e7566fe74908"
+  }
+}

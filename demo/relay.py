@@ -499,6 +499,72 @@ def api_verdict(query):
     }, None
 
 
+# The action the approval page checks against. A button, because that is the shape of the thing being
+# authorised, and a fixed one because a caller does not get to choose what is checked.
+APPROVAL_ACTION = "click:button:Submit"
+
+
+def api_approval_check(case):
+    """Put one signed approval through the checks a run applies, with the real binary."""
+    name = (case or "").strip()
+    folder = os.path.join(DEMO_DIR, "approval-cases")
+    try:
+        known = {f[:-5] for f in os.listdir(folder) if f.endswith(".json") and f != "approvers.json"}
+    except OSError:
+        return None, "no such case"
+    if name not in known:
+        return None, "no such case"
+    args = ["approve-check", "--approval", os.path.join(folder, name + ".json"),
+            "--action", APPROVAL_ACTION, "--approvers", os.path.join(folder, "approvers.json")]
+    code, text = run_mint(args)
+    if not text:
+        return None, "the check produced nothing"
+    return {
+        "ok": True,
+        "case": name,
+        "accepted": code == 0,
+        "output": text,
+        "command": "mint approve-check --approval approval-cases/%s.json --action %s"
+                   % (name, APPROVAL_ACTION),
+    }, None
+
+
+# The two pages the ambiguity check replays against. Fixed here, because a caller does not get to
+# choose which page a signed-off skill is pointed at.
+AMBIGUITY_CASES = {
+    "same": ("/fieldwork", "the page the skill was learned on"),
+    "swapped": ("/fieldwork-variant", "the same page with two field labels swapped"),
+}
+AMBIGUITY_SKILL = "fieldwork.skill.json"
+
+
+def api_ambiguity_check(case):
+    """Replay a learned skill, on the page it came from and on the page that changed underneath it."""
+    name = (case or "").strip()
+    if name not in AMBIGUITY_CASES:
+        return None, "no such case"
+    path, what = AMBIGUITY_CASES[name]
+    url = "http://127.0.0.1:8840" + path
+    # Absolute, because the relay runs from the demo directory while the skill and the rules live one
+    # level up in the repository.
+    skill = os.path.join(DEMO_DIR, "..", AMBIGUITY_SKILL)
+    rules = os.path.join(DEMO_DIR, "learn-policy.json")
+    args = ["race", "--skill", skill, "--start", url,
+            "--policy", rules, "--max-steps", "60"]
+    code, text = run_mint(args, timeout=180)
+    if not text:
+        return None, "the replay produced nothing"
+    return {
+        "ok": True,
+        "case": name,
+        "what": what,
+        "url": path,
+        "output": text,
+        "command": "mint race --skill %s --start %s --policy demo/learn-policy.json"
+                   % (AMBIGUITY_SKILL, path),
+    }, None
+
+
 def api_tamper(slug):
     if slug not in API_TAMPER:
         return None, "no such case"
@@ -561,6 +627,8 @@ DEMO_PAGES = {
     "directory": "directory.html",
     "examples": "examples.html",
     "witness": "witness.html",
+    "approval": "approval.html",
+    "ambiguous": "ambiguous.html",
 }
 
 # What may be served as a file, and nothing else. The demo page shows real screenshots and a real
@@ -1030,6 +1098,21 @@ checked against what it claims to have done.</p>
 </body></html>""" % fields
 
 
+def fieldwork_variant_page():
+    """The same fifty fields with two labels swapped.
+
+    Nothing else changes: the same order, the same ids, the same count. A skill learned on the real page
+    records what it saw at each place, and on this page the place and the words disagree — so the runtime
+    has to refuse rather than guess which of the two it meant. That is the whole demonstration: a refusal
+    here is the difference between replaying a decision and inventing one.
+    """
+    page = fieldwork_page()
+    page = page.replace(">Field 02<", ">Field XX<")
+    page = page.replace(">Field 03<", ">Field 02<")
+    page = page.replace(">Field XX<", ">Field 03<")
+    return page
+
+
 def fieldwork_received(body):
     """Count what arrived and echo it. A form that says 'thanks' tells a run nothing; this says how
     many values arrived and what they were, which is what a goal check can be held to."""
@@ -1217,6 +1300,8 @@ class Handler(BaseHTTPRequestHandler):
                            "text/css; charset=utf-8")
             except FileNotFoundError:
                 self._send(404, b"no stylesheet", "text/plain")
+        elif self.path.split("?")[0] == "/fieldwork-variant":
+            self._send(200, fieldwork_variant_page().encode("utf-8"), "text/html; charset=utf-8")
         elif self.path.split("?")[0] == "/fieldwork":
             self._send(200, fieldwork_page().encode("utf-8"), "text/html; charset=utf-8")
         elif self.path.split("?")[0].startswith("/demos"):
@@ -1253,6 +1338,10 @@ class Handler(BaseHTTPRequestHandler):
                 body, why = api_tamper(query.get("case", [""])[0])
             elif wanted == "endorse":
                 body, why = api_endorse(query.get("case", [""])[0])
+            elif wanted == "ambiguity/check":
+                body, why = api_ambiguity_check(query.get("case", [""])[0])
+            elif wanted == "approval/check":
+                body, why = api_approval_check(query.get("case", [""])[0])
             elif wanted == "witness/check":
                 body, why = api_witness_check(query.get("case", [""])[0])
             elif wanted == "verify":

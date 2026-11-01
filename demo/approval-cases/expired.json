@@ -1,0 +1,15 @@
+{
+  "body": {
+    "action": "click:button:Submit",
+    "for_agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+    "issued_at_ms": 1793319218553,
+    "not_after_ms": 1793405618553,
+    "note": "valid yesterday, which is not now",
+    "spec": "mint.approval/0.1"
+  },
+  "sig": {
+    "alg": "ed25519",
+    "kid": "11b16d62878bde4ad2b2994447993d62952532b60dc1271e7cefed1dcfb3f5e3",
+    "value": "d2ac266e21f35639283224d4130f896e03ed6369e34b09491e2f7e2181a528154fa50a936d214197a648070f0d73b7c2b71174f5f8c923dc956923aebaffcb0b"
+  }
+}

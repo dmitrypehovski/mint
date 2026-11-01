@@ -222,6 +222,21 @@ function cmdline(el, text) { el.innerHTML = '<b>the command behind this:</b> ' +
 # The order is a suggestion, not a requirement: the pages can be read in any order, and the two live
 # ones are the only ones worth reading first.
 PATHS = {
+    "ambiguous": (
+        "See the work",
+        "A learned skill replayed twice: on the page it came from, and on the same page with two field "
+        "labels swapped.",
+        "Anyone who wants to know what the runtime does when the page moves under a decision.",
+        "That the first replay needs no model at all, and the second refuses to guess and asks one "
+        "instead — with the reason in words.",
+    ),
+    "approval": (
+        "The gate",
+        "Five signed approvals put through the checks a run applies: who signed, for which action, and "
+        "until when.",
+        "Anyone who noticed that a permission is only as good as its answer to \"who said yes\".",
+        "That four of the five are refused by name, and the one that holds is accepted.",
+    ),
     "directory": (
         "See the work",
         "Fifty invoices into twelve month folders, on a filesystem rather than a page.",
@@ -304,7 +319,8 @@ PATHS = {
 
 # The order the pages are offered in, and the group each belongs to.
 ORDER = ["examples", "directory", "compare", "live", "gate", "refuse",
-         "receipt", "tamper", "endorse", "learn", "tasks", "state"]
+         "receipt", "tamper", "endorse", "learn", "tasks", "state", "witness",
+         "approval", "ambiguous"]
 
 
 def strip_for(name):
@@ -1248,6 +1264,8 @@ document.querySelectorAll('[data-cmp]').forEach((b) => {
 hub = [
     ("compare", 10, "The same task, both kinds of agent", "One task, run twice in the same browser: on the left a model decides every step, on the right the same task runs compiled. The longest is four steps through a real repository, learned on a different one — and the left half asks a model at every step of it. <b>Live, side by side.</b>", "live", True),
     ("directory", 11, "The same task, on a filesystem", "Fifty invoices into twelve month folders — the same comparison as the page above, on a directory instead of a page. For an agent that asks a model about every step this is fifty decisions; for the compiled skill it is none. <b>Live.</b>", "live", True),
+    ("approval", 14, "An approval has to name somebody", "Five signed approvals put through the checks a run applies: pinned issuer, signature, the action it names, the time bounds, the runtime it was issued for. Four are refused by name; the one that holds is accepted. <b>Live.</b>", "live", True),
+    ("ambiguous", 15, "When the page moves under a decision", "A learned skill replayed on the page it came from, and on the same page with two field labels swapped: no model at all in the first, and in the second a refusal to guess — with the reason in words — followed by the repairs it took. <b>Live.</b>", "live", True),
       ("witness", 13, "The head, signed twice", "The log's head signed by the runtime and countersigned by a second key — and what happens when receipts are taken out", "", True),
     ("examples", 12, "What each example is for", "Every example on this site, one by one: what the task is, what each kind of agent pays for it, what the receipt leaves behind, and where that kind of work actually exists. Including the three things that did not work.", "", False),
       ("live", 9, "Run it yourself, right now", "Pick a task and the runtime opens a real browser and does it while you watch — the frames as it moves, the steps with what resolved them, and a signed receipt at the end. One of the five gets stopped by the gate mid-run. <b>Live.</b>", "live", True),
@@ -1313,7 +1331,7 @@ is behind it. Nor do they show that the work done was the work wanted — only t
 truthfully describes what was done, signably and checkably. Those two gaps are the ones worth arguing
 about, and they are stated here rather than left for a reader to find.</p></div>
 """
-page("index.html", "mint — demonstrations", "Twelve demonstrations in a path: what it is, see it work, the gate, the record, what it costs.", 0, "", "", body)
+page("index.html", "mint — demonstrations", "Fifteen demonstrations in a path: what it is, see it work, the gate, the record, what it costs.", 0, "", "", body)
 
 print(f"\n  {len(hub)} pages + hub written to {OUT}")
 # A page that is described but not linked is a page nobody can reach: say so instead of

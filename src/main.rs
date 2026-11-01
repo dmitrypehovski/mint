@@ -47,6 +47,7 @@ async fn main() -> Result<()> {
         "dir-run" => dir_run(&args).await,
         "dir-demo" => dir_demo(&args).await,
         "approve" => approve_cmd(&args),
+        "approve-check" => approve_check_cmd(&args),
         "checkpoint" => checkpoint_cmd(&args),
         "witness" => witness_cmd(&args),
         "verify-witness" => verify_witness_cmd(&args),
@@ -210,15 +211,15 @@ fn approve_cmd(args: &[String]) -> Result<()> {
     let days: u128 = flag(args, "--days").and_then(|v| v.parse().ok()).unwrap_or(1);
     let note = flag(args, "--note").unwrap_or_default();
     let sealer = receipt::Sealer::load_or_create(&approver_key())?;
-    let issued = endorse::now_ms();
-    let a = approval::Approval::issue(
-        &sealer,
-        &action,
-        &for_agent,
-        issued,
-        issued + days * 86_400_000,
-        &note,
-    );
+    // A demonstration has to be able to show an expiry without waiting for one, and a test has to be
+    // able to place an approval in time. Everything else uses the clock.
+    let issued = flag(args, "--issued-ms")
+        .and_then(|v| v.parse().ok())
+        .unwrap_or_else(endorse::now_ms);
+    let not_after = flag(args, "--expires-ms")
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(issued + days * 86_400_000);
+    let a = approval::Approval::issue(&sealer, &action, &for_agent, issued, not_after, &note);
     let out = flag(args, "--out").unwrap_or_else(|| "approval.json".into());
     std::fs::write(&out, serde_json::to_string_pretty(&serde_json::to_value(&a)?)?)?;
 
@@ -232,6 +233,56 @@ fn approve_cmd(args: &[String]) -> Result<()> {
     println!("  the runtime has to pin this key to accept it:");
     println!("    MINT_APPROVERS=<a file listing {}> MINT_APPROVAL_FILES={out}", &sealer.agent[..12.min(sealer.agent.len())]);
     Ok(())
+}
+
+/// Put one approval through the checks a run would apply, and say which one it failed.
+///
+/// This exists so the checks can be *demonstrated* rather than described: each case on the page is a
+/// real signed approval, and each is put through the same function the gate calls, with the same words
+/// in the refusal.
+fn approve_check_cmd(args: &[String]) -> Result<()> {
+    let path = flag(args, "--approval").ok_or_else(|| anyhow!("--approval is required"))?;
+    let action = flag(args, "--action").ok_or_else(|| anyhow!("--action is required"))?;
+    let a: approval::Approval = serde_json::from_str(&std::fs::read_to_string(&path)?)?;
+    let pinned = match flag(args, "--approvers") {
+        Some(p) => approval::Approvers::from_file(&p)?,
+        // Nothing pinned is not a free pass here either: without a key to check, a signed approval
+        // cannot be accepted, because there is nobody the runtime was told to trust.
+        None => approval::Approvers::unreadable(),
+    };
+    let agent = match flag(args, "--agent") {
+        Some(a) => a,
+        None => receipt::Sealer::public_of(&receipt_key()).unwrap_or_default(),
+    };
+    let now = flag(args, "--at")
+        .and_then(|v| v.parse().ok())
+        .unwrap_or_else(endorse::now_ms);
+
+    println!("  the approval          {}", path);
+    println!("  signed by             {}", short_hex(&a.sig.kid));
+    println!("  it authorises         {}", a.body.action);
+    println!("  issued for the runtime {}", short_hex(&a.body.for_agent));
+    println!("  from {} until {}", a.body.issued_at_ms, a.body.not_after_ms);
+    println!("  approvers this runtime pins: {}", pinned.describe());
+    println!("  checked at {now} by the rules in force");
+
+    match approval::check(&a, &pinned, &action, &agent, now) {
+        approval::Check::Accepted { approver, name } => {
+            println!(
+                "  verdict: accepted — {} authorised this action, and nothing about the approval is out of place",
+                if name.is_empty() { short_hex(&approver) } else { name }
+            );
+            Ok(())
+        }
+        approval::Check::Refused { why } => {
+            println!("  verdict: refused — {why}");
+            anyhow::bail!("the approval does not hold")
+        }
+    }
+}
+
+fn short_hex(s: &str) -> String {
+    s.chars().take(12).collect()
 }
 
 fn sign_for(gate: &mut gate::Gate, host: &str) {

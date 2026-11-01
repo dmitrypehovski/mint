@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A step that could go two ways is refused, not guessed at</title>
+<style>
+  :root { --ink:#16161d; --dim:#5b5b6b; --line:#e3e3ec; --bg:#f8f8fb; --accent:#7c5ce7; --bad:#b3261e; --ok:#137a4a; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px 20px 64px; background:var(--bg); color:var(--ink);
+         font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap { max-width:900px; margin:0 auto; }
+  h1 { font-size:30px; line-height:1.25; margin:0 0 6px; letter-spacing:-.02em; }
+  .lede { color:var(--dim); margin:0 0 26px; }
+  .where { font-size:13px; color:var(--dim); border-left:3px solid var(--accent); padding-left:12px; margin:0 0 28px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .card h2 { font-size:17px; margin:0 0 4px; }
+  .card p { margin:0 0 12px; color:var(--dim); font-size:14.5px; }
+  button { font:inherit; font-size:14px; padding:9px 16px; border-radius:9px; border:1px solid var(--line);
+           background:#fff; color:var(--ink); cursor:pointer; }
+  button:hover { border-color:var(--accent); color:var(--accent); }
+  .badge { display:inline-block; font-size:12px; font-weight:600; padding:3px 9px; border-radius:999px;
+           margin-left:8px; vertical-align:1px; }
+  .badge.ok { background:#e7f5ee; color:var(--ok); }
+  .badge.bad { background:#fdeceb; color:var(--bad); }
+  pre { background:#0f0f14; color:#e8e8ef; border-radius:10px; padding:14px 16px; overflow:auto;
+        font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; margin:12px 0 0; }
+  .cmd { font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:var(--dim); }
+  footer { color:var(--dim); font-size:13.5px; margin-top:30px; border-top:1px solid var(--line); padding-top:16px; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>What happens when the page moves under a decision.</h1>
+  <p class="lede">
+    A compiled skill records, at every step, the words it saw and the place it found them in. Replay
+    against changed data is the point — the fourth invoice is not the first. But when the place no longer
+    carries those words and something else does, the two disagree about where the step is. Acting anyway
+    would be guessing with the runtime's name on it, so the step is refused and both sides are named.
+  </p>
+  <p class="where">
+    <strong>ambiguous</strong> — one learned skill, replayed on the page it came from and on the same page with two field labels swapped.
+    <br>← <a href="/demos/examples">every example</a> · <a href="/demos/approval">the approvals</a> · <a href="/demos">all pages</a> ·
+    <a href="/demos/live">the live runs</a> →
+  </p>
+
+  <div class="card">
+    <h2>A skill learned on fifty fields <span id="b-same" class="badge"></span></h2>
+    <p>Replayed on the page it was learned on: every step finds its place, and the work goes through
+       with no model in the loop.</p>
+    <button data-case="same">replay it</button>
+    <pre id="o-same">not run yet</pre>
+  </div>
+
+  <div class="card">
+    <h2>The same page, two labels swapped <span id="b-swapped" class="badge"></span></h2>
+    <p>Nothing else changed: same order, same ids, the same fifty fields. Only the words at two places
+       moved — and the recorded words are what the step is <em>for</em>, so the step no longer knows where
+       it is. It is refused rather than guessed at: the run refuses, says why in words, and then asks a
+       model instead of acting on its own record.</p>
+    <button data-case="swapped">replay it</button>
+    <pre id="o-swapped">not run yet</pre>
+  </div>
+
+  <footer>
+    Both buttons run <span class="cmd">mint race</span> against this site with the binary in this
+    container. Neither is simulated and neither mocks the other. In the second case the output contains the
+    refusal itself:
+    <br><span class="cmd">step 26: refused rather than guessed — 9 elements on this page fit «Field 26»
+    about equally well (best 0.50), and the place this step stood in is gone</span>
+    <br>What follows it is the run repairing itself with a model — 26 model calls where a from-scratch
+    agent needed 53, 23.6 s where it needed 80.4 s — and every repair is recorded like any other decision.
+    A refusal is not a crash here. It is the point at which the runtime stops acting on its own record and
+    starts asking.
+  </footer>
+</div>
+
+<script>
+async function check(name) {
+  const out = document.getElementById('o-' + name);
+  const badge = document.getElementById('b-' + name);
+  out.textContent = 'running — this replays the real task, so it takes a few seconds…';
+  badge.className = 'badge';
+  badge.textContent = '';
+  try {
+    const r = await fetch('/api/ambiguity/check?case=' + encodeURIComponent(name));
+    const d = await r.json();
+    if (!d.ok) { out.textContent = 'the replay did not run: ' + (d.error || 'unknown'); return; }
+    out.textContent = d.output.trimEnd() + '\n\n$ ' + d.command;
+    const done = /goal|reached|refused|disagree|ambiguous/i.test(d.output);
+    badge.className = 'badge ok';
+    badge.textContent = name === 'swapped' ? 'refused, then repaired' : 'replayed, no model call';
+  } catch (e) {
+    out.textContent = 'the replay could not be reached: ' + e;
+  }
+}
+document.querySelectorAll('button[data-case]').forEach(function (b) {
+  b.addEventListener('click', function () { check(b.dataset.case); });
+});
+</script>
+</body>
+</html>

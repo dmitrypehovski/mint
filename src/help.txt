@@ -50,3 +50,15 @@ Environment for the run's identity, read the same way the keys are:
   MINT_APPROVER          who approved held actions, recorded only when an approval was actually used
 
 Verification returns a non-zero exit code when a log does not hold, so a script can act on it.
+
+  approve                       issue an approval for one action, signed with the approver's own key
+    --action <identity>         the action being authorised, as the gate prints it
+    --for <agent hex>           the runtime it is issued for (default: this machine's receipt key)
+    --days <n>                  how long it stays valid (default 1)
+    --issued-ms/--expires-ms    place it in time, for demonstrations and tests
+    --note <text>               why it was given, in the issuer's words
+    --out <file>                where to write it (default approval.json)
+
+  approve-check                 put one approval through the checks a run applies
+    --approval <file> --action <identity> [--approvers <file>] [--agent <hex>] [--at <ms>]
+                                exit status is 0 when it holds and non-zero when it does not

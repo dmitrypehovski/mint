@@ -1,0 +1,823 @@
+{
+  "goal": "Fill in every one of the fifty fields on this form with a value, then submit the form",
+  "learned_from": "https://mint.arliwork.com/fieldwork",
+  "host": "mint.arliwork.com",
+  "expect_final_page": "submit",
+  "steps": [
+    {
+      "action": {
+        "Type": {
+          "text": "value 1"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 03",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in Field 01",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 2"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 04",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 3"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 06",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 4"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 08",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 5"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 10",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 6"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 12",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 7"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 14",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in every one of the fifty fields on this form with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 8"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 16",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 9"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 18",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 10"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 20",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 11"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 22",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 12"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 24",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in every one of the fifty fields on this form with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 13"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 26",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 14"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 28",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 15"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 30",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in every one of the fifty fields on this form with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 16"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 32",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in every one of the fifty fields on this form with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 17"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 34",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in Field 17",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 18"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 36",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in Field 18",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 19"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 38",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in every one of the fifty fields on this form with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 20"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 40",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 21"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 42",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 22"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 44",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 23"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 46",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 0.9
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 24"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 48",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in every one of the fifty fields on this form with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 25"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 50",
+      "learned_page": "fieldwork-variant",
+      "produced_page": "fieldwork-variant",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 26"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 26",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 27"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 27",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in Field 27",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 28"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 28",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field on the form",
+      "confidence": 0.9
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 29"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 29",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 30"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 30",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 31"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 31",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in Field 31",
+      "confidence": 0.9
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 32"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 32",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in every one of the fifty fields on this form with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 33"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 33",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in every one of the fifty fields on this form with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 34"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 34",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field on the form",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 35"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 35",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 36"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 36",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 37"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 37",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 38"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 38",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 39"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 39",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 40"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 40",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 41"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 41",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 42"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 42",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the next empty field",
+      "confidence": 0.9
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 45"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 2,
+      "seen_label": "Field 45",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the 45th field with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 43"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 43",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the 43rd field with a value",
+      "confidence": 0.9
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 44"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 44",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the remaining empty fields",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 46"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 46",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the 46th field with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 47"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 47",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the 47th field with its value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 48"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 48",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the 48th field with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 49"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 49",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the 49th field with a value",
+      "confidence": 1.0
+    },
+    {
+      "action": {
+        "Type": {
+          "text": "value 50"
+        }
+      },
+      "role": "textbox",
+      "href_kind": "",
+      "name_shape": "field *",
+      "ordinal": 0,
+      "seen_label": "Field 50",
+      "learned_page": "fieldwork",
+      "produced_page": "fieldwork",
+      "intent": "Fill in the last empty field",
+      "confidence": 1.0
+    },
+    {
+      "action": "Click",
+      "role": "button",
+      "href_kind": "",
+      "name_shape": "send",
+      "ordinal": 0,
+      "seen_label": "Send",
+      "learned_page": "fieldwork",
+      "produced_page": "",
+      "intent": "submit the form",
+      "confidence": 1.0
+    }
+  ],
+  "learn_model_calls": 53,
+  "learn_ms": 78225,
+  "learn_declared_done": true
+}

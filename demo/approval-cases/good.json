@@ -1,0 +1,15 @@
+{
+  "body": {
+    "action": "click:button:Submit",
+    "for_agent": "0cd20b19fef027dd62d1f68534cf57175c6c84a96c29bcc01240c3f337c1178f",
+    "issued_at_ms": 1793492018556,
+    "not_after_ms": 1794096818556,
+    "note": "checked the invoice against the order by hand",
+    "spec": "mint.approval/0.1"
+  },
+  "sig": {
+    "alg": "ed25519",
+    "kid": "11b16d62878bde4ad2b2994447993d62952532b60dc1271e7cefed1dcfb3f5e3",
+    "value": "f60d8ad440634312d9e3ec7c877ab4db7ec2576e68c6fd5703275497232a82153799db64df2bcb969d1f3b36e65db777ff3958c015cb272502c9d77a05506c0e"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "body": {
+    "action": "click:button:Submit",
+    "for_agent": "3f1c3f1c3f1c3f1c3f1c3f1c3f1c3f1c3f1c3f1c3f1c3f1c3f1c3f1c3f1c3f1c",
+    "issued_at_ms": 1793492018564,
+    "not_after_ms": 1794096818564,
+    "note": "issued to another runtime",
+    "spec": "mint.approval/0.1"
+  },
+  "sig": {
+    "alg": "ed25519",
+    "kid": "11b16d62878bde4ad2b2994447993d62952532b60dc1271e7cefed1dcfb3f5e3",
+    "value": "e2cc694a68d11b15e4a87f08f5cc4c1a9ccf6ccea9b55955b7299a270ea7e62b94d25d7c3085c7cdd244cea6023d87469f2342a5013def7ffb7072aa37d9f109"
+  }
+}
