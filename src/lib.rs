@@ -43,6 +43,7 @@
 //! --observations observations.json` does the same thing from a shell, and is what the
 //! demonstration site calls when a visitor flips a switch.
 
+pub mod approval;
 pub mod cdp;
 pub mod checkpoint;
 pub mod decide;

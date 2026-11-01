@@ -228,6 +228,12 @@ pub struct Gate {
     /// Which decision receipt belongs to which idempotency key, so an outcome can point back at
     /// the decision that allowed it.
     decision_receipts: HashMap<String, String>,
+    /// The approvers this runtime was told to trust, and the approvals it was handed. Pinned keys
+    /// rather than a token anybody can type: whoever says yes has to be somebody the run knows.
+    approvers: crate::approval::Approvers,
+    presented: Vec<crate::approval::Approval>,
+    /// Who authorised the last action that needed it, so the receipt can name them.
+    last_approver: Option<String>,
 }
 
 impl Gate {
@@ -241,6 +247,22 @@ impl Gate {
         self.policy = rules;
     }
 
+    /// Pin the approvers whose signatures this run will accept.
+    pub fn trust_approvers(&mut self, approvers: crate::approval::Approvers) {
+        self.approvers = approvers;
+    }
+
+    /// Hand the run the approvals it may use. Each is checked against the action waiting before it
+    /// authorises anything.
+    pub fn present_approvals(&mut self, approvals: Vec<crate::approval::Approval>) {
+        self.presented = approvals;
+    }
+
+    /// Who authorised the last action that needed an approval.
+    pub fn last_approver(&self) -> Option<String> {
+        self.last_approver.clone()
+    }
+
     pub fn new(host: &str) -> Self {
         Gate {
             policy: policy::Policy::shipped(),
@@ -248,6 +270,9 @@ impl Gate {
             decisions: Vec::new(),
             host: host.to_string(),
             receipts: None,
+            approvers: crate::approval::Approvers::empty(),
+            presented: Vec::new(),
+            last_approver: None,
             decision_receipts: HashMap::new(),
         }
     }
@@ -333,9 +358,39 @@ impl Gate {
 
         // Was an approval presented, and does it name this exact action. The policy is asked about
         // the answer, not about how it was reached — matching a token is state, not a rule.
-        let authorised = approval
-            .map(|a| a == approval_for(&identity))
-            .unwrap_or(false);
+        // Who said yes, and whether that answer is worth anything.
+        //
+        // Where approvers are pinned, only a signed approval from one of them counts. A token anybody
+        // could have typed is not accepted even when it is the exact string this gate would have
+        // produced: the string was never the permission, the issuer was.
+        let mut approved_by: Option<String> = None;
+        let authorised = if self.approvers.allows_tokens() {
+            // Nothing is pinned, so this is the rules demonstration, where a visitor's switch stands in
+            // for a person and the question being asked is what the rules say rather than who said yes.
+            approval.map(|a| a == approval_for(&identity)).unwrap_or(false)
+        } else {
+            let agent = self
+                .receipts
+                .as_ref()
+                .map(|log| log.agent.clone())
+                .unwrap_or_default();
+            let now = crate::endorse::now_ms();
+            for presented in &self.presented {
+                match crate::approval::check(presented, &self.approvers, &identity, &agent, now) {
+                    crate::approval::Check::Accepted { name, .. } => {
+                        approved_by = Some(name);
+                        break;
+                    }
+                    crate::approval::Check::Refused { why } => {
+                        // Said out loud rather than passed over: an approval that was presented and
+                        // did not hold is the most interesting line in the log.
+                        eprintln!("  an approval was presented and does not hold: {why}");
+                    }
+                }
+            }
+            approved_by.is_some()
+        };
+        self.last_approver = approved_by;
         // Which reading of the action applies is the surface's to say. A page's element is read from
         // its role and where it points; a shell command is read from what the command does to the
         // files it names. The rules are the same document either way — that is the whole claim.

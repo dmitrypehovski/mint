@@ -9,7 +9,7 @@
 //! the runtime asks for that one step, checks itself again, and writes the correction back
 //! into the skill: one mistake costs one question, never a broken run.
 
-use mint::{checkpoint, decide, endorse, gate, policy, receipt, shell, skill, state};
+use mint::{approval, checkpoint, decide, endorse, gate, policy, receipt, shell, skill, state};
 
 use anyhow::{anyhow, Result};
 use mint::cdp::{Cdp, Element};
@@ -46,6 +46,7 @@ async fn main() -> Result<()> {
         "dir-learn" => dir_learn(&args).await,
         "dir-run" => dir_run(&args).await,
         "dir-demo" => dir_demo(&args).await,
+        "approve" => approve_cmd(&args),
         "checkpoint" => checkpoint_cmd(&args),
         "witness" => witness_cmd(&args),
         "verify-witness" => verify_witness_cmd(&args),
@@ -131,6 +132,108 @@ fn endorser_key() -> String {
         .unwrap_or_else(|_| "/root/.secrets/mint-endorser.key".into())
 }
 
+/// The key an approver signs with. Its own variable and its own file, for the same reason the
+/// endorser's is separate: a runtime that can produce an approval has not been approved by anybody.
+fn approver_key() -> String {
+    std::env::var("MINT_APPROVER_KEY")
+        .unwrap_or_else(|_| "/root/.secrets/mint-approver.key".into())
+}
+
+/// The approvers this runtime will accept a signature from. Read where a run's gate is fitted out, so
+/// every command gets the same arrangement instead of each remembering it.
+fn pinned_approvers() -> approval::Approvers {
+    let Ok(path) = std::env::var("MINT_APPROVERS") else {
+        return approval::Approvers::empty();
+    };
+    match approval::Approvers::from_file(&path) {
+        Ok(a) => {
+            println!("  approvers pinned from {path}: {}", a.describe());
+            a
+        }
+        Err(e) => {
+            // Deliberately not an empty set: a pin that fails to load must refuse what it cannot check,
+            // not quietly stop pinning.
+            eprintln!("  the pinned approvers could not be read from {path}: {e}");
+            eprintln!("  no approval will be accepted on this run");
+            approval::Approvers::unreadable()
+        }
+    }
+}
+
+/// The approvals this run was handed, each of which still has to be checked against the action waiting.
+fn presented_approvals() -> Vec<approval::Approval> {
+    let Ok(paths) = std::env::var("MINT_APPROVAL_FILES") else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    for path in paths.split(',').map(str::trim).filter(|p| !p.is_empty()) {
+        let text = std::fs::read_to_string(path);
+        let parsed = text
+            .ok()
+            .and_then(|t| serde_json::from_str::<approval::Approval>(&t).ok());
+        match parsed {
+            Some(a) => {
+                println!(
+                    "  an approval is in hand: signed by {}, for «{}»",
+                    &a.sig.kid[..12.min(a.sig.kid.len())],
+                    a.body.action.chars().take(44).collect::<String>()
+                );
+                out.push(a);
+            }
+            None => eprintln!("  the approval at {path} could not be read"),
+        }
+    }
+    out
+}
+
+/// Issue an approval: one action, one runtime, an expiry, signed by the person answering for it.
+///
+/// Run by whoever is answering, with their own key, and given to the runtime as a file. The gate checks
+/// the issuer against the approvers it was told to trust, so an approval is only ever as strong as that
+/// list — which is the point of pinning it.
+fn approve_cmd(args: &[String]) -> Result<()> {
+    let action = flag(args, "--action").ok_or_else(|| {
+        anyhow!("--action is required: the identity of the action being authorised, as the gate prints it")
+    })?;
+    let for_agent = match flag(args, "--for") {
+        Some(a) => a,
+        None => {
+            let agent = receipt::Sealer::public_of(&receipt_key())?;
+            println!(
+                "  for the runtime whose key is {}: {}",
+                receipt_key(),
+                &agent[..12.min(agent.len())]
+            );
+            agent
+        }
+    };
+    let days: u128 = flag(args, "--days").and_then(|v| v.parse().ok()).unwrap_or(1);
+    let note = flag(args, "--note").unwrap_or_default();
+    let sealer = receipt::Sealer::load_or_create(&approver_key())?;
+    let issued = endorse::now_ms();
+    let a = approval::Approval::issue(
+        &sealer,
+        &action,
+        &for_agent,
+        issued,
+        issued + days * 86_400_000,
+        &note,
+    );
+    let out = flag(args, "--out").unwrap_or_else(|| "approval.json".into());
+    std::fs::write(&out, serde_json::to_string_pretty(&serde_json::to_value(&a)?)?)?;
+
+    println!("  approved «{}»", action.chars().take(44).collect::<String>());
+    println!(
+        "  by {} ({}), valid {days} day(s)",
+        &sealer.agent[..12.min(sealer.agent.len())],
+        approver_key()
+    );
+    println!("  written to {out}");
+    println!("  the runtime has to pin this key to accept it:");
+    println!("    MINT_APPROVERS=<a file listing {}> MINT_APPROVAL_FILES={out}", &sealer.agent[..12.min(sealer.agent.len())]);
+    Ok(())
+}
+
 fn sign_for(gate: &mut gate::Gate, host: &str) {
     let rules = gate.policy().clone();
     match receipt::Sealer::load_or_create(&receipt_key()) {
@@ -139,6 +242,9 @@ fn sign_for(gate: &mut gate::Gate, host: &str) {
         // signed when it is not, so the absence is said out loud.
         Err(e) => eprintln!("  receipts are off for this run: {e}"),
     }
+    // Fitted out in the same place for every command: who may approve, and what they approved.
+    gate.trust_approvers(pinned_approvers());
+    gate.present_approvals(presented_approvals());
 }
 
 /// Write this run's receipts, if a directory was given, and say whether they verify.
