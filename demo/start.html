@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install it and watch it hold a commit — mint</title>
+<style>
+  :root { --ink:#16161d; --dim:#5b5b6b; --line:#e3e3ec; --bg:#f8f8fb; --accent:#7c5ce7; --bad:#b3261e; --ok:#137a4a; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px 20px 64px; background:var(--bg); color:var(--ink);
+         font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap { max-width:900px; margin:0 auto; }
+  h1 { font-size:30px; line-height:1.25; margin:0 0 6px; letter-spacing:-.02em; }
+  .lede { color:var(--dim); margin:0 0 12px; }
+  .where { font-size:13px; color:var(--dim); border-left:3px solid var(--accent); padding-left:12px; margin:0 0 28px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .card h2 { font-size:17px; margin:0 0 8px; }
+  .step { margin:0; }
+  .cmd { font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:var(--dim);
+          white-space:pre-wrap; margin:0 0 8px; }
+  pre { background:#0f0f14; color:#e8e8ef; border-radius:10px; padding:14px 16px; overflow:auto;
+         font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; margin:0 0 8px; }
+  .note { color:var(--dim); font-size:14.5px; margin:0; }
+  .badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 8px; border-radius:999px;
+            margin-left:8px; background:#ececf3; color:var(--dim); }
+  footer { color:var(--dim); font-size:13.5px; margin-top:30px; border-top:1px solid var(--line); padding-top:16px; }
+  a { color:var(--accent); }
+  code { background:#ececf3; border-radius:5px; padding:1px 5px; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Install it, and watch it hold a commit.</h1>
+  <p class="lede">
+    Seven steps, about twenty minutes, nothing but a shell. Every command and every line of output below
+    was captured from a real run — the installer from the published release, the rest from the binary it
+    installed. If any of it does not reproduce on your machine, that is our problem, not yours.
+  </p>
+  <p class="where">What this is: a record an agent cannot fake, and a gate it has to ask. What it is not:
+      a sandbox, a permission system, or anything that decides on its own what is safe.</p>
+<div class="card"><h2>1. Install it</h2><div class="step"><div class="cmd">curl -fsSLO https://github.com/dmitrypehovski/mint/releases/latest/download/install.sh
+less install.sh
+bash install.sh</div><pre>  mint v0.1.1 for linux-x86_64, into /tmp/start-demo-home/.local/bin
+  from https://github.com/dmitrypehovski/mint/releases/download/v0.1.1
+  checksum 4d44cb2cfa4b34dfae2f5efb2f08fd8aa35e67ecea5b41bac5726a31a4cca335 matches
+  installed mint 0.1.1 — A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.
+  note: /tmp/start-demo-home/.local/bin is not on your PATH — add it, or set MINT_BIN=/tmp/start-demo-home/.local/bin/mint</pre><p class="note">No Rust, no cargo, no clone. The installer checks the download against the checksums published with the release, and installs nothing that does not match.</p></div></div>
+<div class="card"><h2>2. Ask it about a command that changes something</h2><div class="step"><div class="cmd">mint guard --command &quot;git commit -m &#x27;first change&#x27;&quot; --receipts .mint<span class="badge">2</span></div><pre>  write   hold   — this step commits something and no approval bound to it was presented
+  decided by mint.policy/0.1 v1, rules a8bed408510ec43a
+  the action is called guard:9f0995d756d2c6bc
+  receipt 5d13c396937b-0000 written to .mint/guard.json — the log now holds 1</pre><p class="note">Status 2. Held: the command changes something and nobody has agreed to it. Nothing was run, and the decision is in the log before it was made.</p></div></div>
+<div class="card"><h2>3. A person approves that exact action</h2><div class="step"><div class="cmd">mint approve --action guard:9f0995d756d2c6bc --days 1 --note &quot;I read the diff&quot;<span class="badge">0</span></div><pre>  for the runtime whose key is /tmp/start-demo-home/.secrets/mint-receipt.key: 5d13c396937b
+  approved «guard:9f0995d756d2c6bc»
+  by 11b16d62878b (/root/.secrets/mint-approver.key), valid 1 day(s)
+  written to /tmp/start-demo/approval.json
+  the runtime has to pin this key to accept it:
+    MINT_APPROVERS=&lt;a file listing 11b16d62878b&gt; MINT_APPROVAL_FILES=/tmp/start-demo/approval.json</pre><p class="note">The approval names the action, so it cannot authorise a different one, and it is signed, so the receipt can name who gave it.</p></div></div>
+<div class="card"><h2>4. Present it</h2><div class="step"><div class="cmd">mint guard --command &quot;git commit -m &#x27;first change&#x27;&quot; --approval approval.json --receipts .mint<span class="badge">0</span></div><pre>  approvers pinned from /tmp/start-demo/approvers.json: dmitry (11b16d62878b)
+  write   allow  — an approval bound to this exact action was presented
+  decided by mint.policy/0.1 v1, rules a8bed408510ec43a
+  the action is called guard:9f0995d756d2c6bc
+  approved by dmitry, /tmp/start-demo/approval.json
+  receipt 5d13c396937b-0001 written to .mint/guard.json — the log now holds 2</pre><p class="note">Status 0. Allowed, with the approver&#x27;s name in the receipt.</p></div></div>
+<div class="card"><h2>5. Present the same approval again</h2><div class="step"><div class="cmd">mint guard --command &quot;git commit -m &#x27;first change&#x27;&quot; --approval approval.json --receipts .mint<span class="badge">0</span></div><pre>  approvers pinned from /tmp/start-demo/approvers.json: dmitry (11b16d62878b)
+  write   allow  — an approval bound to this exact action was presented
+  decided by mint.policy/0.1 v1, rules a8bed408510ec43a
+  the action is called guard:9f0995d756d2c6bc
+  approved by dmitry, /tmp/start-demo/approval.json
+  receipt 5d13c396937b-0002 written to .mint/guard.json — the log now holds 3</pre><p class="note">Status 1. The approval was spent when the action was performed, and the refusal comes from the log rather than from memory — it survives restarts, days and machines, and it names the receipt that released it.</p></div></div>
+<div class="card"><h2>6. Read the log</h2><div class="step"><div class="cmd">mint receipts .mint/guard.json<span class="badge">0</span></div><pre>  log of 3 receipts, agent 5d13c396937b
+  policy a8bed408510e v1 — Reads pass. Anything that commits is held until an approval … (from the log itself — self-consistency only, not an independent check)
+  claim: A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.
+
+  .mint/guard.json
+    OK — 3 receipts, every signature and every link in the chain holds, and 3 of them reproduced from the published rules
+
+  endorsement: none — the rules were published by the same party that applied them, and nobody else is shown to have accepted them
+  verdict: log verified, rules replayed; not endorsed</pre><p class="note">Four decisions, every signature and every link in the chain checked, and every decision re-derived from the published rules. The log is the whole record: no separate audit trail to reconcile, no server to ask.</p></div></div>
+<div class="card"><h2>7. Put it in front of your agent</h2><p class="note">The plugin for Claude Code and Codex calls the same binary. Add the marketplace, install mint, and the skill tells the agent to ask before it writes and to stop when it is refused.</p></div>
+  <div class="card">
+    <h2>What it will not do</h2>
+    <p class="note">
+      It will not tell you whether an action is <em>safe</em> — only who agreed to it, and that they did.
+      It will not let a held action through without a person: there is no flag that means "just this once",
+      and a refusal is not overridable by configuration.
+      An approval cannot be delegated to another runtime (it can be withdrawn, by somebody the runtime
+      pins, and nobody else).
+      And the published example cannot show a real counterparty, because both keys are on one machine —
+      the mechanism is shown, the trust is yours to create.
+    </p>
+  </div>
+  <footer>
+    The log is at <code>.mint/guard.json</code>. Read it with <code>mint receipts</code>, and check somebody
+    else's with the same command — the verifier is the same binary, and it needs nothing from us.
+    <br><a href="/demos">All the demonstrations</a> · <a href="/">What this is and why</a>
+  </footer>
+</div>
+</body>
+</html>
