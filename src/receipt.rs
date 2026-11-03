@@ -576,6 +576,8 @@ pub struct VerifyReport {
     /// because saying they were "reproduced from the published rules" would be false: they were accepted
     /// as safe, which is a different and weaker statement.
     pub accepted_though_state_dependent: usize,
+    /// True when the log held no receipts at all. Not a pass: there was nothing to verify.
+    pub empty: bool,
     /// Keys with more than one outcome receipt: an effect that happened twice.
     pub repeated_effects: Vec<String>,
     /// What the policy check found, if it ran and found something.
@@ -618,6 +620,7 @@ fn break_at(receipts: &[Receipt], index: usize, reason: String) -> BreakPoint {
 pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy>) -> VerifyReport {
     let empty = |reason: String| VerifyReport {
         ok: false,
+        empty: true,
         checked: 0,
         first_break: Some(BreakPoint { seq: u64::MAX, id: "?".into(), reason }),
         replayed: 0,
@@ -657,6 +660,7 @@ pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy
             };
             return VerifyReport {
                 ok: false,
+                empty: false,
                 checked,
                 first_break: Some(break_at(&receipts, i, reason)),
                 replayed: 0,
@@ -673,6 +677,7 @@ pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy
             first_break: Some(break_at(&receipts, i, reason)),
             replayed: 0,
             accepted_though_state_dependent: 0,
+            empty: false,
             repeated_effects: Vec::new(),
             policy_break: None,
         };
@@ -796,13 +801,19 @@ pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy
         }
     }
 
-    let ok = policy_break.is_none() && repeated_effects.is_empty();
+    // A log with nothing in it is not a verified log. "Nothing to check" and "everything checks out" are
+    // different answers, and a verifier that gives the second for the first will bless a file that somebody
+    // emptied. The rule is not mine — it came from a harness write-up whose sensors print what they skipped
+    // and never let an empty scope count as green — and applied to this code it found exactly that bug.
+    let empty = checked == 0;
+    let ok = policy_break.is_none() && repeated_effects.is_empty() && !empty;
     VerifyReport {
         ok,
         checked,
         first_break: None,
         replayed,
         accepted_though_state_dependent,
+        empty,
         repeated_effects,
         policy_break,
     }

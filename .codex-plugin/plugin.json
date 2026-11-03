@@ -1,6 +1,6 @@
 {
   "name": "mint",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Gate an agent's actions and leave a signed receipt for each one: a published rules document decides, anything that commits is held for a person's approval, and every decision is recorded in a chain somebody else can verify without trusting the agent or the machine it runs on.",
   "author": {
     "name": "Dmitry Pekhovski",

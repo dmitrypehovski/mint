@@ -719,6 +719,13 @@ fn report_verify(r: &receipt::VerifyReport, path: &str) {
         }
         return;
     }
+    if r.empty {
+        println!(
+            "    verdict: log EMPTY — there is nothing in it to verify, and an empty log is not a \
+             verified one"
+        );
+        return;
+    }
     match (&r.ok, &r.first_break) {
         (true, _) => {
             let replay = if r.replayed + r.accepted_though_state_dependent > 0 {
@@ -1688,8 +1695,16 @@ fn receipts_cmd(args: &[String]) -> Result<()> {
             "from the log itself".to_string(),
         ),
     };
-    let mut verdict = if real.ok { "log verified" } else { "log BROKEN" };
-    if real.replayed > 0 {
+    // "Empty" is its own answer. Calling a log with nothing in it "BROKEN" would be wrong in the
+    // other direction — nothing is broken, there is simply nothing there.
+    let mut verdict = if real.empty {
+        "log EMPTY"
+    } else if real.ok {
+        "log verified"
+    } else {
+        "log BROKEN"
+    };
+    if real.replayed > 0 && !real.empty {
         verdict = if real.ok { "log verified, rules replayed" } else { "log BROKEN" };
     }
     match (&endorsement, &rules) {

@@ -31,6 +31,26 @@ fn obs(action: &str, tag: &str, role: &str, href: bool, approval: bool) -> Obser
 
 /// 1. A signed log verifies — and it verifies with the rules it was decided under.
 #[test]
+fn an_empty_log_is_not_a_verified_log() {
+    // "Nothing to check" and "everything checks out" are different answers, and a verifier that gives the
+    // second for the first will bless a file somebody emptied. The rule came from a harness write-up whose
+    // sensors print what they skipped and never let an empty scope count as green; applied to this code it
+    // found exactly this.
+    let doc: serde_json::Value = serde_json::json!({ "receipts": [] });
+    let report = receipt::verify(&doc, None);
+    assert!(report.empty, "an empty log must be reported as empty");
+    assert!(!report.ok, "and it must not verify");
+    assert_eq!(report.checked, 0);
+
+    // A log with something in it is unaffected.
+    let full: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string("demo/gate-receipts.json").unwrap()).unwrap();
+    let report = receipt::verify(&full, Some(&Policy::shipped()));
+    assert!(!report.empty);
+    assert!(report.ok, "{report:?}");
+}
+
+#[test]
 fn a_signed_log_verifies_with_the_rules_it_was_decided_under() {
     let doc = demo_log();
     let rules = Policy::shipped();
