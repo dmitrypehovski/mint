@@ -1,0 +1,12 @@
+{
+  "name": "mint",
+  "interface": {"displayName": "mint"},
+  "plugins": [
+    {
+      "name": "mint",
+      "source": {"source": "local", "path": "./"},
+      "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+      "category": "Security"
+    }
+  ]
+}

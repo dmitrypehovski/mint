@@ -15,6 +15,7 @@ use anyhow::{anyhow, Result};
 use mint::cdp::{Cdp, Element};
 use mint::skill::{Action, Found, Resolution, Skill, Step};
 use serde_json::json;
+use sha2::{Digest, Sha256};
 use std::time::Instant;
 
 const PORT: u16 = 8830;
@@ -53,6 +54,7 @@ async fn main() -> Result<()> {
         "verify-witness" => verify_witness_cmd(&args),
         "endorse" => endorse_cmd(&args),
         "rules" => rules_cmd(&args),
+        "guard" => guard_cmd(&args),
         _ => {
             println!("{}", include_str!("help.txt"));
             Ok(())
@@ -121,23 +123,28 @@ async fn perform(
 /// Overridable by environment, because a checkout on somebody else's machine should not go looking
 /// for a path that only exists on ours. The defaults are where this machine keeps them: outside the
 /// repository, so that no clone ever contains a key.
+/// Where a key lives when nothing says otherwise. Under the home directory rather than a fixed path, so
+/// an install on somebody else's machine is not told to look in root's.
+fn home() -> String {
+    std::env::var("HOME").unwrap_or_else(|_| "/root".into())
+}
+
 fn receipt_key() -> String {
-    std::env::var("MINT_RECEIPT_KEY")
-        .unwrap_or_else(|_| "/root/.secrets/mint-receipt.key".into())
+    std::env::var("MINT_RECEIPT_KEY").unwrap_or_else(|_| format!("{}/.secrets/mint-receipt.key", home()))
 }
 
 /// The counterparty's key. Separate from the runtime's on purpose: an endorsement the runtime can
 /// produce by itself is not a counter-signature, and this variable exists so that it cannot be one.
 fn endorser_key() -> String {
     std::env::var("MINT_ENDORSER_KEY")
-        .unwrap_or_else(|_| "/root/.secrets/mint-endorser.key".into())
+        .unwrap_or_else(|_| format!("{}/.secrets/mint-endorser.key", home()))
 }
 
 /// The key an approver signs with. Its own variable and its own file, for the same reason the
 /// endorser's is separate: a runtime that can produce an approval has not been approved by anybody.
 fn approver_key() -> String {
     std::env::var("MINT_APPROVER_KEY")
-        .unwrap_or_else(|_| "/root/.secrets/mint-approver.key".into())
+        .unwrap_or_else(|_| format!("{}/.secrets/mint-approver.key", home()))
 }
 
 /// The approvers this runtime will accept a signature from. Read where a run's gate is fitted out, so
@@ -363,6 +370,165 @@ fn report_verify(r: &receipt::VerifyReport, path: &str) {
 /// The whole policy engine with nothing attached: the same code path the runtime uses to decide, so
 /// a third party can re-derive our verdicts without running an agent, a browser or a model. It is
 /// also what the demonstration site calls when a visitor flips a switch.
+/// Judge one action, write the receipt, and say in the exit status what the answer was.
+///
+/// `mint rules` applies the document to a list of observations and prints what it says. That is the
+/// right tool for reading a log back and the wrong one for an agent that is about to act: it writes
+/// nothing down, so the action it just permitted leaves no trace anywhere.
+///
+/// This is the same ruling for one action, with the two things a caller needs. The receipt, so the
+/// decision can be checked afterwards by somebody who trusts neither the agent nor its operator. And a
+/// status a script can branch on: **0 allowed, 2 held, 1 refused** — three rather than two, because
+/// "wait for a person" and "no" are different answers, and a caller that cannot tell them apart will
+/// treat a hold as a refusal and give up on work that was only waiting.
+///
+/// The identity of the action is a hash of the observation, so the same action asked about twice gets
+/// the same name. That is what makes the loop work: a hold prints the name, a person approves that name
+/// with `mint approve`, and the second call presents the approval and proceeds — with the approver's
+/// name in the receipt.
+fn guard_cmd(args: &[String]) -> Result<()> {
+    let rules = match flag(args, "--policy") {
+        Some(p) => policy::Policy::from_file(&p)?,
+        None => policy::Policy::shipped(),
+    };
+    // Two ways in. `--command` is what an agent has in hand: the command it is about to run, read by the
+    // same adapter that reads commands during a run, so a `git commit` is judged the way it would be
+    // judged inside one. `--action` takes an observation already in the recorded shape, for callers that
+    // read the state themselves.
+    let (mut observed, described) = match flag(args, "--command") {
+        Some(cmd) => (shell::observed(&cmd, false), format!("command «{}»", short(&cmd, 60))),
+        None => {
+            let source = flag(args, "--action").ok_or_else(|| {
+                anyhow!("--action or --command is required: --action takes a file with one observation (or - for stdin)")
+            })?;
+            let text = if source == "-" {
+                let mut buf = String::new();
+                std::io::Read::read_to_string(&mut std::io::stdin(), &mut buf)?;
+                buf
+            } else {
+                std::fs::read_to_string(&source)?
+            };
+            let o: policy::Observed = serde_json::from_str(&text).map_err(|e| {
+                anyhow!("{source} is not one observation in the recorded shape: {e}")
+            })?;
+            let described = format!("{} «{}»", o.action, o.tag);
+            (o, described)
+        }
+    };
+
+    // The name of this action, stable across calls.
+    let canonical = serde_json::to_string(&observed)?;
+    let identity = format!(
+        "guard:{}",
+        hex_of(&Sha256::digest(canonical.as_bytes()))[..16].to_string()
+    );
+
+    // An approval, if one was presented. Checked here rather than trusted: the five checks a run applies
+    // are the same five, against this exact action and this runtime.
+    let mut approved_by: Option<String> = None;
+    let mut approval_note = String::new();
+    if let Some(path) = flag(args, "--approval") {
+        let a: approval::Approval = serde_json::from_str(&std::fs::read_to_string(&path)?)?;
+        let pinned = match flag(args, "--approvers") {
+            Some(p) => approval::Approvers::from_file(&p)?,
+            None => pinned_approvers(),
+        };
+        let agent = receipt::Sealer::public_of(&receipt_key()).unwrap_or_default();
+        let now = endorse::now_ms();
+        match approval::check(&a, &pinned, &identity, &agent, now) {
+            approval::Check::Accepted { name, .. } => {
+                observed.approval = true;
+                approval_note = format!("\n  approved by {name}, {path}");
+                approved_by = Some(name);
+            }
+            approval::Check::Refused { why } => {
+                println!("  the approval presented does not hold: {why}");
+                println!("  the action is judged as it was presented, without it");
+            }
+        }
+    }
+
+    let said = policy::ruling(&observed, &rules);
+    println!("  {:<7} {:<6} — {}", said.class, said.verdict, said.reason);
+    println!(
+        "  decided by {} v{}, rules {}",
+        policy::SPEC,
+        rules.version,
+        &rules.hash()[..16]
+    );
+    println!("  the action is called {identity}{approval_note}");
+
+    // The receipt. Written before the answer is returned, so an agent that crashes between deciding and
+    // acting still leaves the decision behind.
+    if let Some(dir) = flag(args, "--receipts") {
+        std::fs::create_dir_all(&dir).ok();
+        let path = format!("{}/guard.json", dir.trim_end_matches('/'));
+        let sealer = receipt::Sealer::load_or_create(&receipt_key())?;
+        let carried = match std::fs::read_to_string(&path) {
+            Ok(text) => {
+                let doc: serde_json::Value = serde_json::from_str(&text)?;
+                doc.get("receipts")
+                    .and_then(|r| r.as_array())
+                    .map(|a| {
+                        a.iter()
+                            .filter_map(|v| serde_json::from_value(v.clone()).ok())
+                            .collect::<Vec<receipt::Receipt>>()
+                    })
+                    .unwrap_or_default()
+            }
+            Err(_) => Vec::new(),
+        };
+        let mut log = {
+            let log = receipt::ReceiptLog::resume("guard", &rules, sealer, carried)?;
+            log.approved_by(approved_by.clone())
+        };
+        let action = receipt::ActionRef {
+            identity: identity.clone(),
+            key: identity.clone(),
+            side_effect: said.class.clone(),
+            element: described.clone(),
+            step: 0,
+            observed: observed.clone(),
+            params_hash: None,
+        };
+        let decision = receipt::DecisionRef {
+            verdict: said.verdict.clone(),
+            reason: said.reason.clone(),
+            decided_by: "policy".into(),
+        };
+        let r = log.append_decision(action, decision, endorse::now_ms());
+        std::fs::write(&path, serde_json::to_string_pretty(&log.document())?)?;
+        println!(
+            "  receipt {} written to {path} — the log now holds {}",
+            r.body.id,
+            log.len()
+        );
+    } else {
+        println!("  no receipt was written: give --receipts <dir> to keep the record");
+    }
+
+    // The status is what a caller branches on, and a piped stdout is block-buffered: without this the
+    // verdict can be lost on the way out, which would leave an agent with a status and no reason.
+    let _ = std::io::Write::flush(&mut std::io::stdout());
+    match said.verdict.as_str() {
+        "allow" => Ok(()),
+        "hold" => std::process::exit(2),
+        _ => std::process::exit(1),
+    }
+}
+
+fn short(s: &str, n: usize) -> String {
+    if s.chars().count() <= n {
+        s.to_string()
+    } else {
+        s.chars().take(n).collect::<String>() + "…"
+    }
+}
+
+fn hex_of(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{b:02x}")).collect()
+}
+
 fn rules_cmd(args: &[String]) -> Result<()> {
     let policy_path = flag(args, "--policy").ok_or_else(|| anyhow!("--policy is required"))?;
     let rules = policy::Policy::from_file(&policy_path)?;

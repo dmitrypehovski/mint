@@ -62,3 +62,15 @@ Verification returns a non-zero exit code when a log does not hold, so a script 
   approve-check                 put one approval through the checks a run applies
     --approval <file> --action <identity> [--approvers <file>] [--agent <hex>] [--at <ms>]
                                 exit status is 0 when it holds and non-zero when it does not
+
+  guard                         judge ONE action, write the receipt, and say so in the exit status
+    --command <string>          the command you are about to run, read by the shell adapter
+    --action <file|->           one observation in the recorded shape (stdin with -)
+    --policy <file>             the rules to judge by (default: the shipped document)
+    --approval <file>           an approval to present, checked against this exact action
+    --approvers <file>          the approvers to check it against (default: MINT_APPROVERS)
+    --receipts <dir>            append the decision to <dir>/guard.json, continuing the chain
+                                exit status: 0 allowed, 2 held, 1 refused
+
+The loop an agent uses: guard → held (2), with the action named → a person approves that name with
+`mint approve` → guard again with --approval → allowed (0), and the receipt carries the approver's name.

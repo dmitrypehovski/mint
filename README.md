@@ -50,6 +50,35 @@ The site publishes three files: `/receipts.json` (a real signed log),
 `/policy.json` (the rules), and `/endorsement.json` (the counter-signature). A
 stranger can verify all three locally with one command, below.
 
+## Use it inside Claude Code or Codex
+
+mint ships as a plugin for both, so an agent can ask before it writes and leave a receipt behind:
+
+```bash
+claude plugin marketplace add dmitrypehovski/mint
+claude plugin install mint@mint
+```
+
+In Codex: **Plugins → Add a marketplace**, enter `dmitrypehovski/mint`, then install **mint**. The plugin
+needs the `mint` binary: build it once with `cargo build --release` and put `target/release` on your
+`PATH`, or set `MINT_BIN`. It downloads nothing.
+
+Then, before anything that writes:
+
+```
+$ mint guard --command "git commit -m 'fix the parser'"
+  write   hold   — this step commits something and no approval bound to it was presented
+  the action is called guard:9f0995d756d2c6bc
+  receipt 0cd20b19fef0-0006 written to .mint/guard.json — the log now holds 7
+$ echo $?
+2
+```
+
+`0` allowed, `2` held, `1` refused. A hold is a question, not a refusal: a person approves that exact
+action with `mint approve --action guard:9f0995…`, and the next call proceeds with the approver's name in
+the receipt. Reads pass without ceremony; anything the shell adapter cannot classify is **refused** rather
+than waved through, because a gate that guesses in the permissive direction is not a gate.
+
 ## Quickstart
 
 Build (the first build is slow; later ones take seconds):

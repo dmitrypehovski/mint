@@ -40,6 +40,12 @@ pub struct ActionRef {
     /// What the runtime observed, so a verifier can apply the published rules itself instead of
     /// taking the classification on trust.
     pub observed: crate::policy::Observed,
+    /// A commitment to what the action was asked to do, where it carried a value of its own. A form
+    /// field's text — a password typed into a field, an account number — must not land in a log that
+    /// gets published, but a receipt that cannot say *which* input it was signed for can be swapped for
+    /// another run's. The hash ties the receipt to the exact parameters without carrying them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub params_hash: Option<String>,
 }
 
 /// What was decided about it.
@@ -60,6 +66,22 @@ pub struct DecisionRef {
 pub struct Approval {
     pub by: String,
     pub at_ms: u128,
+}
+
+/// A commitment to the parameters of an action, when it has any.
+///
+/// Only the actions that carry a value — text typed into a field — produce one. A click carries no
+/// parameter of its own, and inventing one for it would be noise that looks like information.
+pub fn params_hash_of(action: &crate::skill::Action) -> Option<String> {
+    match action {
+        crate::skill::Action::Type { text } => {
+            let mut h = Sha256::new();
+            h.update(b"mint.params/0.1|");
+            h.update(text.as_bytes());
+            Some(h.finalize().iter().map(|b| format!("{b:02x}")).collect())
+        }
+        crate::skill::Action::Click => None,
+    }
 }
 
 /// The principal classes the standard names. A free-text field would let a log claim a class nobody
@@ -109,6 +131,9 @@ pub struct ReceiptBody {
     /// Who approved a held action, when an approval was actually used and the runtime knows the name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub approval: Option<Approval>,
+    /// The same commitment, carried on the receipt so a reader does not have to dig into the action.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub params_hash: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -313,6 +338,50 @@ impl ReceiptLog {
         self
     }
 
+    /// Continue a log that was written earlier.
+    ///
+    /// An agent's actions happen one at a time, often in separate processes. A chain that restarts every
+    /// time is not a chain: the point of linking receipts is that yesterday's action and today's are in
+    /// the same record, and that a gap in the middle can be seen. Two things are checked before anything
+    /// is added — that the chain holds on its own, and that every receipt in it was taken under the
+    /// document in force now. Appending to a log from a different document would produce a file whose
+    /// verifier cannot reproduce its own older verdicts, which is worse than two logs.
+    pub fn resume(
+        host: &str,
+        rules: &crate::policy::Policy,
+        sealer: Sealer,
+        receipts: Vec<Receipt>,
+    ) -> anyhow::Result<Self> {
+        let wanted = rules.hash();
+        for (i, r) in receipts.iter().enumerate() {
+            if r.body.policy_hash != wanted {
+                anyhow::bail!(
+                    "receipt {} was taken under the rules {}, and the rules in force are {}: this log belongs to another document",
+                    r.body.seq,
+                    &r.body.policy_hash[..12.min(r.body.policy_hash.len())],
+                    &wanted[..12.min(wanted.len())]
+                );
+            }
+            match (&r.body.prev_hash, i) {
+                (Some(prev), 0) => anyhow::bail!(
+                    "the first receipt of a log cannot name a predecessor, and this one names {prev}"
+                ),
+                (Some(prev), _) if *prev != receipts[i - 1].link_hash() => anyhow::bail!(
+                    "the log does not hold at receipt {}: it names a predecessor that is not the one before it",
+                    r.body.seq
+                ),
+                (None, i) if i > 0 => anyhow::bail!(
+                    "the log does not hold at receipt {}: it has no predecessor",
+                    r.body.seq
+                ),
+                _ => {}
+            }
+        }
+        let mut log = ReceiptLog::new(host, rules, sealer);
+        log.receipts = receipts;
+        Ok(log)
+    }
+
     pub fn receipts(&self) -> &[Receipt] {
         &self.receipts
     }
@@ -366,6 +435,7 @@ impl ReceiptLog {
         };
         let principal = self.principal.clone();
         let principal_class = self.principal_class.clone();
+        let params_hash = action.params_hash.clone();
         let body = ReceiptBody {
             spec: SPEC.to_string(),
             seq,
@@ -387,6 +457,7 @@ impl ReceiptLog {
             principal,
             principal_class,
             approval,
+            params_hash,
         };
         self.dispatch(body)
     }
@@ -402,6 +473,7 @@ impl ReceiptLog {
     ) -> Receipt {
         let seq = self.next_seq();
         let id = format!("{}-{:04}", &self.agent[..12.min(self.agent.len())], seq);
+        let params_hash = action.params_hash.clone();
         let body = ReceiptBody {
             spec: SPEC.to_string(),
             seq,
@@ -425,6 +497,7 @@ impl ReceiptLog {
             principal: self.principal.clone(),
             principal_class: self.principal_class.clone(),
             approval: None,
+            params_hash,
         };
         self.dispatch(body)
     }
@@ -767,6 +840,7 @@ mod principal_tests {
                 has_href: false,
                 approval: with_approval,
             },
+            params_hash: None,
         }
     }
 
@@ -832,5 +906,134 @@ mod principal_tests {
             old,
             "an optional field that is absent must not appear"
         );
+    }
+}
+
+#[cfg(test)]
+mod resume_tests {
+    use super::*;
+    use crate::policy::{Observed, Policy};
+
+    fn sealer(tag: &str) -> Sealer {
+        let path = format!("/tmp/mint-resume-{tag}-{}", std::process::id());
+        let _ = std::fs::remove_file(&path);
+        Sealer::load_or_create(&path).expect("a key")
+    }
+
+    fn action() -> ActionRef {
+        ActionRef {
+            identity: "guard:abc".into(),
+            key: "k".into(),
+            side_effect: "write".into(),
+            element: "click «Submit»".into(),
+            step: 0,
+            observed: Observed {
+                action: "click".into(),
+                tag: "button".into(),
+                role: "button".into(),
+                has_href: false,
+                approval: false,
+            },
+            params_hash: None,
+        }
+    }
+
+    fn decision() -> DecisionRef {
+        DecisionRef {
+            verdict: "allow".into(),
+            reason: "reads pass".into(),
+            decided_by: "policy".into(),
+        }
+    }
+
+    #[test]
+    fn a_log_continues_where_it_left_off() {
+        let rules = Policy::shipped();
+        let mut first = ReceiptLog::new("example.com", &rules, sealer("grow"));
+        first.append_decision(action(), decision(), 1);
+        first.append_decision(action(), decision(), 2);
+        let carried = first.receipts().to_vec();
+
+        let mut second = ReceiptLog::resume("example.com", &rules, sealer("grow"), carried)
+            .expect("a log that holds");
+        let r = second.append_decision(action(), decision(), 3);
+        let head = second.receipts()[1].link_hash();
+        assert_eq!(r.body.seq, 2, "the next receipt continues the numbering");
+        assert_eq!(
+            r.body.prev_hash.as_deref(),
+            Some(head.as_str()),
+            "and it links to the receipt before it"
+        );
+    }
+
+    #[test]
+    fn a_log_whose_chain_is_broken_is_not_appended_to() {
+        let rules = Policy::shipped();
+        let mut log = ReceiptLog::new("example.com", &rules, sealer("broken"));
+        log.append_decision(action(), decision(), 1);
+        log.append_decision(action(), decision(), 2);
+        let mut carried = log.receipts().to_vec();
+        carried.remove(0); // the first receipt taken out
+
+        let err = match ReceiptLog::resume("example.com", &rules, sealer("broken"), carried) {
+            Ok(_) => panic!("a broken chain was accepted"),
+            Err(e) => e,
+        };
+        assert!(err.to_string().contains("predecessor"), "{err}");
+    }
+
+    #[test]
+    fn a_log_from_another_document_is_not_appended_to() {
+        let mut other = Policy::shipped();
+        other.version = 99;
+        let mut log = ReceiptLog::new("example.com", &Policy::shipped(), sealer("other"));
+        log.append_decision(action(), decision(), 1);
+        let carried = log.receipts().to_vec();
+
+        let err = match ReceiptLog::resume("example.com", &other, sealer("other"), carried) {
+            Ok(_) => panic!("a log from another document was accepted"),
+            Err(e) => e,
+        };
+        assert!(err.to_string().contains("another document"), "{err}");
+    }
+}
+
+#[cfg(test)]
+mod params_tests {
+    use super::*;
+    use crate::skill::Action;
+
+    #[test]
+    fn the_parameters_are_committed_to_without_being_carried() {
+        let typed = Action::Type {
+            text: "hunter2-not-in-the-log".into(),
+        };
+        let h = params_hash_of(&typed).expect("a commitment");
+        assert_eq!(h.len(), 64);
+        assert!(!h.contains("hunter2"), "the hash must not contain the text");
+        assert_eq!(
+            params_hash_of(&typed),
+            Some(h.clone()),
+            "the same parameters must commit to the same value"
+        );
+        assert_ne!(
+            params_hash_of(&Action::Type { text: "another value".into() }),
+            Some(h),
+            "different parameters must commit to different values"
+        );
+    }
+
+    #[test]
+    fn an_action_with_no_parameters_commits_to_nothing() {
+        assert!(params_hash_of(&Action::Click).is_none());
+    }
+
+    #[test]
+    fn a_receipt_carrying_a_commitment_keeps_an_older_one_unchanged() {
+        // The same property as the other optional fields: absent means absent, so a receipt signed
+        // before this field existed still serializes to the bytes it was signed over.
+        let old = r#"{"identity":"i","key":"k","side_effect":"s","element":"e","step":0,"observed":{"action":"a","tag":"t","role":"r","has_href":false,"approval":false}}"#;
+        let a: ActionRef = serde_json::from_str(old).expect("parses");
+        assert_eq!(serde_json::to_string(&a).expect("reserializes"), old);
     }
 }

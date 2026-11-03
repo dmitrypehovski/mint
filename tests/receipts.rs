@@ -136,6 +136,7 @@ fn honest_write_log(sealer: Sealer, rules: &Policy) -> ReceiptLog {
         element: "button \"Submit the filing\"".into(),
         step: 0,
         observed: obs("click", "button", "button", false, false),
+        params_hash: None,
     };
     let dref = receipt::DecisionRef {
         verdict: "hold".into(),

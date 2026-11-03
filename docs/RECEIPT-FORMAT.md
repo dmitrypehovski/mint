@@ -334,7 +334,13 @@ Named here rather than discovered later, and each one is a wire change rather th
 - **No COSE_Sign1 envelope, no transparency-service registration.** A checkpoint and a witness's
   countersignature answer the question a self-signed chain cannot (see `src/checkpoint.rs`), without
   the envelope machinery. The standard's own draft reports no executed interop for registration yet.
-- **No `params_hash`.** The action's parameters are not in the receipt at all — a form field's text,
-  including a password typed into it, never lands in a log that gets published — and binding the receipt
-  to a hash of those parameters needs the parameter values plumbed into `ActionRef` first. Worth doing,
-  not done.
+### `params_hash`: the parameters are committed to, not carried
+
+An action that carries a value of its own — text typed into a field — puts a **hash** of that value in the
+receipt, never the value. The reason is the one above it: a password typed into a field must not end up in
+a log that gets published. The reason to have it at all is the other direction: a receipt that cannot say
+*which* input it was signed for can be swapped for another run's.
+
+Only actions with parameters produce one. A click carries no parameter of its own, and inventing one for it
+would be noise shaped like information. Like the fields above it, it is optional and absent when unset, so
+a receipt signed before it existed still serializes to the bytes it was signed over.

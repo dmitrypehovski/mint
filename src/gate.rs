@@ -322,6 +322,7 @@ impl Gate {
             key: key.to_string(),
             side_effect: class.as_str().to_string(),
             element: format!("{} \"{}\"", el.tag, el.name),
+            params_hash: receipt::params_hash_of(&step.action),
             step: index,
             observed: observed.clone(),
         }
@@ -486,6 +487,7 @@ impl Gate {
             element: dec.element.clone(),
             step: dec.step,
             observed: dec.observed.clone(),
+            params_hash: None,
         };
         let dref = receipt::DecisionRef {
             verdict: dec.verdict.as_str().to_string(),

@@ -1,0 +1,13 @@
+{
+  "name": "mint",
+  "owner": {"name": "Dmitry Pekhovski", "url": "https://github.com/dmitrypehovski"},
+  "metadata": {"description": "mint: a signed receipt for every action an agent takes."},
+  "plugins": [
+    {
+      "name": "mint",
+      "source": "./",
+      "description": "Ask before writing, record every decision, and hand somebody a log they can verify.",
+      "category": "security"
+    }
+  ]
+}
