@@ -56,6 +56,7 @@ async fn main() -> Result<()> {
         "endorse" => endorse_cmd(&args),
         "rules" => rules_cmd(&args),
         "guard" => guard_cmd(&args),
+        "hook" => hook_cmd(&args),
         "--version" | "-V" | "version" => {
             // A receipt is checked against a version of the rules and a version of this program, and an
             // install script has nothing else to print that tells a person what they just installed.
@@ -267,6 +268,146 @@ fn load_revocations(args: &[String]) -> Vec<approval::Revocation> {
         }
     }
     out
+}
+
+/// The hook Claude Code runs before a tool call.
+///
+/// A skill is documentation: it asks the agent to consult the gate, and an agent that does not read it
+/// simply commits. That was measured rather than assumed — a live session with the plugin installed
+/// committed without asking and the log stayed empty. Documentation is not a gate.
+///
+/// This is the same gate in a place the agent cannot walk around. The harness runs it before every shell
+/// command and obeys the answer, so a command the rules hold is held whatever the model decided, and a
+/// command nobody can judge is refused. The agent's cooperation stops being part of the mechanism.
+///
+/// The payload arrives on stdin in Claude Code's shape and the answer leaves on stdout in the same shape.
+/// Nothing here reads the transcript, the model or the conversation — only the command.
+fn hook_cmd(args: &[String]) -> Result<()> {
+    #[derive(serde::Deserialize)]
+    struct Payload {
+        #[serde(default)]
+        tool_name: String,
+        #[serde(default)]
+        tool_input: serde_json::Value,
+        #[serde(default)]
+        cwd: String,
+    }
+
+    fn say(kind: &str, reason: &str) -> serde_json::Value {
+        serde_json::json!({
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": kind,
+                "permissionDecisionReason": reason,
+            }
+        })
+    }
+
+    let mut text = String::new();
+    std::io::Read::read_to_string(&mut std::io::stdin(), &mut text)?;
+    let payload: Payload = match serde_json::from_str(&text) {
+        Ok(p) => p,
+        Err(e) => {
+            // A payload we cannot read is a call we cannot judge, and guessing in the permissive
+            // direction is the one failure this function exists to avoid.
+            println!(
+                "{}",
+                say(
+                    "deny",
+                    &format!("mint could not read the hook payload ({e}), so this command was not judged")
+                )
+            );
+            return Ok(());
+        }
+    };
+
+    let command = payload
+        .tool_input
+        .get("command")
+        .and_then(|c| c.as_str())
+        .unwrap_or("");
+    if payload.tool_name != "Bash" || command.is_empty() {
+        println!("{{}}");
+        return Ok(());
+    }
+
+    let rules = match flag(args, "--policy") {
+        Some(p) => policy::Policy::from_file(&p)?,
+        None => policy::Policy::shipped(),
+    };
+    let observed = shell::observed(command, false);
+    let canonical = serde_json::to_string(&observed)?;
+    let identity = format!(
+        "guard:{}",
+        hex_of(&Sha256::digest(canonical.as_bytes()))[..16].to_string()
+    );
+
+    let dir = flag(args, "--receipts")
+        .or_else(|| std::env::var("MINT_RECEIPTS").ok())
+        .unwrap_or_else(|| {
+            let base = if payload.cwd.is_empty() { ".".to_string() } else { payload.cwd.clone() };
+            format!("{base}/.mint")
+        });
+    let log_path = format!("{}/guard.json", dir.trim_end_matches('/'));
+    let carried = receipt::read_log(&log_path).unwrap_or_default();
+
+    let mut said = policy::ruling(&observed, &rules);
+    let mut decided_by = "policy";
+    if let Some(prior) = receipt::released_before(&carried, &identity) {
+        said = policy::Ruling {
+            class: said.class,
+            verdict: "refuse".into(),
+            reason: format!(
+                "this action was already released once, as receipt {}; a repeat is not performed",
+                prior.body.id
+            ),
+        };
+        decided_by = "once-only";
+    }
+
+    // The record is written before the harness is told anything, including for a hold — a hold is the
+    // decision somebody has to act on later, so a hold that is not in the log did not happen.
+    if let Ok(sealer) = receipt::Sealer::load_or_create(&receipt_key()) {
+        if let Ok(mut log) = receipt::ReceiptLog::resume("guard", &rules, sealer, carried) {
+            let action = receipt::ActionRef {
+                identity: identity.clone(),
+                key: identity.clone(),
+                side_effect: said.class.clone(),
+                element: format!("command «{}»", short(command, 60)),
+                step: 0,
+                observed: observed.clone(),
+                params_hash: None,
+            };
+            let decision_ref = receipt::DecisionRef {
+                verdict: said.verdict.clone(),
+                reason: said.reason.clone(),
+                decided_by: decided_by.to_string(),
+            };
+            log.append_decision(action, decision_ref, endorse::now_ms());
+            let _ = std::fs::create_dir_all(dir.trim_end_matches('/'));
+            let _ = std::fs::write(&log_path, serde_json::to_string_pretty(&log.document())?);
+        }
+    }
+
+    let out = match said.verdict.as_str() {
+        "allow" => {
+            println!("{{}}");
+            return Ok(());
+        }
+        "hold" => say(
+            "deny",
+            &format!(
+                "mint held this command before it ran: {}\n\
+                 Nothing was executed. A person approves this exact action with:\n\
+                   mint approve --action {identity} --days 1 --note \"why\" --out approval.json\n\
+                 and the next attempt proceeds. Do not look for another way to run it.",
+                said.reason
+            ),
+        ),
+        _ => say("deny", &format!("mint refused this command: {}", said.reason)),
+    };
+    println!("{out}");
+    Ok(())
 }
 
 /// Withdraw an approval: one action, or every approval issued before now.

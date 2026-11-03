@@ -70,6 +70,11 @@ Verification returns a non-zero exit code when a log does not hold, so a script 
     --approval <file> --action <identity> [--approvers <file>] [--agent <hex>] [--at <ms>]
                                 exit status is 0 when it holds and non-zero when it does not
 
+  hook                          the same gate, for a harness that runs it before a tool call
+                                reads Claude Code's PreToolUse payload on stdin, writes the decision
+                                to stdout, and always exits 0 — the answer travels in the payload
+    --receipts <dir>            where the log is (default: .mint beside the project, or MINT_RECEIPTS)
+
   guard                         judge ONE action, write the receipt, and say so in the exit status
     --command <string>          the command you are about to run, read by the shell adapter
     --action <file|->           one observation in the recorded shape (stdin with -)
