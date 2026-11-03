@@ -143,7 +143,9 @@ def main():
         "hook_event_name": "PreToolUse",
         "tool_name": "Bash",
         "cwd": WORK,
-        "tool_input": {"command": "git commit -m 'first change'"},
+        # A command that has not been released earlier in this page: the point of the step is a hold,
+        # and reusing the commit from step five would show a refusal instead.
+        "tool_input": {"command": "git push origin main"},
     })
     out, code = run([f"{HOME}/.local/bin/mint", "hook", "--receipts", f"{WORK}/.mint"],
                     cwd=WORK, env={**env, "MINT_RECEIPT_KEY": f"{HOME}/.secrets/mint-receipt.key"},

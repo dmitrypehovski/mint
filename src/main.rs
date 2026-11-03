@@ -250,6 +250,27 @@ fn approve_cmd(args: &[String]) -> Result<()> {
     Ok(())
 }
 
+/// The name of an action, which is what an approval is bound to.
+///
+/// For a shell command the command itself is part of the name, and that is not a detail: the observation
+/// says a command writes, and nothing else — so without the text, every write in the world shares one
+/// name. An approval for a commit would authorise a push, a deletion, a deploy. Found by building the
+/// quickstart page, which showed the approval for one command being accepted for another.
+///
+/// The browser and directory paths pass no command: their actions are named by the element they act on,
+/// which is already in the observation.
+fn action_identity(observed: &policy::Observed, command: Option<&str>) -> String {
+    let mut basis = serde_json::to_string(observed).unwrap_or_default();
+    if let Some(cmd) = command {
+        basis.push('\u{0}');
+        basis.push_str(cmd);
+    }
+    format!(
+        "guard:{}",
+        hex_of(&Sha256::digest(basis.as_bytes()))[..16].to_string()
+    )
+}
+
 /// Read the withdrawals a run was given. A file, or a comma-separated list of them, because a runtime
 /// may be told about several people's withdrawals and has no business deciding whose to read first.
 fn load_revocations(args: &[String]) -> Vec<approval::Revocation> {
@@ -336,11 +357,7 @@ fn hook_cmd(args: &[String]) -> Result<()> {
         None => policy::Policy::shipped(),
     };
     let observed = shell::observed(command, false);
-    let canonical = serde_json::to_string(&observed)?;
-    let identity = format!(
-        "guard:{}",
-        hex_of(&Sha256::digest(canonical.as_bytes()))[..16].to_string()
-    );
+    let identity = action_identity(&observed, Some(command));
 
     let dir = flag(args, "--receipts")
         .or_else(|| std::env::var("MINT_RECEIPTS").ok())
@@ -614,12 +631,8 @@ fn guard_cmd(args: &[String]) -> Result<()> {
         }
     };
 
-    // The name of this action, stable across calls.
-    let canonical = serde_json::to_string(&observed)?;
-    let identity = format!(
-        "guard:{}",
-        hex_of(&Sha256::digest(canonical.as_bytes()))[..16].to_string()
-    );
+    // The name of this action, stable across calls, and specific to the command that was given.
+    let identity = action_identity(&observed, flag(args, "--command").as_deref());
 
     // An approval, if one was presented. Checked here rather than trusted: the five checks a run applies
     // are the same five, against this exact action and this runtime.
@@ -3627,4 +3640,51 @@ fn now_stamp() -> String {
 
 fn trim(s: &str) -> String {
     s.chars().take(70).collect()
+}
+
+
+#[cfg(test)]
+mod identity_tests {
+    use super::*;
+
+    #[test]
+    fn two_different_commands_are_two_different_actions() {
+        let commit = shell::observed("git commit -m 'x'", false);
+        let push = shell::observed("git push origin main", false);
+        // Both are writes, and the observation says exactly the same thing about both of them — which is
+        // precisely why the name has to come from the command.
+        assert_eq!(
+            serde_json::to_string(&commit).unwrap(),
+            serde_json::to_string(&push).unwrap()
+        );
+        assert_ne!(
+            action_identity(&commit, Some("git commit -m 'x'")),
+            action_identity(&push, Some("git push origin main")),
+            "an approval for one of these must not authorise the other"
+        );
+    }
+
+    #[test]
+    fn the_same_command_twice_is_the_same_action() {
+        let a = shell::observed("git push origin main", false);
+        let b = shell::observed("git push origin main", false);
+        assert_eq!(
+            action_identity(&a, Some("git push origin main")),
+            action_identity(&b, Some("git push origin main")),
+            "single use depends on this being stable"
+        );
+    }
+
+    #[test]
+    fn an_action_with_no_command_is_named_by_its_observation_alone() {
+        let el = policy::Observed {
+            action: "click".into(),
+            tag: "button".into(),
+            role: "button".into(),
+            has_href: false,
+            approval: false,
+        };
+        assert_eq!(action_identity(&el, None), action_identity(&el, None));
+        assert_ne!(action_identity(&el, None), action_identity(&el, Some("git push")));
+    }
 }
