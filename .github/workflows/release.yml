@@ -57,7 +57,10 @@ jobs:
         run: |
           cd artifacts
           ls -l
-          sha256sum mint-*.tar.gz > SHA256SUMS
+          # The installer is published beside the artifacts it installs, and its own hash goes in the
+          # list: a person who is going to pipe a script into a shell deserves to be able to check it too.
+          cp "$GITHUB_WORKSPACE/install.sh" install.sh
+          sha256sum mint-*.tar.gz install.sh > SHA256SUMS
           cat SHA256SUMS
       - name: publish
         env:
@@ -67,4 +70,4 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --title "$GITHUB_REF_NAME" \
             --notes "Built from $GITHUB_SHA. The install script verifies each file against SHA256SUMS." \
-            artifacts/mint-*.tar.gz artifacts/SHA256SUMS
+            artifacts/mint-*.tar.gz artifacts/install.sh artifacts/SHA256SUMS
