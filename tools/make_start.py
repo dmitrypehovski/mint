@@ -162,11 +162,13 @@ def main():
         pretty = out
     steps.append(("Put it in front of your agent",
                   "echo '<the harness payload>' | mint hook", pretty, code,
-                  "This is how Claude Code is stopped: hooks/hooks.json registers a PreToolUse hook, the "
+                  "This is how the agent is stopped: hooks/hooks.json registers a PreToolUse hook, the "
                   "harness runs it before every shell command and obeys the answer. The skill explains; "
                   "this enforces. Measured rather than assumed — a live session with only the skill "
                   "installed committed without asking and the log stayed empty. With the hook, the same "
-                  "session was blocked, said so, and printed the command that approves the action."))
+                  "session was blocked, said so, and printed the command that approves the action. Both "
+                  "Claude Code and Codex read this same file; Codex asks you to trust the hook once before "
+                  "it will run it, and until you do, the gate is not in the path there."))
 
     cards = "\n".join(
         f'<div class="card"><h2>{i}. {html.escape(title)}</h2>{body}</div>'

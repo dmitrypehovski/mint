@@ -86,7 +86,22 @@ a command the rules hold does not run whatever the model decided. That is the me
 it only explains. It was measured, not assumed: a live session with the skill installed and no hook
 committed without asking and the log stayed empty; with the hook the same session was blocked.
 
-In Codex: **Plugins → Add a marketplace**, enter `dmitrypehovski/mint`, then install **mint**.
+In Codex, the same plugin installs from the same repository, and the hook file is the same one:
+
+```bash
+codex plugin marketplace add dmitrypehovski/mint
+codex plugin add mint@mint
+```
+
+Codex speaks the same hook vocabulary (`hooks/hooks.json`, `PreToolUse`, `hookSpecificOutput`,
+`permissionDecision`) and reads the plugin's hooks from the same place — but it requires a hook to be
+**trusted once** before it will run it, which is its own rule and a good one. Until you accept that prompt,
+the gate is not in the path on Codex.
+
+Verified here: the marketplace adds, the plugin installs at the right version, and the hook file is
+discovered. **Not verified here:** the live block on Codex, because that needs a session and this machine
+has no OpenAI key. The live block *was* verified on Claude Code — a session with no mention of mint was
+stopped mid-commit and said so.
 
 The plugin needs the `mint` binary and downloads nothing itself — run the installer above once (it checks
 the download against the release's checksums before installing), or point it at a build you already have
