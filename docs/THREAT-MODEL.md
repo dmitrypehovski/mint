@@ -109,20 +109,31 @@ checkout never ships one — but that is hygiene, not a security boundary.
 
 ## The gate's own honesty about its limits
 
-`src/gate.rs` describes the boundary and then states what is not yet true of it:
+This section used to say that the approvals were unsigned strings and the decision log was not
+hash-chained, quoting `src/gate.rs` for it. Both statements were true when they were written and are not
+true now, which makes them the kind of wrong that is worse than silent: a reader could have relied on them
+to conclude the runtime was weaker than it is.
 
-> the approvals here are tokens carrying the identity of the action they
-> authorise, compared as strings. They are not signed, and the decision log is
-> not yet hash-chained. That is the next layer, and until it exists a receipt
-> from this runtime is a record, not a proof.
+What is true now:
 
-Read together with the receipts layer, the accurate summary is: the *receipts*
-are signed and hash-chained (that is `src/receipt.rs`, and it is what
-`mint receipts` verifies); the *approvals* remain unsigned strings, and the
-decision log inside the gate is a working buffer that becomes signed receipts
-when signing is switched on. A reader who needs approvals to be signed documents
-should not yet rely on this runtime for that; the recommendation is stated here
-rather than buried.
+- **Approvals are signed files.** Before one authorises anything, five checks are applied, none of them
+  skippable: the issuer must be a key this runtime was told to trust, the signature must hold over the
+  bytes of the approval, it must name this exact action, it must be valid now, and it must have been
+  issued for this runtime (`src/approval.rs`, `docs/RECEIPT-FORMAT.md`).
+- **The decision log is hash-chained**, and its head can be signed and countersigned by a second key
+  (`src/checkpoint.rs`). `mint receipts` verifies the chain, the signatures and the replay of the rules;
+  `mint verify-witness` checks the checkpoint and the countersignature.
+- **Single use is read from the log** on the `guard` path, so an approval is spent when the action it
+  names has been performed, across restarts and machines.
+
+What is still not true, and worth knowing before relying on it:
+
+- **An approval cannot be revoked** before it expires, and it cannot be delegated to another runtime.
+- **The single-use record for a *run*** (the browser and directory paths) is per-run rather than shared
+  between runs. Those paths are task-shaped, so a repeat of the same task fails on its own; `guard` is
+  where an agent's repeated command would otherwise go through twice.
+- **A demonstration cannot produce a real counterparty.** Both keys in the published example are on this
+  machine, and the signature says so in its own note. The mechanism is shown; trust is not.
 
 ## Summary
 

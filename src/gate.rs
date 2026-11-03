@@ -16,10 +16,20 @@
 //! approval, a repeated key — each of them ends in a refusal, so a mistake in this file can cause
 //! work to be skipped or asked about, but cannot cause an action nobody agreed to.
 //!
-//! What this does not yet do: the approvals here are tokens carrying the identity of the action
-//! they authorise, compared as strings. They are not signed, and the decision log is not yet
-//! hash-chained. That is the next layer, and until it exists a receipt from this runtime is a
-//! record, not a proof.
+//! What the approvals are now: signed files, checked before they authorise anything — the issuer must be
+//! a key this runtime was told to trust, the signature must hold, the approval must name this exact
+//! action, it must be valid now, and it must have been issued for this runtime (`src/approval.rs`). The
+//! string form still exists for the rules demonstration, where a visitor's switch stands in for a person,
+//! and it is worth nothing wherever approvers are pinned.
+//!
+//! The decision log becomes signed receipts, and the receipts are hash-chained (`src/receipt.rs`); a
+//! checkpoint over the head of that chain, countersigned by a second key, is what a verifier needs in
+//! order to be told that the chain it was handed is the whole chain (`src/checkpoint.rs`).
+//!
+//! What is still not true of it, named rather than left to be discovered: an approval cannot be revoked
+//! before its expiry, it cannot be delegated, and the single-use record for a *run* is per-run rather
+//! than shared between runs. For the `guard` path an agent uses, single use is read from the log and
+//! therefore survives restarts and machines.
 
 use crate::cdp::Element;
 use crate::policy;

@@ -831,7 +831,7 @@ async fn dir_learn(args: &[String]) -> Result<()> {
     let mut declared_done = false;
     let mut expect_final = sh.kind()?;
 
-    for round in 0..max {
+    for _round in 0..max {
         if started.elapsed().as_secs() > LEARN_BUDGET_SECS {
             println!(
                 "  the run has taken {} minutes, the declared budget — stopping",
