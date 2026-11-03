@@ -6,7 +6,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -n "${MINT_BIN:-}" ] && [ -x "${MINT_BIN}" ]; then exec "${MINT_BIN}" "$@"; fi
 if command -v mint >/dev/null 2>&1; then exec mint "$@"; fi
 # The repository this plugin was installed from, if it has been built there.
-for candidate in "$here/../../../target/release/mint" "$HOME/.cargo/bin/mint" "/usr/local/bin/mint"; do
+for candidate in "$here/../../../target/release/mint" "$HOME/.local/bin/mint" "$HOME/.cargo/bin/mint" "/usr/local/bin/mint"; do
   if [ -x "$candidate" ]; then exec "$candidate" "$@"; fi
 done
 

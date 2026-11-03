@@ -55,6 +55,12 @@ async fn main() -> Result<()> {
         "endorse" => endorse_cmd(&args),
         "rules" => rules_cmd(&args),
         "guard" => guard_cmd(&args),
+        "--version" | "-V" | "version" => {
+            // A receipt is checked against a version of the rules and a version of this program, and an
+            // install script has nothing else to print that tells a person what they just installed.
+            println!("mint {} — {}", env!("CARGO_PKG_VERSION"), receipt::CLAIM);
+            Ok(())
+        }
         _ => {
             println!("{}", include_str!("help.txt"));
             Ok(())
