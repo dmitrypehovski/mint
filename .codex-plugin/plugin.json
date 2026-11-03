@@ -1,12 +1,23 @@
 {
   "name": "mint",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Gate an agent's actions and leave a signed receipt for each one: a published rules document decides, anything that commits is held for a person's approval, and every decision is recorded in a chain somebody else can verify without trusting the agent or the machine it runs on.",
-  "author": {"name": "Dmitry Pekhovski", "url": "https://github.com/dmitrypehovski"},
+  "author": {
+    "name": "Dmitry Pekhovski",
+    "url": "https://github.com/dmitrypehovski"
+  },
   "homepage": "https://mint.arliwork.com",
   "repository": "https://github.com/dmitrypehovski/mint",
   "license": "MIT",
-  "keywords": ["receipts", "audit", "agent", "gate", "approval", "verification", "policy"],
+  "keywords": [
+    "receipts",
+    "audit",
+    "agent",
+    "gate",
+    "approval",
+    "verification",
+    "policy"
+  ],
   "skills": "./skills/",
   "requires_local_executor": true,
   "interface": {

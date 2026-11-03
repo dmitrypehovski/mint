@@ -34,6 +34,18 @@ jobs:
               print(f"  {path} lists {names}, and the skill directory is there")
           assert os.path.isfile("skills/mint/SKILL.md"), "no SKILL.md"
           print("  the skill is where both marketplaces say it is")
+
+          # The version a plugin reports is the version of the binary it drives. Letting those drift is
+          # how the quickstart came to document a release that behaved worse than the source.
+          version = ""
+          for line in open("Cargo.toml"):
+              if line.startswith("version ="):
+                  version = line.split('"')[1]
+                  break
+          for path in (".claude-plugin/plugin.json", ".codex-plugin/plugin.json"):
+              got = json.load(open(path))["version"]
+              assert got == version, f"{path} says {got}, Cargo.toml says {version}"
+          print(f"  every manifest says {version}, and so does Cargo.toml")
           PY
 
       - name: test
