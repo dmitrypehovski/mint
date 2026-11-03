@@ -96,7 +96,9 @@ $ echo $?
 
 `0` allowed, `2` held, `1` refused. A hold is a question, not a refusal: a person approves that exact
 action with `mint approve --action guard:9f0995…`, and the next call proceeds with the approver's name in
-the receipt. Reads pass without ceremony; anything the shell adapter cannot classify is **refused** rather
+the receipt. An approval is **spent when the action it names is performed**: the second call is refused,
+and the refusal comes from the log rather than from memory, so it holds across restarts, days and machines
+— the receipt that released the action is named in the refusal. Reads pass without ceremony; anything the shell adapter cannot classify is **refused** rather
 than waved through, because a gate that guesses in the permissive direction is not a gate.
 
 ## Quickstart

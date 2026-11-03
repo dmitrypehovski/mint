@@ -454,7 +454,33 @@ fn guard_cmd(args: &[String]) -> Result<()> {
         }
     }
 
-    let said = policy::ruling(&observed, &rules);
+    // The log, read before the ruling rather than after it: an approval is spent when the action it
+    // names has been performed, and that has to hold across restarts, days and machines. Memory cannot
+    // answer this question — a process that has just started has no memory, and one that never stopped
+    // cannot see the machine that ran yesterday.
+    let log_path = flag(args, "--receipts").map(|d| format!("{}/guard.json", d.trim_end_matches('/')));
+    let carried = match &log_path {
+        Some(p) => receipt::read_log(p)?,
+        None => Vec::new(),
+    };
+
+    let mut said = policy::ruling(&observed, &rules);
+    // Whose answer this is. A refusal from the rules can be reached again by anyone holding the document;
+    // a refusal because this action was already performed cannot — it depends on what happened before,
+    // which no rule can see. Saying which one it was is what keeps the log verifiable: without it, a
+    // verifier applying the document reaches "allow" and finds a receipt that says otherwise.
+    let mut decided_by = "policy";
+    if let Some(prior) = receipt::released_before(&carried, &identity) {
+        said = policy::Ruling {
+            class: said.class,
+            verdict: "refuse".into(),
+            reason: format!(
+                "this action was already released once, as receipt {}; a repeat is not performed",
+                prior.body.id
+            ),
+        };
+        decided_by = "once-only";
+    }
     println!("  {:<7} {:<6} — {}", said.class, said.verdict, said.reason);
     println!(
         "  decided by {} v{}, rules {}",
@@ -466,26 +492,11 @@ fn guard_cmd(args: &[String]) -> Result<()> {
 
     // The receipt. Written before the answer is returned, so an agent that crashes between deciding and
     // acting still leaves the decision behind.
-    if let Some(dir) = flag(args, "--receipts") {
-        std::fs::create_dir_all(&dir).ok();
-        let path = format!("{}/guard.json", dir.trim_end_matches('/'));
+    if let Some(path) = &log_path {
+        std::fs::create_dir_all(path.rsplit_once('/').map(|(d, _)| d).unwrap_or(".")).ok();
         let sealer = receipt::Sealer::load_or_create(&receipt_key())?;
-        let carried = match std::fs::read_to_string(&path) {
-            Ok(text) => {
-                let doc: serde_json::Value = serde_json::from_str(&text)?;
-                doc.get("receipts")
-                    .and_then(|r| r.as_array())
-                    .map(|a| {
-                        a.iter()
-                            .filter_map(|v| serde_json::from_value(v.clone()).ok())
-                            .collect::<Vec<receipt::Receipt>>()
-                    })
-                    .unwrap_or_default()
-            }
-            Err(_) => Vec::new(),
-        };
         let mut log = {
-            let log = receipt::ReceiptLog::resume("guard", &rules, sealer, carried)?;
+            let log = receipt::ReceiptLog::resume("guard", &rules, sealer, carried.clone())?;
             log.approved_by(approved_by.clone())
         };
         let action = receipt::ActionRef {
@@ -500,10 +511,10 @@ fn guard_cmd(args: &[String]) -> Result<()> {
         let decision = receipt::DecisionRef {
             verdict: said.verdict.clone(),
             reason: said.reason.clone(),
-            decided_by: "policy".into(),
+            decided_by: decided_by.to_string(),
         };
         let r = log.append_decision(action, decision, endorse::now_ms());
-        std::fs::write(&path, serde_json::to_string_pretty(&log.document())?)?;
+        std::fs::write(path, serde_json::to_string_pretty(&log.document())?)?;
         println!(
             "  receipt {} written to {path} — the log now holds {}",
             r.body.id,

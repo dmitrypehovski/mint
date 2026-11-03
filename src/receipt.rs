@@ -68,6 +68,42 @@ pub struct Approval {
     pub at_ms: u128,
 }
 
+/// The receipt that already released this action, if the log holds one.
+///
+/// Single use has to survive the process. A run kept the set of released actions in memory, which is
+/// enough while it is running and nothing at all afterwards: an agent that crashed, or that simply came
+/// back the next morning, found a gate with no memory of the first time. The receipts are the memory —
+/// they are already written, signed, in order, and checkable by somebody else.
+///
+/// Only writes count. An action that only reads may happen as often as it likes.
+pub fn released_before<'a>(receipts: &'a [Receipt], identity: &str) -> Option<&'a Receipt> {
+    receipts.iter().rev().find(|r| {
+        r.body.kind == "decision"
+            && r.body.action.identity == identity
+            && r.body.action.side_effect == "write"
+            && r.body.decision.verdict == "allow"
+    })
+}
+
+/// Read a log file into its receipts, or an empty list when there is no file yet.
+pub fn read_log(path: &str) -> anyhow::Result<Vec<Receipt>> {
+    let text = match std::fs::read_to_string(path) {
+        Ok(t) => t,
+        Err(_) => return Ok(Vec::new()),
+    };
+    let doc: serde_json::Value = serde_json::from_str(&text)
+        .map_err(|e| anyhow::anyhow!("{path} is not a log: {e}"))?;
+    Ok(doc
+        .get("receipts")
+        .and_then(|r| r.as_array())
+        .map(|a| {
+            a.iter()
+                .filter_map(|v| serde_json::from_value(v.clone()).ok())
+                .collect()
+        })
+        .unwrap_or_default())
+}
+
 /// A commitment to the parameters of an action, when it has any.
 ///
 /// Only the actions that carry a value — text typed into a field — produce one. A click carries no
@@ -906,6 +942,74 @@ mod principal_tests {
             old,
             "an optional field that is absent must not appear"
         );
+    }
+}
+
+#[cfg(test)]
+mod released_tests {
+    use super::*;
+    use crate::policy::{Observed, Policy};
+
+    fn sealer(tag: &str) -> Sealer {
+        let path = format!("/tmp/mint-released-{tag}-{}", std::process::id());
+        let _ = std::fs::remove_file(&path);
+        Sealer::load_or_create(&path).expect("a key")
+    }
+
+    fn action(identity: &str, class: &str) -> ActionRef {
+        ActionRef {
+            identity: identity.into(),
+            key: "k".into(),
+            side_effect: class.into(),
+            element: "command «x»".into(),
+            step: 0,
+            observed: Observed {
+                action: "click".into(),
+                tag: "command".into(),
+                role: if class == "write" { "button" } else { "link" }.into(),
+                has_href: class != "write",
+                approval: false,
+            },
+            params_hash: None,
+        }
+    }
+
+    fn decision(verdict: &str) -> DecisionRef {
+        DecisionRef {
+            verdict: verdict.into(),
+            reason: "r".into(),
+            decided_by: "policy".into(),
+        }
+    }
+
+    #[test]
+    fn a_write_that_was_released_is_found_again_in_the_log() {
+        let rules = Policy::shipped();
+        let mut log = ReceiptLog::new("guard", &rules, sealer("write"));
+        log.append_decision(action("guard:aaa", "write"), decision("allow"), 1);
+        let receipts = log.receipts().to_vec();
+        assert!(released_before(&receipts, "guard:aaa").is_some());
+        assert!(
+            released_before(&receipts, "guard:bbb").is_none(),
+            "a different action is a different action"
+        );
+    }
+
+    #[test]
+    fn a_held_action_is_not_a_released_one() {
+        // Held means nothing happened. Coming back with an approval has to be able to succeed.
+        let rules = Policy::shipped();
+        let mut log = ReceiptLog::new("guard", &rules, sealer("held"));
+        log.append_decision(action("guard:ccc", "write"), decision("hold"), 1);
+        assert!(released_before(log.receipts(), "guard:ccc").is_none());
+    }
+
+    #[test]
+    fn a_read_may_happen_as_often_as_it_likes() {
+        let rules = Policy::shipped();
+        let mut log = ReceiptLog::new("guard", &rules, sealer("read"));
+        log.append_decision(action("guard:ddd", "read"), decision("allow"), 1);
+        assert!(released_before(log.receipts(), "guard:ddd").is_none());
     }
 }
 

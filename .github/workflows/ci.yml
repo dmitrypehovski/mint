@@ -17,6 +17,25 @@ jobs:
       - name: build
         run: cargo build --release
 
+      - name: the plugin manifests parse, and point at the skill that exists
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          for path in (".claude-plugin/plugin.json", ".claude-plugin/marketplace.json",
+                       ".codex-plugin/plugin.json", ".agents/plugins/marketplace.json"):
+              with open(path) as fh:
+                  json.load(fh)
+              print(f"  {path} parses")
+          for path in (".claude-plugin/marketplace.json", ".agents/plugins/marketplace.json"):
+              doc = json.load(open(path))
+              names = [p["name"] for p in doc["plugins"]]
+              for name in names:
+                  assert os.path.isdir("skills/" + name), f"{path} lists {name}, and there is no skills/{name}"
+              print(f"  {path} lists {names}, and the skill directory is there")
+          assert os.path.isfile("skills/mint/SKILL.md"), "no SKILL.md"
+          print("  the skill is where both marketplaces say it is")
+          PY
+
       - name: test
         run: cargo test --release
 

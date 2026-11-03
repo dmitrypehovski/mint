@@ -65,6 +65,17 @@ The receipt now names the approver. An approval for a different action, from a k
 told to trust, for another runtime, or expired, is refused by name — say which check failed rather than
 retrying.
 
+## An approval is spent when the action is performed
+
+The record is the memory, not the process. If the action an approval names has already been released
+once — in this session, in an earlier one, on another machine that shares the log — the next call is
+refused with the receipt that released it. That refusal does not come from the rules and no approval
+changes it.
+
+So: if you are refused with "this action was already released once", **do not go looking for another
+approval and do not retry**. Either the work has been done, or somebody else did it. Say which receipt
+released it and stop.
+
 ## Verifying a log you were handed
 
 ```bash
