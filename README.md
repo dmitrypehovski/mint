@@ -58,8 +58,13 @@ installed:
 ```bash
 curl -fsSLO https://github.com/dmitrypehovski/mint/releases/latest/download/install.sh
 less install.sh                      # it is short, and it is worth reading
-bash install.sh                      # into ~/.local/bin, checksum checked first
+curl -fsSL https://github.com/dmitrypehovski/mint/releases/latest/download/SHA256SUMS | grep install.sh
+sha256sum install.sh                 # the two hashes should match
+bash install.sh                      # into ~/.local/bin, and the download is checked before installing
 ```
+
+The installer is published with its own hash in the release, because a person about to run a script they
+just downloaded should be able to check that too.
 
 Or build it: `cargo build --release`, then put `target/release` on your `PATH`.
 
