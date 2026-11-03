@@ -250,6 +250,38 @@ fn approve_cmd(args: &[String]) -> Result<()> {
     Ok(())
 }
 
+/// The commands an agent must not run for itself, if the command names one.
+///
+/// A text match, and worth being plain about what that means: it catches `mint approve`, `approve.sh`,
+/// and the same command hidden behind an obvious prefix, and it does not catch an agent that writes a
+/// script and runs the script. Nothing in a harness can. The line that actually holds is a key the agent
+/// cannot read, on a machine it does not run on — which is why the approval records how it was issued
+/// instead of pretending the difference does not exist.
+pub fn person_command(command: &str) -> Option<&'static str> {
+    let flat = command.replace(['\n', '\t'], " ");
+    let words: Vec<&str> = flat.split_whitespace().collect();
+    for (i, w) in words.iter().enumerate() {
+        let bare = w.trim_matches(|c: char| c == '"' || c == '\'' || c == ';' || c == '&' || c == '(');
+        if bare.ends_with("mint") || bare.ends_with("mint.sh") {
+            if let Some(next) = words.get(i + 1) {
+                match *next {
+                    "approve" => return Some("mint approve"),
+                    "revoke" => return Some("mint revoke"),
+                    "endorse" => return Some("mint endorse"),
+                    _ => {}
+                }
+            }
+        }
+        if bare.ends_with("approve.sh") {
+            return Some("mint approve");
+        }
+        if bare.ends_with("revoke.sh") {
+            return Some("mint revoke");
+        }
+    }
+    None
+}
+
 /// The name of an action, which is what an approval is bound to.
 ///
 /// For a shell command the command itself is part of the name, and that is not a detail: the observation
@@ -352,6 +384,12 @@ fn hook_cmd(args: &[String]) -> Result<()> {
         return Ok(());
     }
 
+    // The one command an agent must not be able to run for itself. A gate whose keeper can lift it is a
+    // gate in name only, and this is the surface we actually control: every shell command the agent runs
+    // passes through here. The refusal is recorded like any other, because "the agent tried to approve
+    // itself" is the line in the log somebody most wants to read.
+    let person_act = crate::person_command(command);
+
     let rules = match flag(args, "--policy") {
         Some(p) => policy::Policy::from_file(&p)?,
         None => policy::Policy::shipped(),
@@ -370,7 +408,17 @@ fn hook_cmd(args: &[String]) -> Result<()> {
 
     let mut said = policy::ruling(&observed, &rules);
     let mut decided_by = "policy";
-    if let Some(prior) = receipt::released_before(&carried, &identity) {
+    if let Some(what) = person_act {
+        said = policy::Ruling {
+            class: said.class,
+            verdict: "refuse".into(),
+            reason: format!(
+                "`{what}` is a person's act and this session is not a person. An approval or a withdrawal \
+                 has to come from outside the agent: ask the human to run it in their own terminal."
+            ),
+        };
+        decided_by = "not-a-person";
+    } else if let Some(prior) = receipt::released_before(&carried, &identity) {
         said = policy::Ruling {
             class: said.class,
             verdict: "refuse".into(),
@@ -561,8 +609,21 @@ fn report_verify(r: &receipt::VerifyReport, path: &str) {
     }
     match (&r.ok, &r.first_break) {
         (true, _) => {
-            let replay = if r.replayed > 0 {
-                format!(", and {} of them reproduced from the published rules", r.replayed)
+            let replay = if r.replayed + r.accepted_though_state_dependent > 0 {
+                // Counted apart, because they are different claims. A receipt the rules reproduce is one
+                // anybody can re-derive; a receipt the runtime decided from what had already happened, or
+                // from whose act a command is, cannot be re-derived by anybody — it was accepted because
+                // it refuses at least as much as the rules require, which is weaker.
+                let mut s = format!(", and {} of them reproduced from the published rules", r.replayed);
+                if r.accepted_though_state_dependent > 0 {
+                    s.push_str(&format!(
+                        ", plus {} the rules cannot reproduce — decided from what this runtime had already \
+                         done, or from whose act a command is — accepted because each refuses at least as \
+                         much as the rules require",
+                        r.accepted_though_state_dependent
+                    ));
+                }
+                s
             } else {
                 ", though the rules were not replayed".to_string()
             };
@@ -648,6 +709,12 @@ fn guard_cmd(args: &[String]) -> Result<()> {
         let now = endorse::now_ms();
         match approval::check(&a, &pinned, &identity, &agent, now) {
             approval::Check::Accepted { name, .. } => {
+                if a.body.issued_from.as_deref() == Some("not-a-terminal") {
+                    println!(
+                        "  note: this approval was not issued from a terminal — a script, a job, or an agent \
+                         ran the command. It is recorded as such in the receipt."
+                    );
+                }
                 // Checked after the approval holds, not instead of it: a withdrawal reaches an approval
                 // that was already given, and says so in the words of whoever withdrew it.
                 let revocations = load_revocations(args);
@@ -3642,6 +3709,40 @@ fn trim(s: &str) -> String {
     s.chars().take(70).collect()
 }
 
+
+#[cfg(test)]
+mod person_command_tests {
+    use super::*;
+
+    #[test]
+    fn the_agents_own_approval_command_is_recognised() {
+        for c in [
+            "mint approve --action guard:abc --days 1",
+            "~/.local/bin/mint approve --action guard:abc",
+            "MINT_BIN=/usr/local/bin/mint /usr/local/bin/mint approve --days 1",
+            "/root/mint/skills/mint/scripts/approve.sh --action guard:abc",
+            "mint revoke --action guard:abc",
+            "cd /tmp && mint approve --days 1",
+        ] {
+            assert!(person_command(c).is_some(), "not recognised: {c}");
+        }
+    }
+
+    #[test]
+    fn ordinary_work_is_not_mistaken_for_it() {
+        for c in [
+            "ls -la",
+            "git commit -m 'x'",
+            "mint guard --command \"git commit\"",
+            "mint hook",
+            "mint receipts .mint/guard.json",
+            "cat approval.json",
+            "grep -r approve src/",
+        ] {
+            assert!(person_command(c).is_none(), "wrongly refused: {c}");
+        }
+    }
+}
 
 #[cfg(test)]
 mod identity_tests {

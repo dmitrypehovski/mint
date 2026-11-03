@@ -571,6 +571,11 @@ pub struct VerifyReport {
     /// Receipts the published rules reproduce exactly — same class, same verdict. Zero when no
     /// policy was supplied, in which case this check did not run.
     pub replayed: usize,
+    /// Receipts the rules cannot reproduce because the runtime decided them from something the document
+    /// cannot see, and which refuse at least as much as the rules require. Counted apart from `replayed`,
+    /// because saying they were "reproduced from the published rules" would be false: they were accepted
+    /// as safe, which is a different and weaker statement.
+    pub accepted_though_state_dependent: usize,
     /// Keys with more than one outcome receipt: an effect that happened twice.
     pub repeated_effects: Vec<String>,
     /// What the policy check found, if it ran and found something.
@@ -616,6 +621,7 @@ pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy
         checked: 0,
         first_break: Some(BreakPoint { seq: u64::MAX, id: "?".into(), reason }),
         replayed: 0,
+        accepted_though_state_dependent: 0,
         repeated_effects: Vec::new(),
         policy_break: None,
     };
@@ -654,6 +660,7 @@ pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy
                 checked,
                 first_break: Some(break_at(&receipts, i, reason)),
                 replayed: 0,
+                accepted_though_state_dependent: 0,
                 repeated_effects: Vec::new(),
                 policy_break: None,
             };
@@ -665,6 +672,7 @@ pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy
             checked,
             first_break: Some(break_at(&receipts, i, reason)),
             replayed: 0,
+            accepted_though_state_dependent: 0,
             repeated_effects: Vec::new(),
             policy_break: None,
         };
@@ -718,6 +726,7 @@ pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy
     // And the replay: apply the published rules to what was recorded, and see whether the same
     // verdict comes back out.
     let mut replayed = 0usize;
+    let mut accepted_though_state_dependent = 0usize;
     let mut policy_break = None;
     if let Some(rules) = rules {
         let want = rules.hash();
@@ -750,7 +759,10 @@ pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy
             // A verdict reached from the run's own state cannot be reproduced from the rules, so for
             // those the test is direction rather than equality: refusing more than the rules require
             // is safe, and allowing more is not.
-            let state_dependent = r.body.decision.decided_by == "once-only";
+            // Anything the runtime decided for a reason the document cannot express: what this run had
+            // already done, or whose act a command is. The field exists to say exactly that, so the test
+            // is "not policy" rather than a list of the values that existed when this was written.
+            let state_dependent = r.body.decision.decided_by != "policy";
             let too_lax = restrictiveness(&r.body.decision.verdict) < restrictiveness(&ruling.verdict);
             let wrong = if state_dependent {
                 too_lax
@@ -776,7 +788,11 @@ pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy
                 ));
                 break;
             }
-            replayed += 1;
+            if state_dependent {
+                accepted_though_state_dependent += 1;
+            } else {
+                replayed += 1;
+            }
         }
     }
 
@@ -786,6 +802,7 @@ pub fn verify(document: &serde_json::Value, rules: Option<&crate::policy::Policy
         checked,
         first_break: None,
         replayed,
+        accepted_though_state_dependent,
         repeated_effects,
         policy_break,
     }

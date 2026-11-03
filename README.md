@@ -105,7 +105,11 @@ $ echo $?
 
 `0` allowed, `2` held, `1` refused. A hold is a question, not a refusal: a person approves that exact
 action with `mint approve --action guard:9f0995…`, and the next call proceeds with the approver's name in
-the receipt. An approval can also be **withdrawn** before it expires — `mint revoke --action guard:9f0995…` writes a
+the receipt. An agent **cannot approve its own action**: the plugin's hook denies `mint approve` from inside a session
+and records the attempt, so a held command is a question for a person rather than a formality. The
+approval records whether a person was at a terminal when it was issued.
+
+An approval can also be **withdrawn** before it expires — `mint revoke --action guard:9f0995…` writes a
 signed withdrawal, a runtime given it with `--revocations` stops counting that approval, and one signed by
 a key the runtime does not pin is ignored rather than obeyed. An approval is **spent when the action it
 names is performed**: the second call is refused,

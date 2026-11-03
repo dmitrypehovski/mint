@@ -128,6 +128,14 @@ What is true now:
 
 What is still not true, and worth knowing before relying on it:
 
+- **An agent cannot approve its own action from inside its session.** The plugin's hook denies `mint
+  approve`, `mint revoke` and the wrapper scripts, and the refusal is written to the log — "the agent tried
+  to approve itself" is the line in a record somebody most wants to read. What this is *not*: a boundary. It
+  is a text match on the command, so an agent that writes a script and runs the script is not caught, and an
+  approval issued by a script is indistinguishable in effect from one issued by a person. The line that
+  actually holds is a key the agent cannot read on a machine it does not run on, which no single-machine
+  demonstration can create. So the approval records **how it was issued** — `terminal` or `not-a-terminal` —
+  and a reader of the log can see that the approval for a deletion was issued by a script at 04:00.
 - **An approval can be withdrawn, but only by somebody the runtime pins.** `mint revoke --action …` (or
   `--action '*'` for everything issued before a moment) writes a signed withdrawal; a runtime given it
   with `--revocations` stops counting an approval it reaches. A withdrawal from a key the runtime does not

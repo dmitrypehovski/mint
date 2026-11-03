@@ -78,6 +78,38 @@ fn a_commit_is_denied_before_it_runs_and_the_denial_names_what_approves_it() {
 }
 
 #[test]
+fn an_agent_cannot_approve_its_own_action() {
+    // The whole mechanism rests on this: if the agent can lift the hold, the gate is a formality. The
+    // hook is the surface we control, because every shell command the agent runs passes through it.
+    let d = dir("selfapprove");
+    for command in [
+        "mint approve --action guard:abc --days 1 --out approval.json",
+        "~/.local/bin/mint approve --days 1",
+        "bash skills/mint/scripts/approve.sh --action guard:abc",
+        "mint revoke --action guard:abc",
+    ] {
+        let (out, code) = hook(&payload(command, &d), &d);
+        assert_eq!(code, 0);
+        let doc: serde_json::Value = serde_json::from_str(&out).unwrap();
+        assert_eq!(
+            doc["hookSpecificOutput"]["permissionDecision"], "deny",
+            "not denied: {command}"
+        );
+        let reason = doc["hookSpecificOutput"]["permissionDecisionReason"].as_str().unwrap();
+        assert!(reason.contains("person's act"), "the reason says whose act it is: {reason}");
+    }
+    // And ordinary work is still judged by the rules rather than refused for the wrong reason: a read
+    // passes, and the refusal above is specifically about whose act the command is.
+    let (out, _) = hook(&payload("git status --short", &d), &d);
+    assert_eq!(out.trim(), "{}", "a read is still allowed: {out}");
+    // `mint receipts` is a different case and worth knowing about: the shell adapter does not recognise it
+    // as a read, so it is refused as unclassifiable rather than waved through. Strict, and it means the
+    // way to read a log from inside a session is to read the file.
+    let (out, _) = hook(&payload("cat .mint/guard.json", &d), &d);
+    assert_eq!(out.trim(), "{}", "reading the log itself is a read: {out}");
+}
+
+#[test]
 fn a_payload_that_cannot_be_read_is_denied_rather_than_waved_through() {
     // The permissive direction is the one failure this file exists to avoid: a call nobody could judge
     // must not run.

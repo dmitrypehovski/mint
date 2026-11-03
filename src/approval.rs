@@ -44,6 +44,26 @@ pub struct ApprovalBody {
     /// the reason rather than only the fact.
     #[serde(default)]
     pub note: String,
+    /// Whether a person was at a terminal when this was issued. `"terminal"`, or `"not-a-terminal"` for
+    /// an approval produced by a script, a CI job, or an agent that ran the command itself.
+    ///
+    /// This is a record, not a defence, and saying so is the point. A key that an agent can read is a key
+    /// an agent can use, so nothing here can stop an approval being issued on the wrong side of the line.
+    /// What it can do is make the difference visible: the log says how each approval came to exist, and a
+    /// person reading it can see that the approval for a deletion was issued by a script at 04:00.
+    /// Appended last, and absent when empty, so approvals issued before this field existed still verify.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub issued_from: Option<String>,
+}
+
+/// Whether a person was at a terminal, described for the record rather than enforced.
+pub fn issued_from() -> String {
+    use std::io::IsTerminal;
+    if std::io::stdin().is_terminal() && std::io::stdout().is_terminal() {
+        "terminal".to_string()
+    } else {
+        "not-a-terminal".to_string()
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -68,6 +88,8 @@ impl Approval {
         note: &str,
     ) -> Approval {
         let body = ApprovalBody {
+            // Recorded always, so "no terminal" and "before this field existed" are different things.
+            issued_from: Some(issued_from()),
             spec: SPEC.to_string(),
             action: action.to_string(),
             for_agent: for_agent.to_string(),
@@ -527,6 +549,26 @@ mod revocation_tests {
         std::fs::write(&path, serde_json::to_string(&serde_json::json!({ "approvers": entries })).unwrap())
             .unwrap();
         Approvers::from_file(&path).expect("a pinned set")
+    }
+
+    #[test]
+    fn an_approval_records_whether_a_person_was_at_a_terminal() {
+        // A record, not a defence: it cannot stop an approval being issued by a script, and it means a
+        // reader of the log can see that it was.
+        let issuer = key("issued-from");
+        let a = Approval::issue(&issuer, ACTION, &"a".repeat(64), 1, 2, "");
+        assert!(matches!(
+            a.body.issued_from.as_deref(),
+            Some("terminal") | Some("not-a-terminal")
+        ));
+        // And it is inside the signature: editing it invalidates the approval like any other field.
+        let set = pinned("issued-from", &[&issuer]);
+        let mut edited = a.clone();
+        edited.body.issued_from = Some("terminal".into());
+        assert!(matches!(
+            check(&edited, &set, ACTION, &"a".repeat(64), 5),
+            Check::Refused { .. }
+        ));
     }
 
     #[test]

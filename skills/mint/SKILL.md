@@ -87,6 +87,15 @@ So: if you are refused with "this action was already released once", **do not go
 approval and do not retry**. Either the work has been done, or somebody else did it. Say which receipt
 released it and stop.
 
+## You cannot approve your own action, and should not try
+
+An approval is a person's act. Running `mint approve` (or `revoke`, or the wrapper scripts) from inside this
+session is refused by the hook, the refusal is written to the log, and the command does not run.
+
+So: when a command is held, **tell the person the action's name and the reason, and stop**. Do not run the
+approval yourself, do not write a script that runs it, do not look for another route to the same effect.
+The record shows what was attempted, and an attempt is not a mistake worth hiding — it is worth reporting.
+
 ## A withdrawal is not a mistake to work around
 
 An approval can be taken back after it was given: a person issues a withdrawal with

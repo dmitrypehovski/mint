@@ -112,7 +112,9 @@ def main():
                      "--approval", appr, "--receipts", ".mint"], cwd=WORK, env=env_appr)
     steps.append(("Present it", f'mint guard --command "git commit -m \'first change\'" '
                                 f'--approval approval.json --receipts .mint', out, code,
-                  "Status 0. Allowed, with the approver's name in the receipt."))
+                  "Status 0. Allowed, with the approver's name in the receipt. The note about the "
+                  "terminal is honest and worth reading: this page issues the approval from a script, so "
+                  "the record says so. When you do it, it will say `terminal` instead."))
 
     # 5. the same approval again — the part people ask about first
     out, code = run(["bash", GUARD, "--command", "git commit -m 'first change'",

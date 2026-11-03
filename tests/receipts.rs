@@ -41,7 +41,19 @@ fn a_signed_log_verifies_with_the_rules_it_was_decided_under() {
         "the published log must verify against the shipped rules: {report:?}"
     );
     assert_eq!(report.checked, 7, "each of the 7 receipts must hold");
-    assert_eq!(report.replayed, 7, "each must be reproduced from the rules");
+    // Two claims, counted apart. A receipt the rules reproduce can be re-derived by anybody; one the
+    // runtime decided from what it had already done cannot be re-derived at all, and is accepted only
+    // because it refuses at least as much as the rules require.
+    assert_eq!(
+        report.replayed + report.accepted_though_state_dependent,
+        7,
+        "every receipt must be either reproduced or accounted for: {report:?}"
+    );
+    assert!(
+        report.accepted_though_state_dependent <= 2,
+        "the published log is almost entirely rule-decided, and the exceptions should be countable on one \
+         hand: {report:?}"
+    );
     assert!(report.first_break.is_none());
     assert!(report.policy_break.is_none());
 
@@ -251,8 +263,10 @@ fn the_shipped_rules_reproduce_every_recorded_verdict() {
     );
     assert_eq!(report.checked, 7);
     assert_eq!(
-        report.replayed, 7,
-        "every receipt must be reproduced from the shipped rules"
+        report.replayed + report.accepted_though_state_dependent,
+        7,
+        "every receipt must be reproduced from the shipped rules, or accepted as stricter than they \
+         require, and nothing may fall between the two: {report:?}"
     );
 
     // Independently of verify(): derive each verdict again and compare it to the record.
