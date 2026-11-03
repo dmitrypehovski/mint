@@ -66,6 +66,10 @@ bash install.sh                      # into ~/.local/bin, and the download is ch
 The installer is published with its own hash in the release, because a person about to run a script they
 just downloaded should be able to check that too.
 
+If you would rather read it than run it, **[the same seven steps with every line of real output](https://mint.arliwork.com/start)**
+are on the site — the page is built from an actual install and an actual run, and it refuses to build when
+the published release is behind the source.
+
 Or build it: `cargo build --release`, then put `target/release` on your `PATH`.
 
 ## Use it inside Claude Code or Codex

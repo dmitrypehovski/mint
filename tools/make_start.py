@@ -126,10 +126,17 @@ def main():
 
     # 6. read the log
     out, code = run(["bash", VERIFY, ".mint/guard.json"], cwd=WORK, env=env)
+    # Counted from the output rather than written down. The first version of this sentence said "four
+    # decisions" about a log of three, which is precisely the drift a page built from real output exists
+    # to prevent — and it got in through the one line I typed by hand.
+    decided = 0
+    for line in out.splitlines():
+        if line.strip().startswith("log of "):
+            decided = int(line.split()[2])
     steps.append(("Read the log", "mint receipts .mint/guard.json", out, code,
-                  "Four decisions, every signature and every link in the chain checked, and every decision "
-                  "re-derived from the published rules. The log is the whole record: no separate audit "
-                  "trail to reconcile, no server to ask."))
+                  f"{decided} decisions — one held, one allowed, one refused — every signature and every "
+                  "link in the chain checked, and every decision re-derived from the published rules. The "
+                  "log is the whole record: no separate audit trail to reconcile, no server to ask."))
 
     # 7. make it live inside the agent
     steps.append(("Put it in front of your agent", "", "", None,

@@ -1214,6 +1214,15 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, body, "text/html; charset=utf-8")
             except FileNotFoundError:
                 self._send(404, b"no front page", "text/plain")
+        elif self.path.startswith("/start"):
+            # The quickstart. Built by tools/make_start.py from a real install and a real run, and it
+            # refuses to build when the published release is behind the source, so it cannot quietly
+            # describe an older mint.
+            try:
+                body = open(os.path.join(DEMO_DIR, "start.html"), "rb").read()
+                self._send(200, body, "text/html; charset=utf-8")
+            except FileNotFoundError:
+                self._send(404, b"the quickstart has not been built", "text/plain")
         elif self.path.startswith("/site-full"):
             try:
                 body = open(SITE_PATH, "rb").read()
