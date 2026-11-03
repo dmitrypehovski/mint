@@ -238,7 +238,16 @@ fn one(part: &str) -> Class {
 /// Classify a whole command line. One part that writes makes the line a write; otherwise one part nobody
 /// recognises makes it unknown. The strongest answer wins, because that is the safe direction.
 pub fn classify(cmd: &str) -> Class {
-    let cmd = cmd.trim();
+    // A redirect that goes nowhere is not a change to anything, and it has to be removed before the command
+    // is split — `&&` and `&` are separators here, and splitting first tore `2>&1` into `2` and `1`, which
+    // made an unknown word out of half a redirect. Found on Codex: `pwd && rg --files … 2>/dev/null | head`
+    // was held as a write, so an agent that was only looking could not look, and a gate that holds people
+    // for looking is a gate they switch off. A redirect to a real path is still a write.
+    let mut normalized = cmd.trim().to_string();
+    for harmless in ["2>/dev/null", "2>&1", "&>/dev/null", ">/dev/null"] {
+        normalized = normalized.replace(harmless, " ");
+    }
+    let cmd: &str = normalized.trim();
     if cmd.is_empty() {
         return Class::Unknown;
     }
@@ -297,6 +306,27 @@ pub fn observed(cmd: &str, approval: bool) -> crate::policy::Observed {
             has_href: false,
             approval,
         },
+    }
+}
+
+#[cfg(test)]
+mod redirect_tests {
+    use super::*;
+
+    #[test]
+    fn a_redirect_into_nowhere_is_not_a_change() {
+        // Found on Codex, whose first command was `pwd && rg --files … 2>/dev/null | head -60`. It was held
+        // as a write, so an agent that was only looking could not look.
+        assert_eq!(classify("rg --files -g AGENTS.md /tmp 2>/dev/null | head -60"), Class::Reads);
+        assert_eq!(classify("pwd && rg --files 2>&1"), Class::Reads);
+        assert_eq!(classify("ls -la 2>/dev/null"), Class::Reads);
+    }
+
+    #[test]
+    fn a_redirect_into_a_file_is_still_a_change() {
+        assert_eq!(classify("ls -la > listing.txt"), Class::Writes);
+        assert_eq!(classify("rg foo > hits.txt 2>/dev/null"), Class::Writes);
+        assert_eq!(classify("cat x >> log.txt"), Class::Writes);
     }
 }
 

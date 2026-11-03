@@ -250,6 +250,50 @@ fn approve_cmd(args: &[String]) -> Result<()> {
     Ok(())
 }
 
+/// The log's lock, so two decisions taken at the same moment do not overwrite each other.
+///
+/// The log is a document that has to be rewritten in full to append to it, so two writers that read before
+/// either writes lose one decision. Losing a *hold* is the worst loss there is: the command still did not
+/// run, and nothing records that anybody was asked. Found on Codex, which issues several commands at once
+/// where Claude Code issued them one at a time.
+///
+/// A stale lock is broken rather than waited on forever, because a hook that hangs is a hook that gets
+/// switched off, and a switched-off gate protects nothing.
+struct LogLock {
+    path: String,
+}
+
+impl LogLock {
+    fn take(log_path: &str) -> Option<LogLock> {
+        let path = format!("{log_path}.lock");
+        for _ in 0..100 {
+            match std::fs::OpenOptions::new().write(true).create_new(true).open(&path) {
+                Ok(_) => return Some(LogLock { path }),
+                Err(_) => {
+                    // Somebody else is writing. If their lock is old enough to be a crash rather than a
+                    // write in progress, take it over.
+                    if let Ok(meta) = std::fs::metadata(&path) {
+                        if let Ok(age) = meta.modified().and_then(|t| t.elapsed().map_err(|_| std::io::Error::other("clock"))) {
+                            if age.as_secs() > 10 {
+                                let _ = std::fs::remove_file(&path);
+                                continue;
+                            }
+                        }
+                    }
+                    std::thread::sleep(std::time::Duration::from_millis(20));
+                }
+            }
+        }
+        None
+    }
+}
+
+impl Drop for LogLock {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_file(&self.path);
+    }
+}
+
 /// The commands an agent must not run for itself, if the command names one.
 ///
 /// A text match, and worth being plain about what that means: it catches `mint approve`, `approve.sh`,
@@ -404,6 +448,30 @@ fn hook_cmd(args: &[String]) -> Result<()> {
             format!("{base}/.mint")
         });
     let log_path = format!("{}/guard.json", dir.trim_end_matches('/'));
+    // The directory first: the lock is a file inside it, and on the very first call in a project there is
+    // no such file to create it beside. Getting this wrong made every command fail closed on a fresh
+    // project — safe, and useless.
+    if let Err(e) = std::fs::create_dir_all(dir.trim_end_matches('/')) {
+        println!(
+            "{}",
+            say("deny", &format!("mint could not create {dir} for its log ({e}), so this command did not run"))
+        );
+        return Ok(());
+    }
+    // Held for the whole read-decide-write, because the write rewrites the document: two hooks running at
+    // once would each append to what they read, and the second would erase the first.
+    let lock = LogLock::take(&log_path);
+    if lock.is_none() {
+        println!(
+            "{}",
+            say(
+                "deny",
+                "mint could not take the log's lock, so this command was not judged and did not run. \
+                 Something else is writing to the log; try again."
+            )
+        );
+        return Ok(());
+    }
     let carried = receipt::read_log(&log_path).unwrap_or_default();
 
     let mut said = policy::ruling(&observed, &rules);
@@ -432,26 +500,45 @@ fn hook_cmd(args: &[String]) -> Result<()> {
 
     // The record is written before the harness is told anything, including for a hold — a hold is the
     // decision somebody has to act on later, so a hold that is not in the log did not happen.
-    if let Ok(sealer) = receipt::Sealer::load_or_create(&receipt_key()) {
-        if let Ok(mut log) = receipt::ReceiptLog::resume("guard", &rules, sealer, carried) {
-            let action = receipt::ActionRef {
-                identity: identity.clone(),
-                key: identity.clone(),
-                side_effect: said.class.clone(),
-                element: format!("command «{}»", short(command, 60)),
-                step: 0,
-                observed: observed.clone(),
-                params_hash: None,
-            };
-            let decision_ref = receipt::DecisionRef {
-                verdict: said.verdict.clone(),
-                reason: said.reason.clone(),
-                decided_by: decided_by.to_string(),
-            };
-            log.append_decision(action, decision_ref, endorse::now_ms());
-            let _ = std::fs::create_dir_all(dir.trim_end_matches('/'));
-            let _ = std::fs::write(&log_path, serde_json::to_string_pretty(&log.document())?);
-        }
+    //
+    // And if it cannot be written, the command does not run. This used to swallow the error, which is how
+    // a decision to hold a command disappeared from the log while the command was still refused: the
+    // refusal was real and the record was silent, which is the one combination this product exists to
+    // prevent.
+    let recorded = (|| -> Result<()> {
+        let sealer = receipt::Sealer::load_or_create(&receipt_key())?;
+        let mut log = receipt::ReceiptLog::resume("guard", &rules, sealer, carried)?;
+        let action = receipt::ActionRef {
+            identity: identity.clone(),
+            key: identity.clone(),
+            side_effect: said.class.clone(),
+            element: format!("command «{}»", short(command, 60)),
+            step: 0,
+            observed: observed.clone(),
+            params_hash: None,
+        };
+        let decision_ref = receipt::DecisionRef {
+            verdict: said.verdict.clone(),
+            reason: said.reason.clone(),
+            decided_by: decided_by.to_string(),
+        };
+        log.append_decision(action, decision_ref, endorse::now_ms());
+        std::fs::create_dir_all(dir.trim_end_matches('/'))?;
+        std::fs::write(&log_path, serde_json::to_string_pretty(&log.document())?)?;
+        Ok(())
+    })();
+    if let Err(e) = recorded {
+        println!(
+            "{}",
+            say(
+                "deny",
+                &format!(
+                    "mint could not record the decision for this command ({e}), and a decision that is not \
+                     recorded did not happen — so the command did not run."
+                )
+            )
+        );
+        return Ok(());
     }
 
     let out = match said.verdict.as_str() {
@@ -742,6 +829,17 @@ fn guard_cmd(args: &[String]) -> Result<()> {
     // answer this question — a process that has just started has no memory, and one that never stopped
     // cannot see the machine that ran yesterday.
     let log_path = flag(args, "--receipts").map(|d| format!("{}/guard.json", d.trim_end_matches('/')));
+    // Held across the read and the write, for the same reason the hook holds it: appending rewrites the
+    // whole document, so two guards finishing at once would lose one of the two decisions.
+    if let Some(p) = &log_path {
+        if let Some(dir) = p.rsplit_once('/').map(|(d, _)| d) {
+            std::fs::create_dir_all(dir)?;
+        }
+    }
+    let _lock = log_path.as_ref().and_then(|p| LogLock::take(p));
+    if log_path.is_some() && _lock.is_none() {
+        anyhow::bail!("could not take the log's lock; something else is writing to it");
+    }
     let carried = match &log_path {
         Some(p) => receipt::read_log(p)?,
         None => Vec::new(),

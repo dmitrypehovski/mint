@@ -110,6 +110,65 @@ fn an_agent_cannot_approve_its_own_action() {
 }
 
 #[test]
+fn the_first_call_in_a_project_creates_its_own_directory() {
+    // The lock is a file inside the log's directory, and on the very first call there is no directory yet.
+    // Getting that wrong made every command in a fresh project fail closed, which is safe and useless.
+    let d = format!("/tmp/mint-hook-first-{}", std::process::id());
+    let _ = std::fs::remove_dir_all(&d);
+    let nested = format!("{d}/does/not/exist/yet");
+    let (out, code) = hook(&payload("git status --short", &nested), &nested);
+    assert_eq!(code, 0);
+    assert_eq!(out.trim(), "{}", "a read in a fresh project must be allowed: {out}");
+    let (out, _) = hook(&payload("git commit -m 'x'", &nested), &nested);
+    let doc: serde_json::Value = serde_json::from_str(&out).unwrap();
+    assert_eq!(doc["hookSpecificOutput"]["permissionDecision"], "deny", "and a write still held");
+    assert!(
+        std::path::Path::new(&format!("{nested}/guard.json")).exists(),
+        "the log was created where the command was run"
+    );
+}
+
+#[test]
+fn decisions_taken_at_the_same_time_all_reach_the_log() {
+    // The log is rewritten in full to append to it, so two hooks that read before either writes lose one
+    // decision — and the lost one is invisible: the command was still refused, and nothing says anybody
+    // was asked. Codex issues commands in parallel where Claude Code issued them one at a time, which is
+    // how this was found.
+    let d = dir("concurrent");
+    let commands: Vec<String> = (0..8).map(|i| format!("git commit -m 'change {i}'")).collect();
+    let handles: Vec<_> = commands
+        .iter()
+        .map(|c| {
+            let c = c.clone();
+            let d = d.clone();
+            std::thread::spawn(move || hook(&payload(&c, &d), &d))
+        })
+        .collect();
+    for h in handles {
+        let (_, code) = h.join().expect("the hook finishes");
+        assert_eq!(code, 0);
+    }
+    let log: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(format!("{d}/guard.json")).unwrap()).unwrap();
+    let receipts = log["receipts"].as_array().unwrap();
+    assert_eq!(
+        receipts.len(),
+        commands.len(),
+        "every decision must be in the log, and none may overwrite another: {} of {}",
+        receipts.len(),
+        commands.len()
+    );
+    // And the log they produced still verifies: a lock that preserved receipts by breaking the chain
+    // would be worse than the race.
+    let out = Command::new(env!("CARGO_BIN_EXE_mint"))
+        .args(["receipts", "--in", &format!("{d}/guard.json")])
+        .output()
+        .unwrap();
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(text.contains("OK —"), "the log must still verify: {text}");
+}
+
+#[test]
 fn a_payload_that_cannot_be_read_is_denied_rather_than_waved_through() {
     // The permissive direction is the one failure this file exists to avoid: a call nobody could judge
     // must not run.
