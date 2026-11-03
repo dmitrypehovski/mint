@@ -26,20 +26,33 @@ case "$(uname -m)" in
 esac
 target="$os-$arch"
 
+if [ -z "$TAG" ] && [ -n "${MINT_RELEASE_BASE:-}" ]; then
+  echo "with MINT_RELEASE_BASE set, say which release: MINT_VERSION=v0.1.0" >&2
+  exit 3
+fi
 if [ -z "$TAG" ]; then
   TAG="$(curl -fsSLI -o /dev/null -w '%{url_effective}' "https://github.com/$REPO/releases/latest" | sed 's#.*/tag/##')"
   if [ -z "$TAG" ]; then echo "could not work out the latest release of $REPO" >&2; exit 1; fi
 fi
-base="https://github.com/$REPO/releases/download/$TAG"
+# A mirror, for a machine that cannot reach GitHub, or for testing the refusal below without breaking
+# anything real.
+base="${MINT_RELEASE_BASE:-https://github.com/$REPO/releases/download/$TAG}"
 echo "  mint $TAG for $target, into $DEST"
 echo "  from $base"
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-curl -fsSL -o "$tmp/mint-$target.tar.gz" "$base/mint-$target.tar.gz"
-curl -fsSL -o "$tmp/SHA256SUMS" "$base/SHA256SUMS"
+if ! curl -fsSL -o "$tmp/mint-$target.tar.gz" "$base/mint-$target.tar.gz"; then
+  echo "could not fetch mint-$target.tar.gz from $base — nothing was installed" >&2
+  exit 1
+fi
+if ! curl -fsSL -o "$tmp/SHA256SUMS" "$base/SHA256SUMS"; then
+  echo "this release publishes no checksums, so there is nothing to check the download against" >&2
+  echo "— refusing to install" >&2
+  exit 1
+fi
 
-expected="$(grep " mint-$target.tar.gz\$" "$tmp/SHA256SUMS" | awk '{print $1}')"
+expected="$(awk -v name="mint-$target.tar.gz" '$2 == name { print $1 }' "$tmp/SHA256SUMS")"
 if [ -z "$expected" ]; then
   echo "the release publishes no checksum for $target — refusing to install" >&2
   exit 1

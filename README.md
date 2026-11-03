@@ -50,6 +50,19 @@ The site publishes three files: `/receipts.json` (a real signed log),
 `/policy.json` (the rules), and `/endorsement.json` (the counter-signature). A
 stranger can verify all three locally with one command, below.
 
+## Install the binary
+
+The plugin needs the `mint` binary. From a release, with the checksum verified before anything is
+installed:
+
+```bash
+curl -fsSLO https://github.com/dmitrypehovski/mint/releases/latest/download/install.sh
+less install.sh                      # it is short, and it is worth reading
+bash install.sh                      # into ~/.local/bin, checksum checked first
+```
+
+Or build it: `cargo build --release`, then put `target/release` on your `PATH`.
+
 ## Use it inside Claude Code or Codex
 
 mint ships as a plugin for both, so an agent can ask before it writes and leave a receipt behind:
@@ -59,9 +72,11 @@ claude plugin marketplace add dmitrypehovski/mint
 claude plugin install mint@mint
 ```
 
-In Codex: **Plugins → Add a marketplace**, enter `dmitrypehovski/mint`, then install **mint**. The plugin
-needs the `mint` binary: build it once with `cargo build --release` and put `target/release` on your
-`PATH`, or set `MINT_BIN`. It downloads nothing.
+In Codex: **Plugins → Add a marketplace**, enter `dmitrypehovski/mint`, then install **mint**.
+
+The plugin needs the `mint` binary and downloads nothing itself — run the installer above once (it checks
+the download against the release's checksums before installing), or point it at a build you already have
+with `MINT_BIN=/path/to/mint`.
 
 Then, before anything that writes:
 
