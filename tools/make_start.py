@@ -23,11 +23,11 @@ APPROVE = f"{ROOT}/skills/mint/scripts/approve.sh"
 VERIFY = f"{ROOT}/skills/mint/scripts/verify.sh"
 
 
-def run(cmd, cwd=None, env=None, timeout=180):
+def run(cmd, cwd=None, env=None, timeout=180, stdin_text=None):
     """Run it and keep both the output and the exit status — the status is part of what the page shows."""
     e = dict(os.environ)
     e.update(env or {})
-    p = subprocess.run(cmd, cwd=cwd, env=e, shell=isinstance(cmd, str),
+    p = subprocess.run(cmd, cwd=cwd, env=e, shell=isinstance(cmd, str), input=stdin_text,
                        capture_output=True, text=True, timeout=timeout)
     return (p.stdout + p.stderr).rstrip(), p.returncode
 
@@ -138,11 +138,31 @@ def main():
                   "link in the chain checked, and every decision re-derived from the published rules. The "
                   "log is the whole record: no separate audit trail to reconcile, no server to ask."))
 
-    # 7. make it live inside the agent
-    steps.append(("Put it in front of your agent", "", "", None,
-                  "The plugin for Claude Code and Codex calls the same binary. Add the marketplace, "
-                  "install mint, and the skill tells the agent to ask before it writes and to stop when it "
-                  "is refused."))
+    # 7. the same gate, where the harness runs it before a tool call
+    payload = json.dumps({
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "cwd": WORK,
+        "tool_input": {"command": "git commit -m 'first change'"},
+    })
+    out, code = run([f"{HOME}/.local/bin/mint", "hook", "--receipts", f"{WORK}/.mint"],
+                    cwd=WORK, env={**env, "MINT_RECEIPT_KEY": f"{HOME}/.secrets/mint-receipt.key"},
+                    stdin_text=payload)
+    pretty = ""
+    try:
+        doc = json.loads(out)
+        decision = doc["hookSpecificOutput"]
+        pretty = (f'permissionDecision: {decision["permissionDecision"]}\n'
+                  f'reason: {decision["permissionDecisionReason"]}')
+    except Exception:
+        pretty = out
+    steps.append(("Put it in front of your agent",
+                  "echo '<the harness payload>' | mint hook", pretty, code,
+                  "This is how Claude Code is stopped: hooks/hooks.json registers a PreToolUse hook, the "
+                  "harness runs it before every shell command and obeys the answer. The skill explains; "
+                  "this enforces. Measured rather than assumed — a live session with only the skill "
+                  "installed committed without asking and the log stayed empty. With the hook, the same "
+                  "session was blocked, said so, and printed the command that approves the action."))
 
     cards = "\n".join(
         f'<div class="card"><h2>{i}. {html.escape(title)}</h2>{body}</div>'

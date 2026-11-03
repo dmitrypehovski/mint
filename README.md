@@ -81,6 +81,11 @@ claude plugin marketplace add dmitrypehovski/mint
 claude plugin install mint@mint
 ```
 
+The plugin registers a **hook**: Claude Code runs it before every shell command and obeys the answer, so
+a command the rules hold does not run whatever the model decided. That is the mechanism — the skill beside
+it only explains. It was measured, not assumed: a live session with the skill installed and no hook
+committed without asking and the log stayed empty; with the hook the same session was blocked.
+
 In Codex: **Plugins → Add a marketplace**, enter `dmitrypehovski/mint`, then install **mint**.
 
 The plugin needs the `mint` binary and downloads nothing itself — run the installer above once (it checks
