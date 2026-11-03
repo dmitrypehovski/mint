@@ -49,6 +49,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      # The installer is published from the repository, so the repository has to be here.
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
