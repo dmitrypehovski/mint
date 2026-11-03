@@ -40,38 +40,49 @@
       a sandbox, a permission system, or anything that decides on its own what is safe.</p>
 <div class="card"><h2>1. Install it</h2><div class="step"><div class="cmd">curl -fsSLO https://github.com/dmitrypehovski/mint/releases/latest/download/install.sh
 less install.sh
-bash install.sh</div><pre>  mint v0.2.3 for linux-x86_64, into /tmp/start-demo-home/.local/bin
-  from https://github.com/dmitrypehovski/mint/releases/download/v0.2.3
-  checksum f70f8abe6bee6cbf5a3917244c3fe96429d3bc4136bf4c5aed7e147430785fc2 matches
-  installed mint 0.2.3 — A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.
+bash install.sh</div><pre>  mint v0.2.4 for linux-x86_64, into /tmp/start-demo-home/.local/bin
+  from https://github.com/dmitrypehovski/mint/releases/download/v0.2.4
+  checksum 7542a3d918000303bb3a4ac740fb54d006bcfd597f8eeca2eff13092b7a9c139 matches
+  installed mint 0.2.4 — A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.
   note: /tmp/start-demo-home/.local/bin is not on your PATH — add it, or set MINT_BIN=/tmp/start-demo-home/.local/bin/mint</pre><p class="note">No Rust, no cargo, no clone. The installer checks the download against the checksums published with the release, and installs nothing that does not match.</p></div></div>
 <div class="card"><h2>2. Ask it about a command that changes something</h2><div class="step"><div class="cmd">mint guard --command &quot;git commit -m &#x27;first change&#x27;&quot; --receipts .mint<span class="badge">2</span></div><pre>  write   hold   — this step commits something and no approval bound to it was presented
   decided by mint.policy/0.1 v1, rules a8bed408510ec43a
   the action is called guard:81dfbb7b2bb8037b
-  receipt f7be0d49a446-0000 written to .mint/guard.json — the log now holds 1</pre><p class="note">Status 2. Held: the command changes something and nobody has agreed to it. Nothing was run, and the decision is in the log before it was made.</p></div></div>
-<div class="card"><h2>3. A person approves that exact action</h2><div class="step"><div class="cmd">mint approve --action guard:81dfbb7b2bb8037b --days 1 --note &quot;I read the diff&quot;<span class="badge">0</span></div><pre>  for the runtime whose key is /tmp/start-demo-home/.secrets/mint-receipt.key: f7be0d49a446
+  receipt 5daa62c89001-0000 written to .mint/guard.json — the log now holds 1</pre><p class="note">Status 2. Held: the command changes something and nobody has agreed to it. Nothing was run, and the decision is in the log before it was made.</p></div></div>
+<div class="card"><h2>3. A person approves that exact action</h2><div class="step"><div class="cmd">mint approve --action guard:81dfbb7b2bb8037b --days 1 --note &quot;I read the diff&quot;<span class="badge">0</span></div><pre>  for the runtime whose key is /tmp/start-demo-home/.secrets/mint-receipt.key: 5daa62c89001
   approved «guard:81dfbb7b2bb8037b»
   by 11b16d62878b (/root/.secrets/mint-approver.key), valid 1 day(s)
   written to /tmp/start-demo/approval.json
   the runtime has to pin this key to accept it:
     MINT_APPROVERS=&lt;a file listing 11b16d62878b&gt; MINT_APPROVAL_FILES=/tmp/start-demo/approval.json</pre><p class="note">The approval names the action, so it cannot authorise a different one, and it is signed, so the receipt can name who gave it.</p></div></div>
-<div class="card"><h2>4. Present it</h2><div class="step"><div class="cmd">mint guard --command &quot;git commit -m &#x27;first change&#x27;&quot; --approval approval.json --receipts .mint<span class="badge">1</span></div><pre>  approvers pinned from /tmp/start-demo/approvers.json: dmitry (11b16d62878b)
+<div class="card"><h2>4. Present it</h2><div class="step"><div class="cmd">mint guard --command &quot;git commit -m &#x27;first change&#x27;&quot; --approval approval.json --receipts .mint<span class="badge">0</span></div><pre>  approvers pinned from /tmp/start-demo/approvers.json: dmitry (11b16d62878b)
   note: this approval was not issued from a terminal — a script, a job, or an agent ran the command. It is recorded as such in the receipt.
-Error: could not take the log&#x27;s lock; something else is writing to it</pre><p class="note">Status 0. Allowed, with the approver&#x27;s name in the receipt. The note about the terminal is honest and worth reading: this page issues the approval from a script, so the record says so. When you do it, it will say `terminal` instead.</p></div></div>
+  write   allow  — an approval bound to this exact action was presented
+  decided by mint.policy/0.1 v1, rules a8bed408510ec43a
+  the action is called guard:81dfbb7b2bb8037b
+  approved by dmitry, /tmp/start-demo/approval.json
+  receipt 5daa62c89001-0001 written to .mint/guard.json — the log now holds 2</pre><p class="note">Status 0. Allowed, with the approver&#x27;s name in the receipt. The note about the terminal is honest and worth reading: this page issues the approval from a script, so the record says so. When you do it, it will say `terminal` instead.</p></div></div>
 <div class="card"><h2>5. Present the same approval again</h2><div class="step"><div class="cmd">mint guard --command &quot;git commit -m &#x27;first change&#x27;&quot; --approval approval.json --receipts .mint<span class="badge">1</span></div><pre>  approvers pinned from /tmp/start-demo/approvers.json: dmitry (11b16d62878b)
   note: this approval was not issued from a terminal — a script, a job, or an agent ran the command. It is recorded as such in the receipt.
-Error: could not take the log&#x27;s lock; something else is writing to it</pre><p class="note">Status 1. The approval was spent when the action was performed, and the refusal comes from the log rather than from memory — it survives restarts, days and machines, and it names the receipt that released it.</p></div></div>
-<div class="card"><h2>6. Read the log</h2><div class="step"><div class="cmd">mint receipts .mint/guard.json<span class="badge">0</span></div><pre>  log of 1 receipts, agent f7be0d49a446
+  write   refuse — this action was already released once, as receipt 5daa62c89001-0001; a repeat is not performed
+  decided by mint.policy/0.1 v1, rules a8bed408510ec43a
+  the action is called guard:81dfbb7b2bb8037b
+  approved by dmitry, /tmp/start-demo/approval.json
+  receipt 5daa62c89001-0002 written to .mint/guard.json — the log now holds 3</pre><p class="note">Status 1. The approval was spent when the action was performed, and the refusal comes from the log rather than from memory — it survives restarts, days and machines, and it names the receipt that released it.</p></div></div>
+<div class="card"><h2>6. Read the log</h2><div class="step"><div class="cmd">mint receipts .mint/guard.json<span class="badge">0</span></div><pre>  log of 3 receipts, agent 5daa62c89001
   policy a8bed408510e v1 — Reads pass. Anything that commits is held until an approval … (from the log itself — self-consistency only, not an independent check)
   claim: A receipt proves that this record was issued by the holder of the stated key and has not been altered since. It does not prove the action was correct, that its inputs were true, that a person approved it, or that the world changed the way the record describes.
 
   .mint/guard.json
-    OK — 1 receipts, every signature and every link in the chain holds, and 1 of them reproduced from the published rules
+    OK — 3 receipts, every signature and every link in the chain holds, and 2 of them reproduced from the published rules, plus 1 the rules cannot reproduce — decided from what this runtime had already done, or from whose act a command is — accepted because each refuses at least as much as the rules require
 
   endorsement: none — the rules were published by the same party that applied them, and nobody else is shown to have accepted them
-  verdict: log verified, rules replayed; not endorsed</pre><p class="note">1 decisions — one held, one allowed, one refused — every signature and every link in the chain checked, and every decision re-derived from the published rules. The log is the whole record: no separate audit trail to reconcile, no server to ask.</p></div></div>
+  verdict: log verified, rules replayed; not endorsed</pre><p class="note">3 decisions — one held, one allowed, one refused — every signature and every link in the chain checked, and every decision re-derived from the published rules. The log is the whole record: no separate audit trail to reconcile, no server to ask.</p></div></div>
 <div class="card"><h2>7. Put it in front of your agent</h2><div class="step"><div class="cmd">echo &#x27;&lt;the harness payload&gt;&#x27; | mint hook<span class="badge">0</span></div><pre>permissionDecision: deny
-reason: mint could not take the log&#x27;s lock, so this command was not judged and did not run. Something else is writing to the log; try again.</pre><p class="note">This is how the agent is stopped: hooks/hooks.json registers a PreToolUse hook, the harness runs it before every shell command and obeys the answer. The skill explains; this enforces. Measured rather than assumed — a live session with only the skill installed committed without asking and the log stayed empty. With the hook, the same session was blocked, said so, and printed the command that approves the action. Both Claude Code and Codex read this same file; Codex asks you to trust the hook once before it will run it, and until you do, the gate is not in the path there.</p></div></div>
+reason: mint held this command before it ran: this step commits something and no approval bound to it was presented
+Nothing was executed. A person approves this exact action with:
+mint approve --action guard:f724133e1ef68470 --days 1 --note &quot;why&quot; --out approval.json
+and the next attempt proceeds. Do not look for another way to run it.</pre><p class="note">This is how the agent is stopped: hooks/hooks.json registers a PreToolUse hook, the harness runs it before every shell command and obeys the answer. The skill explains; this enforces. Measured rather than assumed — a live session with only the skill installed committed without asking and the log stayed empty. With the hook, the same session was blocked, said so, and printed the command that approves the action. Both Claude Code and Codex read this same file; Codex asks you to trust the hook once before it will run it, and until you do, the gate is not in the path there.</p></div></div>
   <div class="card">
     <h2>What it will not do</h2>
     <p class="note">
