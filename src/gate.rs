@@ -26,10 +26,13 @@
 //! checkpoint over the head of that chain, countersigned by a second key, is what a verifier needs in
 //! order to be told that the chain it was handed is the whole chain (`src/checkpoint.rs`).
 //!
-//! What is still not true of it, named rather than left to be discovered: an approval cannot be revoked
-//! before its expiry, it cannot be delegated, and the single-use record for a *run* is per-run rather
-//! than shared between runs. For the `guard` path an agent uses, single use is read from the log and
-//! therefore survives restarts and machines.
+//! An approval can also be withdrawn before it expires (`src/approval.rs`, `mint revoke`), by a key the
+//! runtime pins and nobody else — a withdrawal from an unpinned key is ignored rather than obeyed.
+//!
+//! What is still not true of it, named rather than left to be discovered: an approval cannot be delegated
+//! to another runtime, and the single-use record for a *run* is per-run rather than shared between runs.
+//! For the `guard` path an agent uses, single use is read from the log and therefore survives restarts
+//! and machines.
 
 use crate::cdp::Element;
 use crate::policy;

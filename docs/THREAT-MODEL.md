@@ -128,7 +128,11 @@ What is true now:
 
 What is still not true, and worth knowing before relying on it:
 
-- **An approval cannot be revoked** before it expires, and it cannot be delegated to another runtime.
+- **An approval can be withdrawn, but only by somebody the runtime pins.** `mint revoke --action …` (or
+  `--action '*'` for everything issued before a moment) writes a signed withdrawal; a runtime given it
+  with `--revocations` stops counting an approval it reaches. A withdrawal from a key the runtime does not
+  pin is ignored rather than obeyed, because otherwise anybody who could write a file could take back
+  anybody's approval. **An approval still cannot be delegated** to another runtime.
 - **The single-use record for a *run*** (the browser and directory paths) is per-run rather than shared
   between runs. Those paths are task-shaped, so a repeat of the same task fails on its own; `guard` is
   where an agent's repeated command would otherwise go through twice.

@@ -76,6 +76,16 @@ So: if you are refused with "this action was already released once", **do not go
 approval and do not retry**. Either the work has been done, or somebody else did it. Say which receipt
 released it and stop.
 
+## A withdrawal is not a mistake to work around
+
+An approval can be taken back after it was given: a person issues a withdrawal with
+`mint revoke --action guard:…`, and a runtime given it stops counting that approval. You will see
+"the approval presented is withdrawn" and the action will be held again.
+
+Tell the person who withdrew it and why it said so. **Do not look for another approver, do not edit the
+withdrawal, and do not present the same approval again.** A withdrawal exists because something changed;
+the only useful thing you can add is the reason the withdrawal gave.
+
 ## Verifying a log you were handed
 
 ```bash

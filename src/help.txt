@@ -59,6 +59,13 @@ Verification returns a non-zero exit code when a log does not hold, so a script 
     --note <text>               why it was given, in the issuer's words
     --out <file>                where to write it (default approval.json)
 
+  revoke                        withdraw an approval: one action, or every approval before now
+    --action <identity|*>       what to withdraw; * reaches every approval issued before --at-ms
+    --at-ms <ms>                when the withdrawal takes effect (default: now)
+    --note <text>               why, in the issuer's words
+    --out <file>                where to write it (default revocation.json)
+                                a runtime obeys it only when given it: --revocations <file>
+
   approve-check                 put one approval through the checks a run applies
     --approval <file> --action <identity> [--approvers <file>] [--agent <hex>] [--at <ms>]
                                 exit status is 0 when it holds and non-zero when it does not
@@ -69,6 +76,7 @@ Verification returns a non-zero exit code when a log does not hold, so a script 
     --policy <file>             the rules to judge by (default: the shipped document)
     --approval <file>           an approval to present, checked against this exact action
     --approvers <file>          the approvers to check it against (default: MINT_APPROVERS)
+    --revocations <file>        withdrawals to obey (default: MINT_REVOCATIONS)
     --receipts <dir>            append the decision to <dir>/guard.json, continuing the chain
                                 exit status: 0 allowed, 2 held, 1 refused
 

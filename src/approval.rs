@@ -291,6 +291,105 @@ fn short(s: &str) -> String {
     s.chars().take(20).collect()
 }
 
+
+// ── withdrawal ───────────────────────────────────────────────────────────────────────────────────
+
+pub const REVOCATION_SPEC: &str = "mint.revocation/0.1";
+
+/// A withdrawal: this approval, or every approval issued before this moment, no longer authorises
+/// anything.
+///
+/// An approval with an expiry can be waited out, which is no help at all when the reason for taking it
+/// back is that something changed. The alternative to a withdrawal is a person watching a clock, so it
+/// is a signed object like everything else here: pinned issuer, signature, and a time that says which
+/// approvals it reaches. Approvals issued *after* it are untouched, because a withdrawal is not a
+/// standing prohibition — it is the answer to an approval already given.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct RevocationBody {
+    pub spec: String,
+    /// The action whose approval is withdrawn, or `*` for every approval issued before `at_ms`.
+    pub action: String,
+    pub at_ms: u128,
+    #[serde(default)]
+    pub note: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Revocation {
+    pub body: RevocationBody,
+    pub sig: crate::endorse::Sig,
+}
+
+impl Revocation {
+    pub fn canonical(&self) -> String {
+        serde_json::to_string(&self.body).unwrap_or_default()
+    }
+
+    pub fn issue(sealer: &Sealer, action: &str, at_ms: u128, note: &str) -> Revocation {
+        let body = RevocationBody {
+            spec: REVOCATION_SPEC.to_string(),
+            action: action.to_string(),
+            at_ms,
+            note: note.to_string(),
+        };
+        let canonical = serde_json::to_string(&body).unwrap_or_default();
+        let sig = sealer.sign_bytes(canonical.as_bytes());
+        Revocation {
+            body,
+            sig: crate::endorse::Sig {
+                alg: "ed25519".into(),
+                kid: sealer.agent.clone(),
+                value: sig.iter().map(|b| format!("{b:02x}")).collect(),
+            },
+        }
+    }
+}
+
+/// Whether any of these withdrawals reaches an approval for this action issued at `approved_at_ms`.
+///
+/// A withdrawal from a key the runtime does not pin is ignored rather than obeyed, and so is one whose
+/// signature does not hold: otherwise anybody could take back anybody's approval, which is a worse
+/// failure than the one this exists to fix. The reason is returned rather than a boolean, because a
+/// person reading the log needs to know who withdrew what.
+pub fn revoked(
+    revocations: &[Revocation],
+    pinned: &Approvers,
+    action: &str,
+    approved_at_ms: u128,
+    now_ms: u128,
+) -> Option<String> {
+    for r in revocations {
+        if r.body.spec != REVOCATION_SPEC {
+            continue;
+        }
+        if !pinned.contains(&r.sig.kid) {
+            continue;
+        }
+        if verify_signature(&r.sig.kid, r.canonical().as_bytes(), &r.sig.value).is_err() {
+            continue;
+        }
+        if r.body.at_ms > now_ms {
+            continue; // dated in the future: not in force yet
+        }
+        if r.body.action != action && r.body.action != "*" {
+            continue;
+        }
+        // Only approvals issued at or before the withdrawal are reached.
+        if approved_at_ms > r.body.at_ms {
+            continue;
+        }
+        let who = pinned.name_of(&r.sig.kid);
+        return Some(match r.body.action.as_str() {
+            "*" => format!(
+                "{who} withdrew every approval issued before {} — this one was issued at {approved_at_ms}",
+                r.body.at_ms
+            ),
+            _ => format!("{who} withdrew the approval for this action at {}", r.body.at_ms),
+        });
+    }
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -403,5 +502,78 @@ mod tests {
         assert_eq!(set.name_of(&issuer.agent), "dmitry");
         assert_eq!(set.name_of("nobody"), "nobody", "an unknown key is named by itself");
         assert!(!set.is_empty());
+    }
+}
+
+#[cfg(test)]
+mod revocation_tests {
+    use super::*;
+
+    const ACTION: &str = "guard:aaa";
+    const NOW: u128 = 1_000;
+
+    fn key(tag: &str) -> Sealer {
+        let path = format!("/tmp/mint-revoke-{tag}-{}", std::process::id());
+        let _ = std::fs::remove_file(&path);
+        Sealer::load_or_create(&path).expect("a key")
+    }
+
+    fn pinned(tag: &str, keys: &[&Sealer]) -> Approvers {
+        let entries = keys
+            .iter()
+            .map(|s| serde_json::json!({ "key": s.agent, "name": "dmitry" }))
+            .collect::<Vec<_>>();
+        let path = format!("/tmp/mint-revoke-set-{tag}-{}.json", std::process::id());
+        std::fs::write(&path, serde_json::to_string(&serde_json::json!({ "approvers": entries })).unwrap())
+            .unwrap();
+        Approvers::from_file(&path).expect("a pinned set")
+    }
+
+    #[test]
+    fn a_withdrawal_by_a_pinned_approver_reaches_the_approval() {
+        let issuer = key("reaches");
+        let set = pinned("reaches", &[&issuer]);
+        let r = Revocation::issue(&issuer, ACTION, NOW, "the invoice turned out to be wrong");
+        let why = revoked(&[r], &set, ACTION, 900, NOW + 1).expect("withdrawn");
+        assert!(why.contains("dmitry withdrew"), "{why}");
+    }
+
+    #[test]
+    fn a_withdrawal_from_a_key_nobody_pins_is_ignored() {
+        // Otherwise anyone who can write a file could take back anyone's approval.
+        let issuer = key("pinned-one");
+        let stranger = key("stranger");
+        let set = pinned("ignored", &[&issuer]);
+        let r = Revocation::issue(&stranger, ACTION, NOW, "not mine to withdraw");
+        assert!(revoked(&[r], &set, ACTION, 900, NOW + 1).is_none());
+    }
+
+    #[test]
+    fn an_edited_withdrawal_is_ignored() {
+        let issuer = key("edited-rev");
+        let set = pinned("edited", &[&issuer]);
+        let mut r = Revocation::issue(&issuer, "another:action", NOW, "");
+        r.body.action = ACTION.into(); // widened after signing
+        assert!(revoked(&[r], &set, ACTION, 900, NOW + 1).is_none());
+    }
+
+    #[test]
+    fn everything_issued_before_a_star_withdrawal_is_reached_and_nothing_after() {
+        let issuer = key("star");
+        let set = pinned("star", &[&issuer]);
+        let r = Revocation::issue(&issuer, "*", NOW, "we are standing down for the day");
+        assert!(revoked(&[r.clone()], &set, ACTION, 900, NOW + 1).is_some(), "issued before");
+        assert!(
+            revoked(&[r], &set, ACTION, NOW + 10, NOW + 20).is_none(),
+            "an approval given after the withdrawal stands"
+        );
+    }
+
+    #[test]
+    fn a_withdrawal_for_one_action_does_not_reach_another() {
+        let issuer = key("one-action");
+        let set = pinned("one-action", &[&issuer]);
+        let r = Revocation::issue(&issuer, "guard:bbb", NOW, "");
+        assert!(revoked(&[r], &set, ACTION, 900, NOW + 1).is_none());
     }
 }

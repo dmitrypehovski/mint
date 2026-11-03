@@ -48,6 +48,7 @@ async fn main() -> Result<()> {
         "dir-run" => dir_run(&args).await,
         "dir-demo" => dir_demo(&args).await,
         "approve" => approve_cmd(&args),
+        "revoke" => revoke_cmd(&args),
         "approve-check" => approve_check_cmd(&args),
         "checkpoint" => checkpoint_cmd(&args),
         "witness" => witness_cmd(&args),
@@ -248,6 +249,56 @@ fn approve_cmd(args: &[String]) -> Result<()> {
     Ok(())
 }
 
+/// Read the withdrawals a run was given. A file, or a comma-separated list of them, because a runtime
+/// may be told about several people's withdrawals and has no business deciding whose to read first.
+fn load_revocations(args: &[String]) -> Vec<approval::Revocation> {
+    let paths = flag(args, "--revocations").or_else(|| std::env::var("MINT_REVOCATIONS").ok());
+    let Some(paths) = paths else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    for path in paths.split(',').map(str::trim).filter(|p| !p.is_empty()) {
+        let parsed = std::fs::read_to_string(path)
+            .ok()
+            .and_then(|t| serde_json::from_str::<approval::Revocation>(&t).ok());
+        match parsed {
+            Some(r) => out.push(r),
+            None => eprintln!("  the withdrawal at {path} could not be read"),
+        }
+    }
+    out
+}
+
+/// Withdraw an approval: one action, or every approval issued before now.
+///
+/// An expiry can be waited out, which is no help when the reason for taking an approval back is that
+/// something changed. This is signed like everything else, and only a key the runtime pins is obeyed —
+/// otherwise anybody who could write a file could take back anybody's approval.
+fn revoke_cmd(args: &[String]) -> Result<()> {
+    let action = flag(args, "--action").ok_or_else(|| {
+        anyhow!("--action is required: the action to withdraw, or * for every approval issued before now")
+    })?;
+    let sealer = receipt::Sealer::load_or_create(&approver_key())?;
+    let at = flag(args, "--at-ms")
+        .and_then(|v| v.parse().ok())
+        .unwrap_or_else(endorse::now_ms);
+    let note = flag(args, "--note").unwrap_or_default();
+    let r = approval::Revocation::issue(&sealer, &action, at, &note);
+    let out = flag(args, "--out").unwrap_or_else(|| "revocation.json".into());
+    std::fs::write(&out, serde_json::to_string_pretty(&serde_json::to_value(&r)?)?)?;
+
+    if action == "*" {
+        println!("  withdrawn: every approval issued before {at}");
+    } else {
+        println!("  withdrawn: the approval for {action}");
+    }
+    println!("  by {} ({})", short_hex(&sealer.agent), approver_key());
+    println!("  written to {out}");
+    println!("  a runtime has to be given it before it obeys it:");
+    println!("    mint guard ... --revocations {out}   (or MINT_REVOCATIONS={out})");
+    Ok(())
+}
+
 /// Put one approval through the checks a run would apply, and say which one it failed.
 ///
 /// This exists so the checks can be *demonstrated* rather than described: each case on the page is a
@@ -443,9 +494,20 @@ fn guard_cmd(args: &[String]) -> Result<()> {
         let now = endorse::now_ms();
         match approval::check(&a, &pinned, &identity, &agent, now) {
             approval::Check::Accepted { name, .. } => {
-                observed.approval = true;
-                approval_note = format!("\n  approved by {name}, {path}");
-                approved_by = Some(name);
+                // Checked after the approval holds, not instead of it: a withdrawal reaches an approval
+                // that was already given, and says so in the words of whoever withdrew it.
+                let revocations = load_revocations(args);
+                match approval::revoked(&revocations, &pinned, &identity, a.body.issued_at_ms, now) {
+                    Some(why) => {
+                        println!("  the approval presented is withdrawn: {why}");
+                        println!("  the action is judged as it was presented, without it");
+                    }
+                    None => {
+                        observed.approval = true;
+                        approval_note = format!("\n  approved by {name}, {path}");
+                        approved_by = Some(name);
+                    }
+                }
             }
             approval::Check::Refused { why } => {
                 println!("  the approval presented does not hold: {why}");
