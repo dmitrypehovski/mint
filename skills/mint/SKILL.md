@@ -65,6 +65,17 @@ The receipt now names the approver. An approval for a different action, from a k
 told to trust, for another runtime, or expired, is refused by name — say which check failed rather than
 retrying.
 
+## The hook is the gate; this file is the explanation
+
+Claude Code runs `hooks/hooks.json` before every shell command, and that hook is what stops a command the
+rules hold. You will meet it as a **denied tool call** whose reason names the action and the exact command
+that approves it. That is not a suggestion: the command did not run.
+
+Do not try to reach the same effect another way — a different command, a shell wrapper, a script written to
+a file and run — because the hook sees the command you run and the receipt records what was judged. When a
+command is held, tell the person the action's name and the reason, and wait. When you are refused, say so
+and stop; a refusal is not overridable.
+
 ## An approval is spent when the action is performed
 
 The record is the memory, not the process. If the action an approval names has already been released
