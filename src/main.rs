@@ -268,17 +268,19 @@ impl LogLock {
         let path = format!("{log_path}.lock");
         for _ in 0..100 {
             match std::fs::OpenOptions::new().write(true).create_new(true).open(&path) {
-                Ok(_) => return Some(LogLock { path }),
+                Ok(mut f) => {
+                    // Whoever holds it says who they are, so a lock left behind by a process that is gone
+                    // can be recognised as gone. This matters because the gate exits with `process::exit`,
+                    // which runs no destructors: without the pid, the first guard to write a log left a
+                    // lock behind and every later decision in that project was refused.
+                    use std::io::Write;
+                    let _ = write!(f, "{}", std::process::id());
+                    return Some(LogLock { path });
+                }
                 Err(_) => {
-                    // Somebody else is writing. If their lock is old enough to be a crash rather than a
-                    // write in progress, take it over.
-                    if let Ok(meta) = std::fs::metadata(&path) {
-                        if let Ok(age) = meta.modified().and_then(|t| t.elapsed().map_err(|_| std::io::Error::other("clock"))) {
-                            if age.as_secs() > 10 {
-                                let _ = std::fs::remove_file(&path);
-                                continue;
-                            }
-                        }
+                    if holder_is_gone(&path) {
+                        let _ = std::fs::remove_file(&path);
+                        continue;
                     }
                     std::thread::sleep(std::time::Duration::from_millis(20));
                 }
@@ -286,6 +288,29 @@ impl LogLock {
         }
         None
     }
+}
+
+/// Whether the lock was left behind by a process that no longer exists, or is old enough to be one.
+///
+/// A lock that is never released is worse than no lock: it refuses everything, forever, and the person
+/// turns the gate off. So the holder is asked whether it is still there.
+fn holder_is_gone(path: &str) -> bool {
+    if let Ok(text) = std::fs::read_to_string(path) {
+        if let Ok(pid) = text.trim().parse::<u32>() {
+            if pid != std::process::id() {
+                return !std::path::Path::new(&format!("/proc/{pid}")).exists();
+            }
+        }
+    }
+    if let Ok(meta) = std::fs::metadata(path) {
+        if let Ok(age) = meta
+            .modified()
+            .and_then(|t| t.elapsed().map_err(|_| std::io::Error::other("clock")))
+        {
+            return age.as_secs() > 10;
+        }
+    }
+    false
 }
 
 impl Drop for LogLock {

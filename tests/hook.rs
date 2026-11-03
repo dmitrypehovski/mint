@@ -129,6 +129,22 @@ fn the_first_call_in_a_project_creates_its_own_directory() {
 }
 
 #[test]
+fn a_lock_left_behind_by_a_dead_process_does_not_block_everything() {
+    // The gate exits with `process::exit`, which runs no destructors, so a lock file can outlive its
+    // holder. A lock that is never released refuses every command forever, and the person switches the gate
+    // off — worse than the race it was added to fix. A pid that is not running is not a holder.
+    let d = dir("stalelock");
+    std::fs::write(format!("{d}/guard.json.lock"), "999999999").unwrap();
+    let (out, code) = hook(&payload("git status --short", &d), &d);
+    assert_eq!(code, 0);
+    assert_eq!(out.trim(), "{}", "a dead holder must not hold the lock: {out}");
+    assert!(
+        !std::path::Path::new(&format!("{d}/guard.json.lock")).exists(),
+        "and the lock it took is released"
+    );
+}
+
+#[test]
 fn decisions_taken_at_the_same_time_all_reach_the_log() {
     // The log is rewritten in full to append to it, so two hooks that read before either writes lose one
     // decision — and the lost one is invisible: the command was still refused, and nothing says anybody
